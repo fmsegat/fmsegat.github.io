@@ -184,8 +184,14 @@
                     <input type="number" id="vsf">
                 </div>
                 <div class="input-field">
-                    <label for="vae">VAE (ml/m²) (opcional)</label>
-                    <input type="text" id="vae">
+                    <label for="vae">VAE (opcional)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="vae" placeholder="valor">
+                        <select id="vaeTipo" style="flex: 1;">
+                            <option value="indexado">ml/m²</option>
+                            <option value="bruto">ml</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="input-field">
                     <label for="metodoSelect">Método:</label>
@@ -232,7 +238,8 @@
             const altura = +document.getElementById('altura').value;
             const vdf_in = document.getElementById('vdf').value;
             const vsf_in = document.getElementById('vsf').value;
-            const vae = document.getElementById('vae').value || "N/A";
+            const vaeInput = document.getElementById('vae').value;
+            const vaeTipo = document.getElementById('vaeTipo').value;
             const metodoSel = document.getElementById('metodoSelect').value;
 
             const sc = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
@@ -255,9 +262,10 @@
             const fe = ((vdf - vsf) / vdf) * 100;
             const ve = vdf - vsf;
             const ic = (fc * ve) / 1000;
-            const imve = (0.8*(1.04 * (Math.pow((ddve / 10 + septo / 10 + parede / 10), 3) - Math.pow((ddve / 10), 3)))+0.6) / sc;
+            const imve = (0.8 * (1.04 * (Math.pow((ddve / 10 + septo / 10 + parede / 10), 3) - Math.pow((ddve / 10), 3))) + 0.6) / sc;
             const er = (2 * parede) / ddve;
             const metodoTexto = metodo !== "Teichholz" ? `(${metodo})` : "(Teichholz)";
+            const vae = vaeInput ? `${vaeInput} ${vaeTipo === "bruto" ? "ml" : "ml/m²"}` : "N/A";
 
             const dados = [
                 ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1), "%"],
@@ -269,7 +277,7 @@
                 ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2), ""],
                 ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Dubois)", sc.toFixed(2), "m²"],
                 ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1), "kg/m²"],
-                ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vae, "ml/m²"]
+                ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vae, ""]
             ];
 
             tabela.innerHTML = '';
@@ -282,6 +290,7 @@
                 });
                 tabela.appendChild(tr);
             });
+
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
@@ -319,6 +328,7 @@
         function limparFormulario() {
             ecoContainer.querySelectorAll('input').forEach(input => input.value = '');
             ecoContainer.querySelector('#metodoSelect').value = '';
+            ecoContainer.querySelector('#vaeTipo').value = 'indexado';
             tabela.innerHTML = '';
             document.getElementById("alerta").style.display = "none";
         }
