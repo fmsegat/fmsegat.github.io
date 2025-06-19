@@ -65,6 +65,10 @@
             height: calc(1.5em + 10px);
         }
 
+        #vaeTipo {
+            width: fit-content;
+        }
+
         .actions {
             display: flex;
             justify-content: center;
@@ -176,23 +180,24 @@
                     <input type="number" id="altura">
                 </div>
                 <div class="input-field">
-                    <label for="vdf">VDF (ml) (opcional)</label>
-                    <input type="number" id="vdf">
-                </div>
-                <div class="input-field">
-                    <label for="vsf">VSF (ml) (opcional)</label>
-                    <input type="number" id="vsf">
-                </div>
-                <div class="input-field">
-                    <label for="vae">VAE (opcional)</label>
+                    <label for="vae">Volume do Átrio Esquerdo </label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" id="vae" placeholder="valor">
+                        <input type="text" id="vae">
                         <select id="vaeTipo" style="flex: 1;">
-                            <option value="indexado">ml/m²</option>
-                            <option value="bruto">ml</option>
+                            <option selected="selected" value="ml/m²">ml/m²</option>
+                            <option value="ml">ml</option>
                         </select>
                     </div>
                 </div>
+                <div class="input-field">
+                    <label for="vdf">Volume Diastólico Final do VE (ml) (opcional)</label>
+                    <input type="number" id="vdf">
+                </div>
+                <div class="input-field">
+                    <label for="vsf">Volume Sistólico Final do VE (ml) (opcional)</label>
+                    <input type="number" id="vsf">
+                </div>
+               
                 <div class="input-field">
                     <label for="metodoSelect">Método:</label>
                     <select id="metodoSelect">
@@ -226,21 +231,21 @@
         calcularBtn.addEventListener('click', calcular);
 
         function calcular() {
-            const aorta = +document.getElementById('aorta').value;
-            const atrio = +document.getElementById('atrio').value;
-            const ventriculo = +document.getElementById('ventriculo').value;
-            const ddve = +document.getElementById('ddve').value;
-            const dsve = +document.getElementById('dsve').value;
-            const septo = +document.getElementById('septo').value;
-            const parede = +document.getElementById('parede').value;
-            const fc = +document.getElementById('fc').value;
-            const peso = +document.getElementById('peso').value;
-            const altura = +document.getElementById('altura').value;
-            const vdf_in = document.getElementById('vdf').value;
-            const vsf_in = document.getElementById('vsf').value;
-            const vaeInput = document.getElementById('vae').value;
-            const vaeTipo = document.getElementById('vaeTipo').value;
-            const metodoSel = document.getElementById('metodoSelect').value;
+            const aorta = +document.getElementById('aorta').value.replace(',', '.');
+            const atrio = +document.getElementById('atrio').value.replace(',', '.');
+            const ventriculo = +document.getElementById('ventriculo').value.replace(',', '.');
+            const ddve = +document.getElementById('ddve').value.replace(',', '.');
+            const dsve = +document.getElementById('dsve').value.replace(',', '.');
+            const septo = +document.getElementById('septo').value.replace(',', '.');
+            const parede = +document.getElementById('parede').value.replace(',', '.');
+            const fc = +document.getElementById('fc').value.replace(',', '.');
+            const peso = +document.getElementById('peso').value.replace(',', '.');
+            const altura = +document.getElementById('altura').value.replace(',', '.');
+            const vdf_in = document.getElementById('vdf').value.replace(',', '.');
+            const vsf_in = document.getElementById('vsf').value.replace(',', '.');
+            const vaeInput = document.getElementById('vae').value.replace(',', '.');
+            const vaeTipo = document.getElementById('vaeTipo').value.replace(',', '.');
+            const metodoSel = document.getElementById('metodoSelect').value.replace(',', '.');
 
             const sc = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
             const imc = peso / Math.pow((altura / 100), 2);
@@ -265,19 +270,33 @@
             const imve = (0.8 * (1.04 * (Math.pow((ddve / 10 + septo / 10 + parede / 10), 3) - Math.pow((ddve / 10), 3))) + 0.6) / sc;
             const er = (2 * parede) / ddve;
             const metodoTexto = metodo !== "Teichholz" ? `(${metodo})` : "(Teichholz)";
-            const vae = vaeInput ? `${vaeInput} ${vaeTipo === "bruto" ? "ml" : "ml/m²"}` : "N/A";
+            // const vae = vaeInput ? `${vaeInput} ${vaeTipo === "bruto" ? "ml" : "ml/m²"}` : "N/A";
+
+            let vae = vaeInput;
+            let alt_vae = 0;
+            let alt_vaeTipo = "";
+            if (vaeTipo !== "ml") {
+                alt_vae = (vae*sc).toFixed(1).replace('.', ',');
+                alt_vaeTipo = "ml";
+            } else {
+                alt_vae = (vae/sc).toFixed(1).replace('.', ',');
+                alt_vaeTipo = "ml/m²";
+            }
+            vae = vae.replace('.', ',');
+            const vae_str = `${vae} | ${alt_vae}`
+            const vae_tipo_str = `${vaeTipo} | ${alt_vaeTipo}`
 
             const dados = [
-                ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1), "%"],
-                ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1), "mL/m²"],
-                ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1), "mL/m²"],
-                ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(2), "mL/m²"],
-                ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(2), "L/min/m²"],
-                ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1), "g/m²"],
-                ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2), ""],
-                ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Dubois)", sc.toFixed(2), "m²"],
-                ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1), "kg/m²"],
-                ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vae, ""]
+                ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1).replace('.', ','), "%"],
+                ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "mL/m²"],
+                ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "mL/m²"],
+                ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "mL/m²"],
+                ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
+                ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
+                ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(1).replace('.', ','), ""],
+                ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Dubois)", sc.toFixed(1).replace('.', ','), "m²"],
+                ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
+                ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vae_str, vae_tipo_str]
             ];
 
             tabela.innerHTML = '';
