@@ -190,7 +190,7 @@
                 <div class="input-field">
                     <label for="metodoSelect">Método:</label>
                     <select id="metodoSelect">
-                        <option value="">Teicholz</option>
+                        <option value="">Teichholz</option>
                         <option value="AFI">AFI</option>
                         <option value="Simpson">Simpson</option>
                         <option value="AutoEF">AutoEF</option>
@@ -242,7 +242,7 @@
                 return ((7.0 / (2.4 + (d / 10))) * Math.pow((d / 10), 3)) / sc;
             }
 
-            let vdf, vsf, metodo = "Teicholz";
+            let vdf, vsf, metodo = "Teichholz";
             if (!vdf_in || !vsf_in) {
                 vdf = teichholz(ddve);
                 vsf = teichholz(dsve);
@@ -257,7 +257,7 @@
             const ic = (fc * ve) / 1000;
             const imve = (0.8*(1.04 * (Math.pow((ddve / 10 + septo / 10 + parede / 10), 3) - Math.pow((ddve / 10), 3)))+0.6) / sc;
             const er = (2 * parede) / ddve;
-            const metodoTexto = metodo !== "Teicholz" ? `(${metodo})` : "(Teicholz)";
+            const metodoTexto = metodo !== "Teichholz" ? `(${metodo})` : "(Teichholz)";
 
             const dados = [
                 ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1), "%"],
