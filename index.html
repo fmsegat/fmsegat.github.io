@@ -425,87 +425,108 @@
     }
     /* ====== FIM BLOCO ALTURA ====== */
 
-    function calcular() {
-      const aorta = +document.getElementById('aorta').value.replace(',', '.');
-      const atrio = +document.getElementById('atrio').value.replace(',', '.');
-      const ventriculo = +document.getElementById('ventriculo').value.replace(',', '.');
-      const ddve = +document.getElementById('ddve').value.replace(',', '.');
-      const dsve = +document.getElementById('dsve').value.replace(',', '.');
-      const septo = +document.getElementById('septo').value.replace(',', '.');
-      const parede = +document.getElementById('parede').value.replace(',', '.');
-      const fc = +document.getElementById('fc').value.replace(',', '.');
-      const peso = +document.getElementById('peso').value.replace(',', '.');
-      const altura = +document.getElementById('altura').value.replace(',', '.');
-      const vdf_in = document.getElementById('vdf').value.replace(',', '.');
-      const vsf_in = document.getElementById('vsf').value.replace(',', '.');
-      const vaeInput = document.getElementById('vae').value.replace(',', '.');
-      const vaeTipo = document.getElementById('vaeTipo').value.replace(',', '.');
-      const metodoSel = document.getElementById('metodoSelect').value.replace(',', '.');
+   function calcular() {
+  // 1) Se a tabela "VAE indexado à altura" estiver apresentada, apague/oculte
+  (function limparVAEporAltura() {
+    const tabelaAltura  = document.getElementById('resultadoAltura');
+    const tituloAltura  = document.getElementById('tituloAltura');
+    const secaoAltura   = document.getElementById('alturaSection');
 
-      const sc = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
-      const imc = peso / Math.pow((altura / 100), 2);
-
-      function teichholz(d) {
-        return ((7.0 / (2.4 + (d / 10))) * Math.pow((d / 10), 3)) / sc;
-      }
-
-      let vdf, vsf, metodo = "Teichholz";
-      if (!vdf_in || !vsf_in) {
-        vdf = teichholz(ddve);
-        vsf = teichholz(dsve);
-      } else {
-        vdf = +vdf_in / sc;
-        vsf = +vsf_in / sc;
-        metodo = metodoSel || "Manual";
-      }
-
-      const fe = ((vdf - vsf) / vdf) * 100;
-      const ve = vdf - vsf;
-      const ic = (fc * ve) / 1000;
-      const imve = (0.8 * (1.04 * (Math.pow((ddve / 10 + septo / 10 + parede / 10), 3) - Math.pow((ddve / 10), 3))) + 0.6) / sc;
-      const er = (2 * parede) / ddve;
-      const metodoTexto = metodo !== "Teichholz" ? `(${metodo})` : "(Teichholz)";
-
-      let vae = vaeInput;
-      let alt_vae = 0;
-      let alt_vaeTipo = "";
-      if (vaeTipo !== "ml") {
-        alt_vae = (vae*sc).toFixed(1).replace('.', ',');
-        alt_vaeTipo = "ml";
-      } else {
-        alt_vae = (vae/sc).toFixed(1).replace('.', ',');
-        alt_vaeTipo = "ml/m²";
-      }
-      vae = (vae || "").toString().replace('.', ',');
-      const vae_str = `${vae} | ${alt_vae}`
-      const vae_tipo_str = `${(vaeTipo || "ml/m²")} | ${alt_vaeTipo}`
-
-      const dados = [
-        ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1).replace('.', ','), "%"],
-        ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
-        ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
-        ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2).replace('.', ','), ""],
-        ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Dubois)", sc.toFixed(2).replace('.', ','), "m²"],
-        ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
-        ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vae_str, vae_tipo_str]
-      ];
-
-      tabela.innerHTML = '';
-      dados.forEach(linha => {
-        const tr = document.createElement('tr');
-        linha.forEach(cel => {
-          const td = document.createElement('td');
-          td.textContent = cel;
-          tr.appendChild(td);
-        });
-        tabela.appendChild(tr);
-      });
-
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    if (tabelaAltura) {
+      tabelaAltura.innerHTML = '';
+      tabelaAltura.classList.add('hidden');
     }
+    if (tituloAltura) {
+      tituloAltura.classList.add('hidden');
+    }
+    if (secaoAltura) {
+      secaoAltura.classList.add('hidden');
+    }
+  })();
+
+  // 2) ---- resto do seu calcular original, inalterado ----
+  const aorta = +document.getElementById('aorta').value.replace(',', '.');
+  const atrio = +document.getElementById('atrio').value.replace(',', '.');
+  const ventriculo = +document.getElementById('ventriculo').value.replace(',', '.');
+  const ddve = +document.getElementById('ddve').value.replace(',', '.');
+  const dsve = +document.getElementById('dsve').value.replace(',', '.');
+  const septo = +document.getElementById('septo').value.replace(',', '.');
+  const parede = +document.getElementById('parede').value.replace(',', '.');
+  const fc = +document.getElementById('fc').value.replace(',', '.');
+  const peso = +document.getElementById('peso').value.replace(',', '.');
+  const altura = +document.getElementById('altura').value.replace(',', '.');
+  const vdf_in = document.getElementById('vdf').value.replace(',', '.');
+  const vsf_in = document.getElementById('vsf').value.replace(',', '.');
+  const vaeInput = document.getElementById('vae').value.replace(',', '.');
+  const vaeTipo = document.getElementById('vaeTipo').value.replace(',', '.');
+  const metodoSel = document.getElementById('metodoSelect').value.replace(',', '.');
+
+  const sc = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
+  const imc = peso / Math.pow((altura / 100), 2);
+
+  function teichholz(d) {
+    return ((7.0 / (2.4 + (d / 10))) * Math.pow((d / 10), 3)) / sc;
+  }
+
+  let vdf, vsf, metodo = "Teichholz";
+  if (!vdf_in || !vsf_in) {
+    vdf = teichholz(ddve);
+    vsf = teichholz(dsve);
+  } else {
+    vdf = +vdf_in / sc;
+    vsf = +vsf_in / sc;
+    metodo = metodoSel || "Manual";
+  }
+
+  const fe = ((vdf - vsf) / vdf) * 100;
+  const ve = vdf - vsf;
+  const ic = (fc * ve) / 1000;
+  const imve = (0.8 * (1.04 * (Math.pow((ddve / 10 + septo / 10 + parede / 10), 3) - Math.pow((ddve / 10), 3))) + 0.6) / sc;
+  const er = (2 * parede) / ddve;
+  const metodoTexto = metodo !== "Teichholz" ? `(${metodo})` : "(Teichholz)";
+
+  let vae = vaeInput;
+  let alt_vae = 0;
+  let alt_vaeTipo = "";
+  if (vaeTipo !== "ml") {
+    alt_vae = (vae*sc).toFixed(1).replace('.', ',');
+    alt_vaeTipo = "ml";
+  } else {
+    alt_vae = (vae/sc).toFixed(1).replace('.', ',');
+    alt_vaeTipo = "ml/m²";
+  }
+  vae = (vae || "").toString().replace('.', ',');
+  const vae_str = `${vae} | ${alt_vae}`
+  const vae_tipo_str = `${(vaeTipo || "ml/m²")} | ${alt_vaeTipo}`
+
+  const dados = [
+    ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1).replace('.', ','), "%"],
+    ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "ml/m²"],
+    ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "ml/m²"],
+    ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "ml/m²"],
+    ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
+    ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
+    ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2).replace('.', ','), ""],
+    ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Dubois)", sc.toFixed(2).replace('.', ','), "m²"],
+    ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
+    ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vae_str, vae_tipo_str]
+  ];
+
+  const tabela = document.getElementById('resultado');
+  tabela.innerHTML = '';
+  dados.forEach(linha => {
+    const tr = document.createElement('tr');
+    linha.forEach(cel => {
+      const td = document.createElement('td');
+      td.textContent = cel;
+      tr.appendChild(td);
+    });
+    tabela.appendChild(tr);
+  });
+
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
 
     function copiarTabela() {
       let cor = getComputedStyle(document.documentElement)
