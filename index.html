@@ -172,6 +172,20 @@
       
         .muted{ color: var(--muted) }
         .hidden{ display:none }
+
+        #resultadoAltura {
+  margin-top: 40px;
+  margin-bottom: auto;   /* espaço maior em relação à tabela anterior */
+}
+#tituloAltura {
+  text-align: center;
+  font-size: 12pt;
+  font-weight: 700;
+  font-weight: bold;
+  color: black;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
       </style>
       
 </head>
@@ -277,20 +291,123 @@
 
     <div class="actions">
         <button type="button">
-            <a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a>
+          <a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a>
         </button>
         <button type="button">
-            <a href="https://fmsegat.github.io/teer.html">Checklist TEER</a>
+          <a href="https://fmsegat.github.io/teer.html">Checklist TEER</a>
         </button>
-    </div>
-
-    <table id="resultado"></table>
+        <!-- NOVO BOTÃO -->
+        <button type="button" id="calcAlturaBtn" class="btn-info">
+          VAE indexado à altura (IMC&gt;30)
+        </button>
+      </div>
+      
+      <!-- ...sua tabela principal... -->
+      <table id="resultado"></table>
+      
+      <!-- NOVA TABELA SEPARADA -->
+      <h2 id="tituloAltura" class="hidden">
+        Avaliação do volume atrial em obesos (apenas para consulta/referência)
+      </h2>
+      <table id="resultadoAltura" class="hidden"></table>
+      <table id="resultadoAltura" class="hidden"></table>
 
     <script>
+        function getCssVar(name, el = document.documentElement) {
+  return getComputedStyle(el).getPropertyValue(name).trim();
+}
+function setCssVar(name, value, el = document.documentElement) {
+  el.style.setProperty(name, value);
+}
         const ecoContainer = document.getElementById('ecoContainer');
         const tabela = document.getElementById('resultado');
         const calcularBtn = document.getElementById('calcularBtn');
+        const calcAlturaBtn = document.getElementById('calcAlturaBtn');
+const tabelaAltura  = document.getElementById('resultadoAltura');
 
+calcAlturaBtn.addEventListener('click', calcularIndexAltura);
+
+function calcularIndexAltura() {
+  const alerta   = document.getElementById('alerta');
+
+  // Ler campos necessários
+  const peso     = +document.getElementById('peso').value.replace(',', '.');
+  const alturaCm = +document.getElementById('altura').value.replace(',', '.');
+  const vaeStr   = document.getElementById('vae').value.replace(',', '.');
+  const vaeTipo  = document.getElementById('vaeTipo').value;
+
+  // Validações básicas
+  if (!peso || !alturaCm) {
+    mostraAlerta("Informe peso e altura.", "red");
+    return;
+  }
+  const alturaM = alturaCm / 100;
+  const sc  = 0.007184 * Math.pow(peso, 0.425) * Math.pow(alturaCm, 0.725); // DuBois (altura em cm)
+  const imc = peso / Math.pow(alturaM, 2);
+
+  if (!vaeStr) {
+    mostraAlerta("Informe o volume do átrio esquerdo (VAE).", "red");
+    return;
+  }
+  const vaeNum = +vaeStr;
+  if (Number.isNaN(vaeNum)) {
+    mostraAlerta("VAE inválido.", "red");
+    return;
+  }
+
+  // Converter VAE para ml absoluto, se vier em ml/m²
+  const vae_ml = (vaeTipo === "ml/m²") ? vaeNum * sc : vaeNum;
+
+  // Recomendado para obesos (IMC>30). Se não for, informa e interrompe.
+  if (imc <= 30) {
+    mostraAlerta(`IMC = ${imc.toFixed(1).replace('.', ',')} (≤ 30). Este índice é recomendado para obesos.`, "orange");
+    // Se preferir calcular mesmo assim, remova o 'return' abaixo.
+    return;
+  }
+
+  // Índices por altura
+  const idx_h    = vae_ml / alturaM;                 // ml/m
+  const idx_h27  = vae_ml / Math.pow(alturaM, 2.7);  // ml/m^2.7
+
+  // Tabela separada com valores obtidos e referência
+  // Observação: muitos centros usam LAV/altura^2.7; cortes usuais relatados ~15–16 ml/m^2.7.
+  // Ajuste segundo seu protocolo local.
+  const linhas = [
+    ["Parâmetro", "Valor", "Unidade / Referência"],
+    ["VAE (absoluto)", vae_ml.toFixed(1).replace('.', ','), "♂ < 58 ml  ♀ < 52 ml"],
+    ["VAE/altura", idx_h.toFixed(1).replace('.', ','), "Normal: < 29 ml/m"],
+    ["VAE/altura²·⁷", idx_h27.toFixed(1).replace('.', ','), "Normal: < 16 ml/m²·⁷"],
+  ];
+
+  renderTabelaAltura(linhas);
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+  function renderTabelaAltura(rows) {
+  tabelaAltura.innerHTML = "";
+  tabelaAltura.classList.remove("hidden");
+
+  const tituloAltura = document.getElementById('tituloAltura');
+  tituloAltura.classList.remove("hidden");
+
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    r.forEach((c, j) => {
+      const cell = (i === 0) ? document.createElement('th') : document.createElement('td');
+      cell.textContent = c;
+      tr.appendChild(cell);
+    });
+    tabelaAltura.appendChild(tr);
+  });
+
+  }
+
+  function mostraAlerta(msg, cor = "green") {
+    alerta.textContent = msg;
+    alerta.style.display = "block";
+    alerta.style.color = (cor === "orange") ? "#f59e0b" : cor;
+    setTimeout(() => alerta.style.display = "none", 2500);
+  }
+}
         calcularBtn.addEventListener('click', calcular);
 
         function calcular() {
@@ -346,8 +463,8 @@
                 alt_vaeTipo = "ml/m²";
             }
             vae = vae.replace('.', ',');
-            const vae_str = `${ vae} | ${ alt_vae}`
-            const vae_tipo_str = `${ vaeTipo} | ${ alt_vaeTipo}`
+            const vae_str = `${vae} | ${alt_vae}`
+            const vae_tipo_str = `${vaeTipo} | ${alt_vaeTipo}`
 
             const dados = [
                 ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1).replace('.', ','), "%"],
@@ -414,12 +531,31 @@
         }
 
         function limparFormulario() {
-            ecoContainer.querySelectorAll('input').forEach(input => input.value = '');
-            ecoContainer.querySelector('#metodoSelect').value = '';
-            ecoContainer.querySelector('#vaeTipo').value = 'ml/m²';
-            tabela.innerHTML = '';
-            document.getElementById("alerta").style.display = "none";
-        }
+  // limpar inputs e selects
+  ecoContainer.querySelectorAll('input').forEach(input => input.value = '');
+  ecoContainer.querySelector('#metodoSelect').value = '';
+  ecoContainer.querySelector('#vaeTipo').value = 'ml/m²';
+
+  // limpar tabela principal
+  tabela.innerHTML = '';
+
+// limpar e ocultar a tabela e o título de índice por altura
+if (tabelaAltura) {
+  tabelaAltura.innerHTML = '';
+  tabelaAltura.classList.add('hidden');
+}
+const tituloAltura = document.getElementById('tituloAltura');
+if (tituloAltura) {
+  tituloAltura.classList.add('hidden');
+}
+
+  // esconder alerta
+  const alerta = document.getElementById("alerta");
+  alerta.style.display = "none";
+
+  // opcional: rola para o topo do container
+  // ecoContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
         // Avançar para próximo input ao pressionar Enter
         const formElements = ecoContainer.querySelectorAll('input, select');
