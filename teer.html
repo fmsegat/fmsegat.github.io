@@ -22,7 +22,7 @@
   header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg, rgba(11,16,32,0.95), rgba(11,16,32,0.75));backdrop-filter: blur(6px);}
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:12px 8px;border-bottom:1px solid var(--border)}
   h1{font-size:20px;line-height:1.2;margin:0;font-weight:700}
-  .btn{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
+  .btn{appearance:none;border:1px solid var(--border);background:#61addb;color:black;padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
   .btn:active{transform:scale(.98)}
   .btn.primary{background:var(--accent);border-color:transparent;color:#0a0f20}
   .grid{display:grid;gap:12px}
@@ -39,7 +39,12 @@
   .chip[data-v="ideal"]{color:var(--good)}
   .chip[data-v="desafiador"]{color:var(--warn)}
   .chip[data-v="desaconselhavel"]{color:var(--bad)}
-  .chip.active{background:rgba(255,255,255,0.06)}
+
+  .chip.active[data-v="ideal"]{background:var(--good);color:white}
+  .chip.active[data-v="desafiador"]{background:var(--warn);color:white}
+  .chip.active[data-v="desaconselhavel"]{background:var(--bad);color:white}
+
+
   .help{font-size:12px;color:var(--muted)}
   .inline{display:flex;gap:8px;flex-wrap:wrap}
   .twocol{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
