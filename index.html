@@ -6,124 +6,173 @@
     <title>Tabela de Medidas e Cálculos Ecocardiográficos</title>
     <link rel="icon" type="image/x-icon" href="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/favicon.png">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12pt;
-            margin: 20px;
-            background-color: #f0f0f0;
-            position: relative;
+        :root{
+          --bg:#bdbfc4;        /* slate-900 */
+          --panel:#111827;     /* gray-900 */
+          --card:#1f2937;      /* gray-800 */
+          --muted:#94a3b8;     /* slate-400 */
+          --text:#ffffff;      /* slate-50 */
+          --accent:#22c55e;    /* green-500 */
+          --warn:#f59e0b;      /* amber-500 */
+          --danger:#ef4444;    /* red-500 */
+          --info:#3b82f6;      /* blue-500 */
+          --ink:#ffffff;       /* deep panel for inputs */
+          --text-input:#000000;      /* slate-50 */
+          --border:rgba(148,163,184,.25);
+          --border-soft:rgba(148,163,184,.12);
         }
-
-        .logo {
-            width: 25%;
-            height: auto;
+        a {
+            text-decoration: none;
+            color: #ffff;
         }
-
-        h2 {
-            text-align: center;
-            margin-top: 2%;
+        html, body { height:100% }
+      
+        body{
+          margin:20px;
+          font-family: Arial;
+          font-size: 12pt;
+          color: var(--text);
+          background: var(--bg);
         }
-
-        #ecoContainer {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
+      
+        .logo{ width:25%; height:auto }
+      
+        h1{
+          text-align:center;
+          margin-top:0%;
+          color: black;
+          letter-spacing:.2px;
         }
-
-        .input-columns {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            margin-top: 20px;
+      
+        /* Container (card style) */
+        #ecoContainer{
+          width:100%;
+          max-width:800px;
+          margin:0 auto;
+          background: rgba(31,41,55,.7);
+          backdrop-filter: blur(6px);
+          border:1px solid var(--border-soft);
+          border-radius:18px;
+          padding:16px;
         }
-
-        .input-column {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+      
+        /* Columns of inputs */
+        .input-columns{
+          display:flex;
+          gap:14px;
+          justify-content:center;
+          margin-top:14px;
+          flex-direction:column;
         }
-
-        .input-field {
-            display: flex;
-            flex-direction: column;
+        @media(min-width:700px){
+          .input-columns{ flex-direction:row }
         }
-
-        .input-field label {
-            margin-bottom: 4px;
-            font-weight: bold;
+      
+        .input-column{
+          flex:1;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
         }
-
-        input,
-        select {
-            padding: 5px;
-            font-size: 12pt;
-            width: 100%;
-            box-sizing: border-box;
+      
+        .input-field{ display:flex; flex-direction:column }
+        .input-field label{
+          margin-bottom:6px;
+          font-size:14px;
+          color: var(--muted);
+          font-weight:600;
         }
-
-        select {
-            height: calc(1.5em + 10px);
+      
+        input, select, textarea{
+          padding:10px 12px;
+          font-size: 12pt;
+          width:100%;
+          box-sizing:border-box;
+          color: var(--text-input);
+          background: var(--ink);
+          border:1px solid var(--border);
+          border-radius:12px;
+          outline:none;
         }
-
-        #vaeTipo {
-            width: fit-content;
+        input[type="number"]{ appearance:textfield }
+        select{ height: fit-content }
+        #vaeTipo{ width: fit-content }
+      
+        /* Actions / buttons */
+        .actions{
+          display:flex;
+          justify-content:center;
+          flex-wrap:wrap;
+          margin-top:16px;
+          gap:10px;
         }
-
-        .actions {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            gap: 10px;
+      
+        button{
+          padding:12px 14px;
+          font-size:12pt;
+          cursor:pointer;
+          border:0;
+          border-radius:14px;
+          background: var(--card);
+          color: var(--text);
+          font-weight:700;
+          transition: transform .02s ease-in-out, background .2s ease;
         }
-
-        button {
-            padding: 8px 20px;
-            font-size: 12pt;
-            cursor: pointer;
+        button:active{ transform: scale(.98) }
+        .btn-primary{ background: var(--info) }
+        .btn-success{ background: var(--accent) }
+        .btn-warning{ background: var(--warn) }
+        .btn-danger{ background: var(--danger) }
+      
+        /* Inline alert */
+        #alerta{
+          text-align:center;
+          margin-top:10px;
+          font-weight:700;
+          color: var(--accent);
+          display:none;
         }
-
-        #alerta {
-            text-align: center;
-            margin-top: 10px;
-            font-weight: bold;
-            color: green;
-            display: none;
+      
+        /* Table (card look) */
+        table{
+          width:100%;
+          border-collapse:collapse;
+          margin-top:16px;
+          font-size: 8pt;
+          background: rgba(31,41,55,.55);
+          border:1px solid var(--border-soft);
+          border-radius:14px;
+          overflow:hidden;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 8pt;
+        thead th{
+          color: var(--muted);
+          font-weight:700;
+          background: rgba(31,41,55,.75);
+          border-bottom:1px solid var(--border-soft);
         }
-
-        table tr:first-child {
-            border-top: 4px double black;
+        tr + tr td{ border-top:1px solid var(--border-soft) }
+      
+        td, th{
+          padding:4px;
+          text-align:center;
+          border:none;
+          color: var(--text);
         }
-
-        table tr:last-child {
-            border-bottom: 2px solid black;
+      
+        /* Keep original top/bottom accents but styled to palette */
+        table tr:first-child{ border-top: 0 }
+        table tr:last-child{ border-bottom: 0 }
+      
+        #resultado td{
+          text-align:left;
+          padding-left:12px;
+          padding-right:16px;
         }
-
-        td,
-        th {
-            padding: 4px;
-            text-align: center;
-            border: none;
-        }
-
-        #resultado td {
-            text-align: left;
-            padding-left: 8px;
-            padding-right: 16px;
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
+      
+        .muted{ color: var(--muted) }
+        .hidden{ display:none }
+      </style>
+      
 </head>
 
 <body>
@@ -134,7 +183,7 @@
 
     
 
-    <h2>Tabela de Medidas e Cálculos Ecocardiográficos</h2>
+    <h1>Tabela de Medidas e Cálculos Ecocardiográficos</h1>
 
     <div id="ecoContainer">
         <div class="input-columns">
@@ -220,16 +269,18 @@
             <button type="button" onclick="copiarTabela()">Copiar</button>
             <button type="button" onclick="limparFormulario()">Limpar</button>
         </div>
-        <div class="actions">
-            <button type="button">
-                <a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a>
-            </button>
-            <button type="button">
-                <a href="https://fmsegat.github.io/teer.html">Checklist TEER</a>
-            </button>
-        </div>
+
 
         <div id="alerta"></div>
+    </div>
+
+    <div class="actions">
+        <button type="button">
+            <a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a>
+        </button>
+        <button type="button">
+            <a href="https://fmsegat.github.io/teer.html">Checklist TEER</a>
+        </button>
     </div>
 
     <table id="resultado"></table>
@@ -325,6 +376,11 @@
         }
 
         function copiarTabela() {
+            let cor = getComputedStyle(document.documentElement)
+               .getPropertyValue('--text')
+               .trim(); 
+            // Mudar a variável global (--bg) para vermelho
+            document.documentElement.style.setProperty('--text', 'black');
             const alerta = document.getElementById("alerta");
 
             if (!tabela.innerText.trim()) {
@@ -353,6 +409,7 @@
             alerta.style.display = "block";
             setTimeout(() => alerta.style.display = "none", 2000);
             selection.removeAllRanges();
+            document.documentElement.style.setProperty('--text', cor);
         }
 
         function limparFormulario() {
