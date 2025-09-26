@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checklist Ecocardiográfico – CMH (iPad)</title>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --panel:#111827;     /* gray-900 */
+      --card:#1f2937;      /* gray-800 */
+      --muted:#94a3b8;     /* slate-400 */
+      --text:#f8fafc;      /* slate-50 */
+      --accent:#22c55e;    /* green-500 */
+      --warn:#f59e0b;      /* amber-500 */
+      --danger:#ef4444;    /* red-500 */
+      --info:#3b82f6;      /* blue-500 */
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background:linear-gradient(180deg,var(--bg),#0b1220);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:20px;}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .title{font-weight:700;letter-spacing:.2px}
+    .title h1{font-size:clamp(20px,3vw,28px);margin:.2rem 0 .1rem}
+    .title p{margin:0;color:var(--muted);font-size:14px}
+    .bar{display:flex;flex-wrap:wrap;gap:8px}
+    button, .btn{border:0;border-radius:14px;padding:12px 14px;background:var(--card);color:var(--text);font-weight:600}
+    button:active{transform:scale(.98)}
+    .primary{background:var(--info)}
+    .success{background:var(--accent)}
+    .warning{background:var(--warn)}
+    .danger{background:var(--danger)}
+
+    .grid{display:grid;gap:14px}
+    @media(min-width:900px){.grid{grid-template-columns:1.1fr 1fr}}
+
+    .card{background:rgba(31,41,55,.7);backdrop-filter:blur(6px);border:1px solid rgba(148,163,184,.15);border-radius:18px;}
+    .card h2{margin:0;padding:14px 16px;border-bottom:1px solid rgba(148,163,184,.12);font-size:18px}
+    .card .content{padding:14px 16px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(min-width:700px){.row{grid-template-columns:repeat(3,1fr)}}
+    label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+    input[type="text"], input[type="number"], select, textarea{
+      width:100%;box-sizing:border-box;background:#0b1220;border:1px solid rgba(148,163,184,.25);color:var(--text);
+      border-radius:12px;padding:12px 12px;font-size:16px
+    }
+    input[type="number"]{appearance:textfield}
+    .switch{display:flex;align-items:center;gap:10px;margin:10px 0}
+    .switch input{width:22px;height:22px}
+
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.25);margin:4px 6px 0 0}
+    .section{margin-top:10px}
+
+    details{border-top:1px dashed rgba(148,163,184,.15)}
+    summary{list-style:none;cursor:pointer;padding:12px 4px;color:var(--muted)}
+    summary::-webkit-details-marker{display:none}
+
+    .status{
+      display:grid;gap:10px;margin-top:10px
+    }
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;font-weight:700}
+    .ok{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4)}
+    .maybe{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35)}
+    .risk{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35)}
+    .muted{color:var(--muted);font-weight:500}
+
+    .foot{color:var(--muted);font-size:12px;padding:8px 2px;margin-top:6px}
+    .hr{height:1px;background:rgba(148,163,184,.12);margin:10px 0}
+    .two{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+    .help{font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Checklist Ecocardiográfico – Cardiomiopatia Hipertrófica</h1>
+        <p>Preenchimento rápido e amigável ao toque (iPad). Baseado no checklist DIC‑SBC 2024.</p>
+      </div>
+      <div class="bar">
+        <button class="primary" id="btnImprimir">Imprimir / PDF</button>
+        <button class="success" id="btnExportar">Exportar JSON</button>
+        <label class="btn" for="inpImportar" title="Importar JSON salvo">Importar JSON</label>
+        <input id="inpImportar" type="file" accept="application/json" style="display:none" />
+        <button class="danger" id="btnLimpar">Limpar</button>
+      </div>
+    </header>
+
+    <!-- Identificação -->
+    <div class="card">
+      <h2>Identificação</h2>
+      <div class="content row">
+        <div>
+          <label>Paciente</label>
+          <input type="text" id="paciente" placeholder="Nome completo" />
+        </div>
+        <div>
+          <label>Data</label>
+          <input type="date" id="data" />
+        </div>
+        <div>
+          <label>Examinador</label>
+          <input type="text" id="examinador" placeholder="Responsável pelo estudo" />
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:14px">
+
+      <!-- Coluna 1 -->
+      <div class="card">
+        <h2>Pode ser Cardiomiopatia Hipertrófica (CMH)?</h2>
+        <div class="content">
+          <div class="two">
+            <div>
+              <label>Espessura máxima de parede do VE (mm)</label>
+              <input type="number" id="espMax" min="0" step="1" placeholder="ex: 18" />
+              <div class="help">Critérios: ≥15 mm; ou ≥13 mm com teste genético positivo/familiar de CMH.</div>
+            </div>
+            <div>
+              <label>Relação septo/parede</label>
+              <input type="number" id="relSP" min="0" step="0.1" placeholder="ex: 1.4" />
+              <div class="help">Assimetria sem causa aparente: ≥1,3 (normotensos) ou ≥1,5 (hipertensos).</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <label>Padrão de hipertrofia (múltiplas)</label>
+            <div>
+              <label class="pill"><input type="checkbox" data-k="padroes" value="Curvatura reversa"> Curvatura reversa</label>
+              <label class="pill"><input type="checkbox" data-k="padroes" value="Sigmóide"> Sigmóide</label>
+              <label class="pill"><input type="checkbox" data-k="padroes" value="Apical"> Apical</label>
+              <label class="pill"><input type="checkbox" data-k="padroes" value="Neutra"> Neutra</label>
+              <label class="pill"><input type="checkbox" data-k="padroes" value="Médio‑ventricular"> Médio‑ventricular</label>
+              <label class="pill"><input type="checkbox" data-k="padroes" value="Outra"> Outra</label>
+            </div>
+          </div>
+
+          <div class="two section">
+            <div class="switch"><input type="checkbox" id="aeAumentado"><span>Átrio esquerdo aumentado</span></div>
+            <div class="switch"><input type="checkbox" id="dd"><span>Disfunção diastólica</span></div>
+          </div>
+
+          <details class="section">
+            <summary>Opções adicionais</summary>
+            <div class="two">
+              <div class="switch"><input type="checkbox" id="obstrRepouso"><span>Obstrução dinâmica na VSVE <em>em repouso</em> (gradiente ≥30 mmHg)</span></div>
+              <div class="switch"><input type="checkbox" id="obstrManobras"><span>Obstrução dinâmica na VSVE com Valsalva/estresse (gradiente ≥30 mmHg)</span></div>
+              <div class="switch"><input type="checkbox" id="sam"><span>SAM (movimento anterior sistólico da mitral)</span></div>
+              <div class="switch"><input type="checkbox" id="obstrMedioApical"><span>Obstrução médio‑ventricular ou apical</span></div>
+              <div class="switch"><input type="checkbox" id="hipMaciça"><span>Hipertrofia maciça (≥28–30 mm)</span></div>
+              <div class="switch"><input type="checkbox" id="aneurismaApical"><span>Aneurisma apical</span></div>
+              <div class="switch"><input type="checkbox" id="feveReduzida"><span>FEVE (Simpson) &lt; 50%</span></div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Coluna 2 -->
+      <div class="card">
+        <h2>Classificação de Obstrução e Risco</h2>
+        <div class="content">
+          <div class="two">
+            <div>
+              <label>Gradiente VSVE repouso (mmHg)</label>
+              <input type="number" id="gradRepouso" min="0" step="1" placeholder="ex: 12" />
+            </div>
+            <div>
+              <label>Gradiente VSVE provocação (mmHg)</label>
+              <input type="number" id="gradProv" min="0" step="1" placeholder="ex: 60" />
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="section">
+            <label>Marcadores de risco de morte súbita (seleção clínica)</label>
+            <div class="two">
+              <div class="switch"><input type="checkbox" id="histParada"><span>Parada cardíaca/TV sustentada prévia</span></div>
+              <div class="switch"><input type="checkbox" id="sincope"><span>Síncope inexplicada (recente)</span></div>
+              <div class="switch"><input type="checkbox" id="famhist"><span>História familiar de MS por CMH</span></div>
+              <div class="switch"><input type="checkbox" id="nsvt"><span>TV não sustentada (Holter)</span></div>
+              <div class="switch"><input type="checkbox" id="fibrosis"><span>Fibrose extensa em RM (se disponível)</span></div>
+            </div>
+            <div class="help">Itens adicionais de risco incluídos acima no bloco “Pode ser CMH?”: hipertrofia maciça, aneurisma apical, FEVE &lt;50%.</div>
+          </div>
+
+          <div class="status">
+            <div id="statusCmh" class="badge maybe">CMH provável? <span class="muted">— aguarde critérios</span></div>
+            <div id="statusObs" class="badge ok">Obstrução (LVOT)? <span class="muted">— aguarde dados</span></div>
+            <div id="statusRisco" class="badge risk">Marcadores de risco de MS: <span class="muted">— 0</span></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>Observações</h2>
+      <div class="content">
+        <textarea id="obs" rows="4" placeholder="Anotações adicionais (ex.: segmentos com espessura &ge; 15 mm, padrão de DD, contexto clínico, medicamentos, etc.)"></textarea>
+        <div class="foot">Observação: a aplicação deste checklist não confirma o diagnóstico de CMH em todos os casos; fenocópias podem simular CMH.</div>
+      </div>
+    </div>
+
+    <div class="foot">© 2024 – Adaptado do Checklist Ecocardiográfico para diagnóstico de CMH – DIC‑SBC.</div>
+  </div>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id)
+  const key = 'cmh_checklist_v1'
+  const state = {
+    paciente:"", data:"", examinador:"",
+    espMax:null, relSP:null, padroes:[],
+    aeAumentado:false, dd:false, obstrRepouso:false, obstrManobras:false, sam:false, obstrMedioApical:false,
+    hipMaciça:false, aneurismaApical:false, feveReduzida:false,
+    gradRepouso:null, gradProv:null,
+    histParada:false, sincope:false, famhist:false, nsvt:false, fibrosis:false,
+    obs:""
+  }
+
+  // Bind fields
+  const fields = [
+    'paciente','data','examinador','espMax','relSP','aeAumentado','dd','obstrRepouso','obstrManobras','sam','obstrMedioApical','hipMaciça','aneurismaApical','feveReduzida','gradRepouso','gradProv','histParada','sincope','famhist','nsvt','fibrosis','obs'
+  ]
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(key)
+      if(!raw) return
+      const saved = JSON.parse(raw)
+      Object.assign(state, saved)
+      fields.forEach(f=>{
+        const el = $(f)
+        if(!el) return
+        if(el.type==='checkbox') el.checked = !!state[f]
+        else el.value = (state[f]??'')
+      })
+      // checkboxes multi (padroes)
+      document.querySelectorAll('[data-k="padroes"]').forEach(cb=>{
+        cb.checked = (state.padroes||[]).includes(cb.value)
+      })
+      updateStatuses()
+    }catch(e){console.warn(e)}
+  }
+
+  function persist(){
+    localStorage.setItem(key, JSON.stringify(state))
+  }
+
+  function bind(){
+    fields.forEach(f=>{
+      const el = $(f); if(!el) return
+      const handler = ()=>{
+        if(el.type==='checkbox') state[f] = el.checked
+        else if(el.type==='number') state[f] = el.value? Number(el.value): null
+        else state[f] = el.value
+        persist(); updateStatuses()
+      }
+      el.addEventListener('input', handler)
+      el.addEventListener('change', handler)
+    })
+    // multi
+    document.querySelectorAll('[data-k="padroes"]').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        const list = Array.from(document.querySelectorAll('[data-k="padroes"]:checked')).map(x=>x.value)
+        state.padroes = list; persist(); updateStatuses()
+      })
+    })
+  }
+
+  function cmhProvavel(){
+    const esp = Number(state.espMax||0)
+    const rel = Number(state.relSP||0)
+    const critEsp = (esp >= 15) || (esp >= 13 && true) // genético/familiar a ser considerado clinicamente
+    const assimetria = (rel >= 1.3) // hipertensos podem exigir 1.5 – decisão clínica
+    return critEsp || assimetria || state.aeAumentado || state.dd || state.sam || state.obstrMedioApical
+  }
+
+  function obstrutiva(){
+    const gR = Number(state.gradRepouso||0)
+    const gP = Number(state.gradProv||0)
+    const critR = gR >= 30 || state.obstrRepouso
+    const critP = gP >= 30 || state.obstrManobras
+    return {has:(critR||critP), rest:critR, prov:critP}
+  }
+
+  function riscoMSCount(){
+    let n = 0
+    const add = (b)=>{ if(b) n++ }
+    add(state.histParada)
+    add(state.sincope)
+    add(state.famhist)
+    add(state.nsvt)
+    add(state.fibrosis)
+    add(state.hipMaciça)
+    add(state.aneurismaApical)
+    add(state.feveReduzida)
+    return n
+  }
+
+  function updateStatuses(){
+    const sC = $('statusCmh'), sO=$('statusObs'), sR=$('statusRisco')
+    // CMH provável
+    if(cmhProvavel()){
+      sC.className='badge ok'; sC.innerHTML='CMH provável: <span>Sim</span>'
+    }else{
+      sC.className='badge maybe'; sC.innerHTML='CMH provável: <span class="muted">Indefinido pelos dados</span>'
+    }
+    // Obstrução
+    const o = obstrutiva()
+    if(o.has){
+      let txt = 'Obstrutiva: Sim ('+(o.rest?'repouso':'')+ (o.rest&&o.prov?' / ':'') + (o.prov?'provocação':'') +')'
+      sO.className='badge warning'; sO.innerHTML=txt
+    }else{
+      sO.className='badge ok'; sO.innerHTML='Obstrutiva: Não aparente'
+    }
+    // Risco
+    const r = riscoMSCount()
+    if(r>=3){ sR.className='badge risk'; }
+    else if(r>=1){ sR.className='badge warning'; }
+    else { sR.className='badge ok'; }
+    sR.innerHTML = 'Marcadores de risco de MS: <span>'+r+'</span>'
+  }
+
+  // Export / Import / Print / Clear
+  $('btnExportar').addEventListener('click', ()=>{
+    const data = JSON.stringify(state, null, 2)
+    const blob = new Blob([data], {type:'application/json'})
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `cmh-checklist-${(state.paciente||'paciente').replace(/\s+/g,'_')}.json`
+    a.click(); URL.revokeObjectURL(a.href)
+  })
+  $('inpImportar').addEventListener('change', (e)=>{
+    const file = e.target.files?.[0]; if(!file) return
+    const fr = new FileReader()
+    fr.onload = ()=>{
+      try{ const obj = JSON.parse(fr.result)
+        Object.assign(state, obj)
+        persist(); load()
+      }catch(err){ alert('JSON inválido') }
+    }
+    fr.readAsText(file)
+  })
+  $('btnImprimir').addEventListener('click', ()=> window.print())
+  $('btnLimpar').addEventListener('click', ()=>{ if(confirm('Limpar todos os campos?')){ localStorage.removeItem(key); location.reload() }})
+
+  bind(); load();
+})();
+</script>
+</body>
+</html>
