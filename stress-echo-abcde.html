@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cálculos em Ecocardiografia de Estresse</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{
+      margin:16px;
+      background:#0f172a;
+      color:#e5e7eb;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    h2{margin:8px 0 14px;font-weight:700}
+
+    /* ===== Form em coluna ===== */
+    form{max-width:520px}
+    .stack{display:flex;flex-direction:column;gap:8px}
+    label{display:flex;justify-content:space-between;gap:10px;align-items:center}
+    label span{min-width:260px}
+    input{
+      width:160px; padding:6px 8px; border-radius:6px; border:1px solid #64748b;
+      background:#0b1220; color:#fff; outline:none;
+    }
+    input::placeholder{color:#94a3b8}
+    input:focus{border-color:#60a5fa}
+    .btns{margin:14px 0 28px 0; display:flex; gap:8px}
+    button{padding:6px 12px; border:1px solid #475569; background:#0b1220; color:#fff; border-radius:6px; cursor:pointer}
+    button:hover{filter:brightness(1.08)}
+
+    /* ===== Tabela compacta p/ A4 ===== */
+    table{
+      width:100%;
+      max-width:800px;           /* limite para não ficar larga */
+      table-layout:fixed;
+      border-collapse:collapse;
+      background:#fff;
+      color:#000;
+      font-size:12px;
+      margin-top:12px;
+    }
+    th,td{
+      border:1px solid #000;
+      padding:4px 6px;
+      vertical-align:top;
+      text-align:left;
+      word-wrap:break-word;
+    }
+    th{background:#e5e7eb; font-weight:700}
+
+    /* Colunas equilibradas */
+    colgroup col:nth-child(1){width:32%}
+    colgroup col:nth-child(2){width:20%}
+    colgroup col:nth-child(3){width:fit-content}
+    colgroup col:nth-child(4){width:5%}
+
+    .resultado{font-weight:700; text-align:center}
+
+    @media print{
+      body{background:#fff; color:#000; margin:8mm}
+      table{font-size:11px}
+      th,td{padding:3px 5px}
+    }
+  </style>
+</head>
+<body>
+  <h2>Cálculos em Ecocardiografia de Estresse</h2>
+
+  <form id="form">
+    <div class="stack">
+      <label><span>VSF (ml) repouso</span> <input id="vsf_basal" inputmode="decimal"></label>
+      <label><span>VSF (ml) pico</span> <input id="vsf_pico" inputmode="decimal"></label>
+      <label><span>PAS (mmHg) repouso</span> <input id="pas_basal" inputmode="decimal"></label>
+      <label><span>PAS (mmHg) pico</span> <input id="pas_pico" inputmode="decimal"></label>
+      <label><span>FC (bpm) repouso</span> <input id="fc_basal" inputmode="decimal"></label>
+      <label><span>FC (bpm) pico</span> <input id="fc_pico" inputmode="decimal"></label>
+      <label><span>Fluxo ADA (cm/s) repouso</span> <input id="ada_basal" inputmode="decimal" placeholder="opcional"></label>
+      <label><span>Fluxo ADA (cm/s) pico</span> <input id="ada_pico" inputmode="decimal" placeholder="opcional"></label>
+    </div>
+    <div class="btns">
+      <button type="button" id="btnCalcular">Calcular</button>
+      <button type="button" id="btnLimpar">Limpar</button>
+    </div>
+  </form>
+
+  <table id="tabela">
+    <colgroup><col><col><col><col></colgroup>
+    <thead><tr><th colspan="4">Cálculos em Ecocardiografia de Estresse</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <script>
+    const $  = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+
+    function toNum(v){ if(!v) return NaN; return Number(String(v).trim().replace(/\./g,'').replace(',','.')); }
+    function fmt1(v){ return isFinite(v)? v.toFixed(1) : '—'; }
+    function safeRatio(n,d){ return (isFinite(n)&&isFinite(d)&&d!==0)? n/d : NaN; }
+
+    function calcular(){
+      const VSF0 = toNum($('#vsf_basal').value);
+      const VSF1 = toNum($('#vsf_pico').value);
+      const PAS0 = toNum($('#pas_basal').value);
+      const PAS1 = toNum($('#pas_pico').value);
+      const FC0  = toNum($('#fc_basal').value);
+      const FC1  = toNum($('#fc_pico').value);
+      const ADA0 = toNum($('#ada_basal').value);
+      const ADA1 = toNum($('#ada_pico').value);
+
+      const IRC     = safeRatio(PAS1/VSF1, PAS0/VSF0);
+      const IRCrono = safeRatio(FC1, FC0);
+      const CFR     = safeRatio(ADA1, ADA0);
+
+      let html = `
+        <tr>
+          <td>VSF (ml) repouso</td><td>${fmt1(VSF0)} ml</td>
+          <td rowspan="4"><strong>Índice de Reserva Contrátil:</strong><br>Valores normais:<br>&gt;2 (físico/dobutamina)<br>&gt;1,1 (vasodilatadores)</td>
+          <td rowspan="4" class="resultado">${fmt1(IRC)}</td>
+        </tr>
+        <tr><td>VSF (ml) pico</td><td>${fmt1(VSF1)} ml</td></tr>
+        <tr><td>PAS (mmHg) repouso</td><td>${fmt1(PAS0)} mmHg</td></tr>
+        <tr><td>PAS (mmHg) pico</td><td>${fmt1(PAS1)} mmHg</td></tr>
+
+        <tr>
+          <td>FC (bpm) repouso</td><td>${fmt1(FC0)} bpm</td>
+          <td rowspan="2"><strong>Índice de Reserva Cronotrópica:</strong><br>Valores normais:<br>&gt;1,80 (físico/dobutamina)<br>&gt;1,22 (vasodilatadores)</td>
+          <td rowspan="2" class="resultado">${fmt1(IRCrono)}</td>
+        </tr>
+        <tr><td>FC (bpm) pico</td><td>${fmt1(FC1)} bpm</td></tr>
+      `;
+
+      if (isFinite(CFR)){
+        html += `
+          <tr>
+            <td>Fluxo ADA (cm/s) repouso</td><td>${fmt1(ADA0)} cm/s</td>
+            <td rowspan="2"><strong>Índice de Reserva Coronariana (ADA):</strong><br>Valores normais: &gt;2,0</td>
+            <td rowspan="2" class="resultado">${fmt1(CFR)}</td>
+          </tr>
+          <tr><td>Fluxo ADA (cm/s) pico</td><td>${fmt1(ADA1)} cm/s</td></tr>
+        `;
+      }
+
+      $('#tbody').innerHTML = html;
+      $('#tabela').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function limpar(){
+      $('#form').reset();
+      $('#tbody').innerHTML = '';
+      $('#vsf_basal').focus();
+    }
+
+    const inputs = $$('#form input');
+    inputs.forEach((inp, i) => {
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (i < inputs.length - 1) inputs[i+1].focus();
+          else calcular();
+        }
+      });
+    });
+
+    $('#btnCalcular').addEventListener('click', calcular);
+    $('#btnLimpar').addEventListener('click', limpar);
+  </script>
+</body>
+</html>
