@@ -94,7 +94,17 @@
     const $$ = s => Array.from(document.querySelectorAll(s));
 
     function toNum(v){ if(!v) return NaN; return Number(String(v).trim().replace(/\./g,'').replace(',','.')); }
-    function fmt1(v){ return isFinite(v)? v.toFixed(1) : '—'; }
+    
+    
+    function fmt1(v) {
+        if (!isFinite(v)) return '—';
+        // If v is an integer, show as integer
+        if (Math.floor(v) === v) return String(v);
+        // Otherwise, show with one decimal
+        return v.toFixed(1);
+    }
+
+    
     function safeRatio(n,d){ return (isFinite(n)&&isFinite(d)&&d!==0)? n/d : NaN; }
 
     function calcular(){
