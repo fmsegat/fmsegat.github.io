@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Área da Valva Aórtica (Equação da Continuidade)</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: #121a2b;
+        --text: #e6edf3;
+        --muted: #9fb0c0;
+        --accent: #69b3ff;
+        --danger: #ff6b6b;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(1200px 600px at 10% -10%, #12213c, transparent),
+                    radial-gradient(900px 500px at 110% -10%, #1a2a48, transparent),
+                    var(--bg);
+        color: var(--text);
+        line-height: 1.45;
+      }
+      .container {
+        max-width: 720px;
+        margin: 48px auto;
+        padding: 24px;
+        background: color-mix(in oklab, var(--panel) 92%, #000 8%);
+        border: 1px solid #1f2c45;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.4rem;
+        letter-spacing: 0.2px;
+      }
+      p.sub {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      @media (max-width: 720px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+      label {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        background: #0d1526;
+        border: 1px solid #243557;
+        border-radius: 10px;
+        padding: 12px 12px 10px;
+      }
+      .field input[type="text"] {
+        margin-top: 6px;
+        background: transparent;
+        color: var(--text);
+        border: none;
+        outline: none;
+        font-size: 1.05rem;
+      }
+      .suffix {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .results {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 720px) {
+        .results { grid-template-columns: 1fr; }
+      }
+      .card {
+        background: #0d1526;
+        border: 1px solid #243557;
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .value {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .unit {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-left: 6px;
+      }
+      .formula {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .warning {
+        margin-top: 8px;
+        color: var(--danger);
+        font-size: 0.92rem;
+        display: none;
+      }
+      .foot {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .small { font-size: 0.9rem; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Área da Valva Aórtica</h1>
+      <p class="sub">Equação da continuidade: AVA = (CSA<sub>VSVE</sub> × VTI<sub>VSVE</sub>) ÷ VTI<sub>Ao</sub>, com CSA<sub>VSVE</sub> = π × (D/2)<sup>2</sup>.</p>
+
+      <div class="grid">
+        <div class="field">
+          <label for="vtiLvot">VTI VSVE <span class="suffix">(cm)</span></label>
+          <input id="vtiLvot" inputmode="decimal" placeholder="ex.: 20,5" type="text" />
+        </div>
+        <div class="field">
+          <label for="vtiAo">VTI Ao <span class="suffix">(cm)</span></label>
+          <input id="vtiAo" inputmode="decimal" placeholder="ex.: 40,0" type="text" />
+        </div>
+        <div class="field">
+          <label for="diametro">Diâmetro VSVE <span class="suffix">(cm)</span></label>
+          <input id="diametro" inputmode="decimal" placeholder="ex.: 2,0" type="text" />
+        </div>
+      </div>
+
+      <div id="warn" class="warning">Informe valores numéricos positivos. VTI Ao não pode ser 0.</div>
+
+      <div class="results">
+        <div class="card">
+          <div class="small">Área da valva aórtica</div>
+          <div><span id="ava" class="value">—</span><span class="unit">cm²</span></div>
+        </div>
+        <div class="card">
+          <div class="small">Área da via de saída (CSA VSVE)</div>
+          <div><span id="csa" class="value">—</span><span class="unit">cm²</span></div>
+        </div>
+      </div>
+
+      <div class="formula">
+        AVA = π × (D/2)<sup>2</sup> × VTI<sub>VSVE</sub> ÷ VTI<sub>Ao</sub>
+      </div>
+      <div class="foot">Dica: você pode usar vírgula ou ponto nos decimais.</div>
+    </div>
+
+    <script>
+      function parsePtNumber(str) {
+        if (typeof str !== 'string') return NaN;
+        // Permite vírgula ou ponto; remove espaços.
+        const cleaned = str.replace(/\s+/g, '').replace(',', '.');
+        return cleaned ? Number(cleaned) : NaN;
+      }
+
+      const els = {
+        vtiLvot: document.getElementById('vtiLvot'),
+        vtiAo: document.getElementById('vtiAo'),
+        diametro: document.getElementById('diametro'),
+        ava: document.getElementById('ava'),
+        csa: document.getElementById('csa'),
+        warn: document.getElementById('warn')
+      };
+
+      function format(val) {
+        // Mostra com 2 casas decimais e vírgula como separador local
+        return isFinite(val) ? val.toFixed(2).replace('.', ',') : '—';
+      }
+
+      function recompute() {
+        const vtiLvot = parsePtNumber(els.vtiLvot.value);
+        const vtiAo = parsePtNumber(els.vtiAo.value);
+        const d = parsePtNumber(els.diametro.value);
+
+        const invalid = !isFinite(vtiLvot) || !isFinite(vtiAo) || !isFinite(d) || vtiLvot <= 0 || vtiAo <= 0 || d <= 0;
+        els.warn.style.display = invalid && (els.vtiLvot.value || els.vtiAo.value || els.diametro.value) ? 'block' : 'none';
+
+        if (invalid) {
+          els.ava.textContent = '—';
+          els.csa.textContent = '—';
+          return;
+        }
+
+        // CSA em cm²
+        const csa = Math.PI * Math.pow(d / 2, 2);
+        // AVA em cm² pela continuidade
+        const ava = (csa * vtiLvot) / vtiAo;
+
+        els.csa.textContent = format(csa);
+        els.ava.textContent = format(ava);
+      }
+
+      ['input', 'change'].forEach(evt => {
+        els.vtiLvot.addEventListener(evt, recompute);
+        els.vtiAo.addEventListener(evt, recompute);
+        els.diametro.addEventListener(evt, recompute);
+      });
+
+      // Valores de exemplo para testar rapidamente
+      // Descomente se quiser ver um exemplo carregado.
+      // els.vtiLvot.value = '20,0';
+      // els.vtiAo.value = '40,0';
+      // els.diametro.value = '2,0';
+      // recompute();
+    </script>
+  </body>
+</html>
+
