@@ -124,37 +124,44 @@
     table{
       width:100%;
       border-collapse:collapse;
-      margin-top:16px;
-      font-size: 8pt;
+      margin: top 20px;
+      font-size: 10pt;
       background: whitesmoke;
+      color: var(--text-input)
       border:1px solid var(--border-soft);
       border-radius:14px;
       overflow:hidden;
     }
     thead th{
-      color: var(--muted);
-      font-weight:700;
-      background:whitesmoke;
-      border-bottom:1px solid var(--border-soft);
+        padding:12px 14px;
+        font-size:12pt;
+        cursor:pointer;
+        border:0;
+        border-radius:14px;
+        background: rgb(112, 129, 142);
+        color: var(--text);
+        font-weight:700;
+        transition: transform .02s ease-in-out, background .2s ease;
     }
     tr + tr td{ border-top:1px solid var(--border-soft) }
     td, th{
       padding:4px;
       text-align:center;
       border:none;
-      color: var(--text);
+      color: var(--text-input);
     }
-    table tr:first-child{ border-top: 0 }
+    table tr:first-child{ border-top:20px }
     table tr:last-child{ border-bottom: 0 }
 
     #resultado td{ text-align:left; padding-left:12px; padding-right:16px; }
+    #resultado { color: black; }
     .muted{ color: var(--muted) }
     .hidden{ display:none }
 
     /* Espaçamento e título da tabela de altura */
     #resultadoAltura{
-      margin-top: 40px;
-      margin-bottom: 32px; /* em vez de auto */
+      margin-top: 10px;
+      margin-bottom: 5px; /* em vez de auto */
     }
     #tituloAltura{
       text-align: center;
@@ -162,8 +169,8 @@
       font-weight: 700;
       color: black;
       background-color: whitesmoke;
-      margin-top: 30px;
-      margin-bottom: 10px; /* título próximo da tabela */
+      margin-top: 100px;
+      margin-bottom: px; /* título próximo da tabela */
     }
 
     /* Flags visuais para cortes */
@@ -271,7 +278,6 @@
     <button type="button"><a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a></button>
     <button type="button"><a href="https://fmsegat.github.io/teer.html">Checklist TEER</a></button>
     <button type="button"><a href="https://fmsegat.github.io/stress-echo-abcde.html">Estresse</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/wilkins_EM.html">Escore Wilkins</a></button>
     <!-- Botão para índice por altura -->
     <button type="button" id="calcAlturaBtn" class="btn-info">VAE indexado à altura (IMC&gt;30)</button>
   </div>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Critérios de Wilkins (Block) - Estenose Mitral</title>
+  <link rel="icon" type="image/x-icon" href="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/favicon.png">
+  <style>
+    :root{
+      --bg:#bdbfc4;
+      --panel:#111827;
+      --card:#1f2937;
+      --muted:#c3c7cd;
+      --text:#ffffff;
+      --accent:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --info:#3b82f6;
+      --ink:#ffffff;
+      --text-input:#000000;
+      --border:rgba(148,163,184,.25);
+      --border-soft:rgba(148,163,184,.12);
+    }
+
+    html, body { height:100% }
+
+    body{
+      margin:20px;
+      font-family: Arial, sans-serif;
+      font-size: 12pt;
+      color: var(--text);
+      background: var(--bg);
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    a { text-decoration:none; color:inherit }
+
+    h1, h2{
+      text-align:center;
+      margin-top:0;
+      letter-spacing:.3px;
+      color:var(--text);
+    }
+
+    #app{
+      width:100%;
+      max-width:900px;
+      background: rgba(31,41,55,.85);
+      border-radius:20px;
+      border:1px solid var(--border-soft);
+      padding:24px;
+      box-shadow:0 20px 40px rgba(15,23,42,.2);
+      backdrop-filter: blur(8px);
+    }
+
+    p.lead{
+      color: var(--muted);
+      text-align:center;
+      line-height:1.5;
+      margin-bottom:22px;
+    }
+
+    .criteria-grid{
+      display:grid;
+      gap:16px;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .criterion-card{
+      background: var(--card);
+      border-radius:16px;
+      border:1px solid var(--border);
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .criterion-card h3{
+      margin:0;
+      color: var(--text);
+      font-size:1.1rem;
+    }
+
+    label{
+      font-size:.9rem;
+      color: var(--muted);
+      font-weight:600;
+    }
+
+    select{
+      padding:10px 12px;
+      font-size:1rem;
+      font-weight:bold;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: var(--ink);
+      color: var(--text-input);
+      outline:none;
+      width:100%;
+    }
+
+    .score-display{
+      margin-top:26px;
+      background: rgba(17,24,39,.8);
+      border-radius:18px;
+      border:1px solid var(--border);
+      padding:20px;
+      text-align:center;
+      display:grid;
+      gap:10px;
+    }
+
+    .score-total{
+      font-size:2.8rem;
+      font-weight:800;
+      color:var(--accent);
+    }
+
+    .actions{
+      margin-top:18px;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      padding:12px 18px;
+      font-size:1rem;
+      cursor:pointer;
+      border:0;
+      border-radius:14px;
+      background: rgb(112, 129, 142);
+      color: var(--text);
+      font-weight:700;
+      transition: transform .02s ease-in-out, background .2s ease;
+    }
+
+    button:active{ transform: scale(.98) }
+    .btn-primary{ background: var(--info) }
+    .btn-success{ background: var(--accent) }
+    .btn-warning{ background: var(--warn) }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:30px;
+      background: rgba(17,24,39,.85);
+      border-radius:16px;
+      overflow:hidden;
+    }
+
+    th, td{
+      padding:12px 16px;
+      text-align:left;
+      border-bottom:1px solid var(--border-soft);
+    }
+
+    th{ color: var(--muted); font-weight:700; }
+    td{ color: var(--text); }
+
+    tr:last-child td{ border-bottom:none; }
+
+    @media (max-width:600px){
+      body{ margin:12px; }
+      #app{ padding:18px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <h1>Critérios de Wilkins (Block)</h1>
+    <h2>Avaliação da Estenose Mitral</h2>
+    <p class="lead">
+      Utilize a escala de 1 (melhor condição) a 4 (pior condição) para cada critério. O escore total ajuda a estimar a probabilidade de sucesso da valvoplastia mitral por balão.
+    </p>
+
+    <section class="criteria-grid" id="criteria"></section>
+
+    <section class="actions">
+      <button class="btn-primary" id="btnCalcular">Calcular escore</button>
+      <button class="btn-warning" id="btnLimpar">Limpar</button>
+    </section>
+
+    <section class="score-display" id="resultado" hidden>
+      <div>Escore total (4 a 16)</div>
+      <div class="score-total" id="total">0</div>
+      <div id="interpretacao"></div>
+    </section>
+
+  </main>
+
+  <script>
+    const criterios = [
+      {
+        id: 'mobilidade',
+        titulo: 'Mobilidade das cúspides',
+        descricao: 'Avalie a amplitude de movimento das cúspides mitrais.',
+        escores: [
+          { valor: 1, texto: 'Valva com boa mobilidade; restrição apenas na borda de coaptação' },
+          { valor: 2, texto: 'Mobilidade encontra-se diminuída também na porção média e na base dos folhetos' },
+          { valor: 3, texto: 'Folhetos apresentam movimentação em bloco (em cúpula) durante a diástole, principalmente na base' },
+          { valor: 4, texto: 'Mobilidade dos folhetos é extremamente reduzida, com pouca ou nenhuma movimentação em bloco durante a diástole' }
+        ]
+      },
+      {
+        id: 'espessamento',
+        titulo: 'Espessamento das cúspides',
+        descricao: 'Avalie o grau de espessamento das cúspides.',
+        escores: [
+          { valor: 1, texto: 'Folhetos com espessuras próximas à normalidade (4-5 mm)' },
+          { valor: 2, texto: 'Espessamento discreto na porção média (até 5mm) e acentuado espessamento na borda de coaptação (5-8 mm)' },
+          { valor: 3, texto: 'Folhetos com espessura de 5-8 mm em toda a extensão da valva' },
+          { valor: 4, texto: 'Espessamento acentuado (8-10 mm) de toda a cúspide' }
+        ]
+      },
+      {
+        id: 'calcificacao',
+        titulo: 'Calcificação',
+        descricao: 'Avalie a extensão de calcificação nas cúspides.',
+        escores: [
+          { valor: 1, texto: 'Ausente ou apenas uma área dos folhetos com aumento do brilho (ponto isolado de calcificação)' },
+          { valor: 2, texto: 'Áreas não confluentes de aumento do brilho, confinadas às bordas dos folhetos' },
+          { valor: 3, texto: 'Áreas com aumento de brilho estendem-se à porção média dos folhetos' },
+          { valor: 4, texto: 'Extenso aumento do brilho em todas as regiões dos folhetos' }
+        ]
+      },
+      {
+        id: 'subvalvar',
+        titulo: 'Espessamento subvalvar',
+        descricao: 'Considere espessamento e fusão das cordoalhas.',
+        escores: [
+          { valor: 1, texto: 'Mínimo espessamento das cordoalhas junto à borda de coaptação dos folhetos' },
+          { valor: 2, texto: 'Espessamento das cordoalhas estendendo-se até o terço proximal das cordas' },
+          { valor: 3, texto: 'Espessamento das cordoalhas estendendo-se até o terço distal das cordas' },
+          { valor: 4, texto: 'Extenso espessamento e encurtamento das cordoalhas atingindo a inserção nos músculos papilares' }
+        ]
+      }
+    ];
+
+    const interpretacoes = [
+      { limite: 8, mensagem: 'Anatomia muito favorável. Probabilidade de sucesso da valvoplastia por balão > 80%.', cor: 'var(--accent)' },
+      { limite: 11, mensagem: 'Anatomia intermediária. Probabilidade de sucesso aproximada de 50-70%; correlacionar com clínica.', cor: 'var(--warn)' },
+      { limite: 16, mensagem: 'Anatomia desfavorável. Baixa probabilidade (< 50%) de resultado ótimo com valvoplastia por balão.', cor: 'var(--danger)' }
+    ];
+
+    const criteriaContainer = document.getElementById('criteria');
+
+    criterios.forEach(criterio => {
+      const card = document.createElement('article');
+      card.className = 'criterion-card';
+
+      const title = document.createElement('h3');
+      title.textContent = criterio.titulo;
+
+      const desc = document.createElement('p');
+      desc.textContent = criterio.descricao;
+      desc.style.margin = '0';
+      desc.style.color = 'var(--muted)';
+      desc.style.lineHeight = '1.4';
+
+      const label = document.createElement('label');
+      label.setAttribute('for', criterio.id);
+      label.textContent = 'Selecione o escore (1-4)';
+
+      const select = document.createElement('select');
+      select.id = criterio.id;
+      select.innerHTML = '<option value="" disabled selected>Selecione...</option>';
+
+      criterio.escores.forEach(nivel => {
+        const option = document.createElement('option');
+        option.value = String(nivel.valor);
+        option.textContent = `${nivel.valor} — ${nivel.texto}`;
+        option.title = nivel.texto;
+        select.appendChild(option);
+      });
+
+      card.appendChild(title);
+      card.appendChild(desc);
+      card.appendChild(label);
+      card.appendChild(select);
+      criteriaContainer.appendChild(card);
+    });
+
+    const btnCalcular = document.getElementById('btnCalcular');
+    const btnLimpar = document.getElementById('btnLimpar');
+    const resultado = document.getElementById('resultado');
+    const totalElement = document.getElementById('total');
+    const interpretacaoElement = document.getElementById('interpretacao');
+
+    btnCalcular.addEventListener('click', () => {
+      let soma = 0;
+      let incompleto = false;
+
+      criterios.forEach(criterio => {
+        const valor = document.getElementById(criterio.id).value;
+        if (!valor) {
+          incompleto = true;
+        } else {
+          soma += Number(valor);
+        }
+      });
+
+      if (incompleto) {
+        alert('Preencha um escore (1-4) para todos os critérios.');
+        return;
+      }
+
+      totalElement.textContent = soma;
+
+      let texto = '';
+      let cor = 'var(--text)';
+      for (const item of interpretacoes) {
+        if (soma <= item.limite) {
+          texto = item.mensagem;
+          cor = item.cor;
+          break;
+        }
+      }
+
+      interpretacaoElement.textContent = texto;
+      interpretacaoElement.style.color = cor;
+      resultado.hidden = false;
+    });
+
+    btnLimpar.addEventListener('click', () => {
+      criterios.forEach(criterio => {
+        const select = document.getElementById(criterio.id);
+        select.selectedIndex = 0;
+      });
+      resultado.hidden = true;
+      interpretacaoElement.textContent = '';
+      interpretacaoElement.style.color = 'var(--text)';
+      totalElement.textContent = '0';
+    });
+  </script>
+</body>
+</html>
