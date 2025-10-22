@@ -62,9 +62,9 @@
     }
 
     .criteria-grid{
-      display:grid;
+      display:flex;
+      flex-direction:column;
       gap:16px;
-      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
     }
 
     .criterion-card{
@@ -142,6 +142,7 @@
     .btn-primary{ background: var(--info) }
     .btn-success{ background: var(--accent) }
     .btn-warning{ background: var(--warn) }
+    .btn-secondary{ background: rgb(50, 148, 102) }
 
     table{
       width:100%;
@@ -181,6 +182,7 @@
 
     <section class="actions">
       <button class="btn-primary" id="btnCalcular">Calcular escore</button>
+      <button class="btn-secondary" id="btnCopiar">Copiar texto</button>
       <button class="btn-warning" id="btnLimpar">Limpar</button>
     </section>
 
@@ -199,10 +201,10 @@
         titulo: 'Mobilidade das cúspides',
         descricao: 'Avalie a amplitude de movimento das cúspides mitrais.',
         escores: [
-          { valor: 1, texto: 'Valva com boa mobilidade; restrição apenas na borda de coaptação' },
-          { valor: 2, texto: 'Mobilidade encontra-se diminuída também na porção média e na base dos folhetos' },
-          { valor: 3, texto: 'Folhetos apresentam movimentação em bloco (em cúpula) durante a diástole, principalmente na base' },
-          { valor: 4, texto: 'Mobilidade dos folhetos é extremamente reduzida, com pouca ou nenhuma movimentação em bloco durante a diástole' }
+          { valor: 1, texto: 'Valva com boa mobilidade; restrição apenas na borda de coaptação.' },
+          { valor: 2, texto: 'Mobilidade encontra-se diminuída também na porção média e na base dos folhetos.' },
+          { valor: 3, texto: 'Folhetos apresentam movimentação em bloco (em cúpula) durante a diástole, principalmente na base.' },
+          { valor: 4, texto: 'Mobilidade dos folhetos é extremamente reduzida, com pouca ou nenhuma movimentação em bloco durante a diástole.' }
         ]
       },
       {
@@ -210,10 +212,10 @@
         titulo: 'Espessamento das cúspides',
         descricao: 'Avalie o grau de espessamento das cúspides.',
         escores: [
-          { valor: 1, texto: 'Folhetos com espessuras próximas à normalidade (4-5 mm)' },
-          { valor: 2, texto: 'Espessamento discreto na porção média (até 5mm) e acentuado espessamento na borda de coaptação (5-8 mm)' },
-          { valor: 3, texto: 'Folhetos com espessura de 5-8 mm em toda a extensão da valva' },
-          { valor: 4, texto: 'Espessamento acentuado (8-10 mm) de toda a cúspide' }
+          { valor: 1, texto: 'Folhetos com espessuras próximas à normalidade (4-5 mm).' },
+          { valor: 2, texto: 'Espessamento discreto na porção média (até 5mm) e acentuado espessamento na borda de coaptação (5-8 mm).' },
+          { valor: 3, texto: 'Folhetos com espessura de 5-8 mm em toda a extensão da valva.' },
+          { valor: 4, texto: 'Espessamento acentuado (8-10 mm) de toda a cúspide.' }
         ]
       },
       {
@@ -221,10 +223,10 @@
         titulo: 'Calcificação',
         descricao: 'Avalie a extensão de calcificação nas cúspides.',
         escores: [
-          { valor: 1, texto: 'Ausente ou apenas uma área dos folhetos com aumento do brilho (ponto isolado de calcificação)' },
-          { valor: 2, texto: 'Áreas não confluentes de aumento do brilho, confinadas às bordas dos folhetos' },
-          { valor: 3, texto: 'Áreas com aumento de brilho estendem-se à porção média dos folhetos' },
-          { valor: 4, texto: 'Extenso aumento do brilho em todas as regiões dos folhetos' }
+          { valor: 1, texto: 'Ausente ou apenas uma área dos folhetos com aumento do brilho (ponto isolado de calcificação).' },
+          { valor: 2, texto: 'Áreas não confluentes de aumento do brilho, confinadas às bordas dos folhetos.' },
+          { valor: 3, texto: 'Áreas com aumento de brilho estendem-se à porção média dos folhetos.' },
+          { valor: 4, texto: 'Extenso aumento do brilho em todas as regiões dos folhetos.' }
         ]
       },
       {
@@ -232,10 +234,10 @@
         titulo: 'Espessamento subvalvar',
         descricao: 'Considere espessamento e fusão das cordoalhas.',
         escores: [
-          { valor: 1, texto: 'Mínimo espessamento das cordoalhas junto à borda de coaptação dos folhetos' },
-          { valor: 2, texto: 'Espessamento das cordoalhas estendendo-se até o terço proximal das cordas' },
-          { valor: 3, texto: 'Espessamento das cordoalhas estendendo-se até o terço distal das cordas' },
-          { valor: 4, texto: 'Extenso espessamento e encurtamento das cordoalhas atingindo a inserção nos músculos papilares' }
+          { valor: 1, texto: 'Mínimo espessamento das cordoalhas junto à borda de coaptação dos folhetos.' },
+          { valor: 2, texto: 'Espessamento das cordoalhas estendendo-se até o terço proximal das cordas.' },
+          { valor: 3, texto: 'Espessamento das cordoalhas estendendo-se até o terço distal das cordas.' },
+          { valor: 4, texto: 'Extenso espessamento e encurtamento das cordoalhas atingindo a inserção nos músculos papilares.' }
         ]
       }
     ];
@@ -261,12 +263,9 @@
       desc.style.color = 'var(--muted)';
       desc.style.lineHeight = '1.4';
 
-      const label = document.createElement('label');
-      label.setAttribute('for', criterio.id);
-      label.textContent = 'Selecione o escore (1-4)';
-
       const select = document.createElement('select');
       select.id = criterio.id;
+      select.setAttribute('aria-label', criterio.titulo);
       select.innerHTML = '<option value="" disabled selected>Selecione...</option>';
 
       criterio.escores.forEach(nivel => {
@@ -279,12 +278,12 @@
 
       card.appendChild(title);
       card.appendChild(desc);
-      card.appendChild(label);
       card.appendChild(select);
       criteriaContainer.appendChild(card);
     });
 
     const btnCalcular = document.getElementById('btnCalcular');
+    const btnCopiar = document.getElementById('btnCopiar');
     const btnLimpar = document.getElementById('btnLimpar');
     const resultado = document.getElementById('resultado');
     const totalElement = document.getElementById('total');
@@ -335,6 +334,69 @@
       interpretacaoElement.style.color = 'var(--text)';
       totalElement.textContent = '0';
     });
+
+    btnCopiar.addEventListener('click', () => {
+      const tituloPrincipal = document.querySelector('#app h1')?.textContent.trim() || '';
+      const subtitulo = document.querySelector('#app h2')?.textContent.trim() || '';
+
+      const linhas = [];
+      if (tituloPrincipal) linhas.push(tituloPrincipal);
+      if (subtitulo) linhas.push(subtitulo);
+      if (linhas.length) linhas.push('');
+      linhas.push('Critérios:');
+
+      let soma = 0;
+
+      criterios.forEach(criterio => {
+        const select = document.getElementById(criterio.id);
+        const opcao = select.options[select.selectedIndex];
+        const texto = opcao && opcao.value ? opcao.textContent.trim() : 'não selecionado';
+        if (opcao && opcao.value) {
+          soma += Number(opcao.value);
+        }
+        linhas.push(`- ${criterio.titulo}: ${texto}`);
+      });
+
+      linhas.push('');
+      linhas.push(`Soma dos critérios: ${soma}`);
+
+      const interpretacaoTexto = interpretacaoElement.textContent.trim();
+      if (interpretacaoTexto) {
+        linhas.push(`Interpretação: ${interpretacaoTexto}`);
+      }
+
+      const textoFinal = linhas.join('\n');
+      copiarParaAreaDeTransferencia(textoFinal);
+    });
+
+    function copiarParaAreaDeTransferencia(texto) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto)
+          .then(() => alert('Resumo copiado para a área de transferência.'))
+          .catch(() => fallbackCopy(texto));
+      } else {
+        fallbackCopy(texto);
+      }
+    }
+
+    function fallbackCopy(texto) {
+      const textarea = document.createElement('textarea');
+      textarea.value = texto;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        const sucesso = document.execCommand('copy');
+        alert(sucesso ? 'Resumo copiado para a área de transferência.' : 'Não foi possível copiar o texto.');
+      } catch (err) {
+        alert('Não foi possível copiar o texto.');
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
   </script>
 </body>
 </html>
