@@ -190,6 +190,86 @@
         display:grid;
         gap:10px;
       }
+      details.explain{
+        margin-top:12px;
+        background:#0d1526;
+        border:1px solid #243557;
+        border-radius:10px;
+        padding:16px;
+      }
+      details.explain[open]{
+        border-color:var(--accent);
+      }
+      details.explain summary{
+        list-style:none;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        color:var(--accent);
+        font-weight:600;
+      }
+      details.explain summary::marker{
+        content:'';
+      }
+      details.explain p{
+        margin:8px 0;
+      }
+      details.explain ul, details.explain ol{
+        margin-top:8px;
+        padding-left:18px;
+      }
+      details.explain .small-table{
+        margin-top:10px;
+        border-collapse:collapse;
+        width:100%;
+        font-size:0.85rem;
+      }
+      details.explain .small-table th,
+      details.explain .small-table td{
+        border:1px solid #243557;
+        padding:6px 8px;
+        text-align:left;
+      }
+      details.explain .small-table th{
+        color:var(--accent);
+        background:rgba(105,179,255,0.08);
+      }
+      .actions{
+        margin-top:18px;
+        display:flex;
+        flex-wrap:wrap;
+        align-items:center;
+        gap:12px;
+      }
+      .copy-btn{
+        background:var(--accent);
+        color:#031020;
+        border:none;
+        border-radius:8px;
+        padding:10px 16px;
+        font-size:0.95rem;
+        font-weight:600;
+        cursor:pointer;
+        transition:background 0.2s ease, transform 0.2s ease;
+      }
+      .copy-btn:hover{
+        background:#7ec0ff;
+      }
+      .copy-btn:active{
+        transform:translateY(1px);
+      }
+      .copy-status{
+        font-size:0.85rem;
+        color:var(--muted);
+        min-height:1em;
+      }
+      .copy-status.success{
+        color:var(--accent);
+      }
+      .copy-status.error{
+        color:var(--danger);
+      }
     </style>
   </head>
   <body>
@@ -209,6 +289,14 @@
         <div class="field">
           <label for="diametro">Diâmetro VSVE <span class="suffix">(cm)</span></label>
           <input id="diametro" inputmode="decimal" placeholder="ex.: 2,0" type="text" />
+        </div>
+        <div class="field">
+          <label for="gradienteMedio">Gradiente médio <span class="suffix">(mmHg)</span></label>
+          <input id="gradienteMedio" inputmode="decimal" placeholder="ex.: 40" type="text" />
+        </div>
+        <div class="field">
+          <label for="velocidadeMax">Velocidade máxima <span class="suffix">(m/s)</span></label>
+          <input id="velocidadeMax" inputmode="decimal" placeholder="ex.: 4,5" type="text" />
         </div>
         <div class="field span-3">
           <label>Dados antropométricos (opcionais)</label>
@@ -241,16 +329,18 @@
         </div>
       </div>
 
-      <div id="warn" class="warning">Informe valores numéricos positivos. VTI Ao, tempos e dados antropométricos não podem ser 0.</div>
+      <div id="warn" class="warning">Informe valores numéricos positivos. VTI Ao, gradiente médio, velocidade máxima, tempos e dados antropométricos não podem ser 0.</div>
 
       <div class="results">
         <div class="card">
           <div class="small">Área da valva aórtica</div>
           <div><span id="ava" class="value">—</span><span class="unit">cm²</span></div>
+          <div class="small">AVA indexada</div>
+          <div><span id="avaIndexed" class="value-sm">—</span><span class="unit">cm²/m²</span></div>
         </div>
         <div class="card">
-          <div class="small">Área da via de saída (CSA VSVE)</div>
-          <div><span id="csa" class="value">—</span><span class="unit">cm²</span></div>
+          <div class="small">Relação GM/AVA (&gt; 25 mmHg/cm² sugere severidade)<a class="help-link" href="#explicacao-gmava" title="Clique para entender a relação GM/AVA">?</a></div>
+          <div><span id="gmAva" class="value">—</span><span class="unit">mmHg/cm²</span></div>
         </div>
         <div class="card">
           <div class="small">Volume sistólico (SV)</div>
@@ -264,15 +354,87 @@
           <div><span id="dvi" class="value">—</span></div>
         </div>
         <div class="card">
-          <div class="small">Relação AT/ET</div>
+          <div class="small">Relação AT/ET<a class="help-link" href="#explicacao-atet" title="Clique para entender a relação AT/ET">?</a></div>
           <div><span id="atet" class="value">—</span></div>
           <div class="small">Taxa de fluxo média (Q̄)<a class="help-link" href="#explicacao-flow" title="Entenda a importância da taxa de fluxo">?</a></div>
           <div><span id="flow" class="value">—</span><span class="unit">mL/s</span></div>
         </div>
       </div>
 
+      <div class="actions">
+        <button id="copySummary" class="copy-btn" type="button">Copiar resumo</button>
+        <span id="copyStatus" class="copy-status" aria-live="polite"></span>
+      </div>
+
       <div class="foot">Dica: você pode usar vírgula ou ponto nos decimais.</div>
     </div>
+
+    <section id="explicacao-atet" class="info-block">
+      <h3>Por que observar a relação AT/ET?</h3>
+      <p>A relação AT/ET (Acceleration Time / Ejection Time) tem papel importante como parâmetro auxiliar na avaliação da estenose aórtica (EAo), especialmente quando há dúvidas sobre a gravidade do gradiente transvalvar — seja em válvulas nativas ou protéticas.</p>
+
+      <details class="explain">
+        <summary>Saiba mais sobre AT/ET</summary>
+        <p><strong>🔹 Conceito fisiológico</strong></p>
+        <p>O AT representa o tempo entre o início do fluxo sistólico e o pico da velocidade transaórtica. O ET é o tempo total de ejeção do ventrículo esquerdo. À medida que a estenose se torna mais severa, o jato torna-se mais arredondado e tardio, com prolongamento de AT e, portanto, aumento da razão AT/ET.</p>
+
+        <p><strong>🔹 Valores de referência segundo ASE 2024 (para próteses, extrapolável ao nativo)</strong></p>
+        <table class="small-table">
+          <thead>
+            <tr>
+              <th>Parâmetro</th>
+              <th>Normal</th>
+              <th>Suspeita de estenose</th>
+              <th>Estenose significativa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>AT (ms)</td>
+              <td>&lt; 80</td>
+              <td>80–100</td>
+              <td>&gt; 100</td>
+            </tr>
+            <tr>
+              <td>AT/ET</td>
+              <td>&lt; 0,32</td>
+              <td>0,32–0,37</td>
+              <td>&gt; 0,37</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Esses limiares também auxiliam na estenose aórtica nativa, onde AT/ET &gt; 0,36–0,40 sugere fortemente estenose severa, especialmente quando o gradiente é baixo e há dúvida diagnóstica (por exemplo, EAo de baixo fluxo e baixo gradiente com FE preservada).</p>
+
+        <p><strong>🔹 Interpretação integrada</strong></p>
+        <p>O AT/ET deve ser considerado em conjunto com outros índices: área valvar (AVA) pelo método de continuidade, gradiente médio, velocidade máxima e índice de velocidade (DVI). Ele é menos dependente do fluxo do que o gradiente, mas ainda sensível à função ventricular e frequência cardíaca. Em pacientes com função sistólica reduzida ou ritmos irregulares, o valor isolado pode ser enganoso.</p>
+
+        <p><strong>🔹 Aplicação prática</strong></p>
+        <p>Útil em EAo com baixa área valvar (&lt; 1 cm²) mas gradiente &lt; 40 mmHg, ajudando a diferenciar estenose verdadeira de pseudoestenose. Pode ser aplicado tanto em repouso quanto sob ecocardiografia de estresse, onde um aumento desproporcional de AT/ET reforça a presença de estenose funcionalmente significativa.</p>
+
+        <p><strong>✅ Resumo prático</strong></p>
+        <ul>
+          <li>AT/ET &lt; 0,32: função valvar normal.</li>
+          <li>0,32–0,37: possível estenose.</li>
+          <li>&gt; 0,37: estenose significativa (confirmar com AVA e gradiente).</li>
+          <li>Vantagem: útil em situações de baixo fluxo e em próteses.</li>
+          <li>Limitação: dependente da função sistólica e frequência cardíaca.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section id="explicacao-gmava" class="info-block">
+      <h3>Por que a razão GM/AVA importa?</h3>
+      <p>Em pacientes com AS de baixo fluxo e baixo gradiente (LG-AS), a razão MG/EOA oferece uma visão adicional da gravidade hemodinâmica.</p>
+
+      <details class="explain">
+        <summary>Entenda a razão GM/AVA</summary>
+        <ol>
+          <li>É um parâmetro ecocardiográfico novo e robusto, medido em repouso, capaz de diferenciar a AS verdadeira da pseudo-grave com alta precisão.</li>
+          <li>Um cutoff de MG/EOA ≥ 25 mmHg/cm² é ideal para identificar estenose aórtica verdadeiramente severa (TSAS) e se associa a maior risco de AVR ou mortalidade por todas as causas.</li>
+          <li>Pode complementar a avaliação da gravidade da AS junto ao dobutamine stress echo (DSE) ou à pontuação de cálcio da valva aórtica (AVC) por tomografia.</li>
+        </ol>
+      </details>
+    </section>
 
     <section id="explicacao-flow" class="info-block">
       <h3>Por que a taxa de fluxo importa na estenose aórtica?</h3>
@@ -316,20 +478,36 @@
         vtiLvot: document.getElementById('vtiLvot'),
         vtiAo: document.getElementById('vtiAo'),
         diametro: document.getElementById('diametro'),
+        gradienteMedio: document.getElementById('gradienteMedio'),
+        velocidadeMax: document.getElementById('velocidadeMax'),
         at: document.getElementById('at'),
         et: document.getElementById('et'),
         peso: document.getElementById('peso'),
         altura: document.getElementById('altura'),
         ava: document.getElementById('ava'),
-        csa: document.getElementById('csa'),
+        avaIndexed: document.getElementById('avaIndexed'),
+        gmAva: document.getElementById('gmAva'),
         sv: document.getElementById('sv'),
         svi: document.getElementById('svi'),
         bsa: document.getElementById('bsa'),
         dvi: document.getElementById('dvi'),
         atet: document.getElementById('atet'),
         flow: document.getElementById('flow'),
-        warn: document.getElementById('warn')
+        warn: document.getElementById('warn'),
+        copyBtn: document.getElementById('copySummary'),
+        copyStatus: document.getElementById('copyStatus')
       };
+
+      const state = {
+        ava: NaN,
+        avaIndexed: NaN,
+        dvi: NaN,
+        svi: NaN,
+        atet: NaN,
+        flow: NaN,
+        gmAva: NaN
+      };
+      let copyStatusTimer;
 
       function format(val) {
         // Mostra com 2 casas decimais e vírgula como separador local
@@ -338,15 +516,32 @@
       function formatRatio(val) {
         return isFinite(val) ? val.toFixed(2).replace('.', ',') : '—';
       }
+      function formatSummaryValue(val, decimals) {
+        if (!isFinite(val)) return null;
+        if (decimals === 0) {
+          return String(Math.round(val));
+        }
+        return val.toFixed(decimals).replace('.', ',');
+      }
 
       function recompute() {
         const vtiLvot = parsePtNumber(els.vtiLvot.value);
         const vtiAo = parsePtNumber(els.vtiAo.value);
         const d = parsePtNumber(els.diametro.value);
+        const gradienteMedio = parsePtNumber(els.gradienteMedio.value);
+        const velocidadeMax = parsePtNumber(els.velocidadeMax.value);
         const at = parsePtNumber(els.at.value);
         const et = parsePtNumber(els.et.value);
         const peso = parsePtNumber(els.peso.value);
         const altura = parsePtNumber(els.altura.value);
+
+        state.ava = NaN;
+        state.avaIndexed = NaN;
+        state.dvi = NaN;
+        state.svi = NaN;
+        state.atet = NaN;
+        state.flow = NaN;
+        state.gmAva = NaN;
 
         const invalidRequired = !isFinite(vtiLvot) || !isFinite(vtiAo) || !isFinite(d) || vtiLvot <= 0 || vtiAo <= 0 || d <= 0;
         const atProvided = els.at.value !== '';
@@ -355,6 +550,12 @@
         const validEt = etProvided && isFinite(et) && et > 0;
         const invalidAt = atProvided && !validAt;
         const invalidEt = etProvided && !validEt;
+        const gmProvided = els.gradienteMedio.value !== '';
+        const validGm = gmProvided && isFinite(gradienteMedio) && gradienteMedio > 0;
+        const invalidGm = gmProvided && !validGm;
+        const velMaxProvided = els.velocidadeMax.value !== '';
+        const validVelMax = velMaxProvided && isFinite(velocidadeMax) && velocidadeMax > 0;
+        const invalidVelMax = velMaxProvided && !validVelMax;
         const pesoProvided = els.peso.value !== '';
         const alturaProvided = els.altura.value !== '';
         const validPeso = pesoProvided && isFinite(peso) && peso > 0;
@@ -367,70 +568,139 @@
         els.warn.style.display =
           (invalidRequired && hasRequiredInput) ||
           ((invalidAt || invalidEt) && hasAtEtInput) ||
+          (invalidGm && gmProvided) ||
+          (invalidVelMax && velMaxProvided) ||
           (invalidAnthro && hasAnthroInput)
             ? 'block'
             : 'none';
 
         let strokeVolume = NaN;
+        let avaValue = NaN;
 
         if (invalidRequired) {
           els.ava.textContent = '—';
-          els.csa.textContent = '—';
+          els.avaIndexed.textContent = '—';
           els.sv.textContent = '—';
           els.svi.textContent = '—';
           els.bsa.textContent = '—';
           els.dvi.textContent = '—';
           els.flow.textContent = '—';
+          els.gmAva.textContent = '—';
         } else {
           // CSA em cm²
           const csa = Math.PI * Math.pow(d / 2, 2);
           // AVA em cm² pela continuidade
-          const ava = (csa * vtiLvot) / vtiAo;
+          avaValue = (csa * vtiLvot) / vtiAo;
           const dvi = vtiLvot / vtiAo;
           strokeVolume = csa * vtiLvot; // em mL (cm³)
 
-          els.csa.textContent = format(csa);
-          els.ava.textContent = format(ava);
-          els.sv.textContent = format(strokeVolume);
+          const avaDisplay = formatSummaryValue(avaValue, 1);
+          els.ava.textContent = avaDisplay !== null ? avaDisplay : '—';
+          const svDisplay = formatSummaryValue(strokeVolume, 0);
+          els.sv.textContent = svDisplay !== null ? svDisplay : '—';
           els.dvi.textContent = formatRatio(dvi);
+          state.ava = avaValue;
+          state.dvi = dvi;
         }
 
         let bsaValue = NaN;
         if (validPeso && validAltura) {
           bsaValue = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
           els.bsa.textContent = isFinite(bsaValue) ? format(bsaValue) : '—';
+          if (!invalidRequired && isFinite(avaValue) && isFinite(bsaValue) && bsaValue > 0) {
+            const avaIdx = avaValue / bsaValue;
+            if (isFinite(avaIdx)) {
+              const avaIdxDisplay = formatSummaryValue(avaIdx, 2);
+              els.avaIndexed.textContent = avaIdxDisplay !== null ? avaIdxDisplay : '—';
+              state.avaIndexed = avaIdx;
+            } else {
+              els.avaIndexed.textContent = '—';
+              state.avaIndexed = NaN;
+            }
+          } else {
+            els.avaIndexed.textContent = '—';
+            state.avaIndexed = NaN;
+          }
         } else if (!pesoProvided && !alturaProvided) {
           els.bsa.textContent = '—';
+          els.avaIndexed.textContent = '—';
+          state.avaIndexed = NaN;
         } else if (pesoProvided || alturaProvided) {
           els.bsa.textContent = '—';
+          els.avaIndexed.textContent = '—';
+          state.avaIndexed = NaN;
         }
 
         if (!invalidRequired && isFinite(strokeVolume) && isFinite(bsaValue) && bsaValue > 0) {
           const svi = strokeVolume / bsaValue;
-          els.svi.textContent = isFinite(svi) ? format(svi) : '—';
-        } else if (!pesoProvided && !alturaProvided) {
+          if (isFinite(svi)) {
+            const sviDisplay = formatSummaryValue(svi, 0);
+            els.svi.textContent = sviDisplay !== null ? sviDisplay : '—';
+            state.svi = svi;
+          } else {
+            els.svi.textContent = '—';
+            state.svi = NaN;
+          }
+        } else {
           els.svi.textContent = '—';
-        } else if (pesoProvided || alturaProvided) {
-          els.svi.textContent = '—';
+          state.svi = NaN;
+        }
+
+        if ((invalidRequired || !isFinite(avaValue) || avaValue <= 0) && !(validPeso && validAltura)) {
+          els.avaIndexed.textContent = '—';
+          state.avaIndexed = NaN;
         }
 
         if (!atProvided && !etProvided) {
           els.atet.textContent = '—';
+          state.atet = NaN;
         } else if (!invalidAt && !invalidEt && validAt && validEt) {
           const ratio = at / et;
-          els.atet.textContent = formatRatio(ratio);
+          if (isFinite(ratio)) {
+            els.atet.textContent = formatRatio(ratio);
+            state.atet = ratio;
+          } else {
+            els.atet.textContent = '—';
+            state.atet = NaN;
+          }
         } else {
           els.atet.textContent = '—';
+          state.atet = NaN;
         }
 
         if (!invalidRequired && !invalidEt && validEt) {
           const etSeconds = et / 1000;
           const flowRate = etSeconds > 0 && isFinite(strokeVolume) ? strokeVolume / etSeconds : NaN;
-          els.flow.textContent = isFinite(flowRate) ? format(flowRate) : '—';
-        } else if (!invalidRequired && !etProvided) {
-          els.flow.textContent = '—';
+          if (isFinite(flowRate)) {
+            const flowDisplay = formatSummaryValue(flowRate, 0);
+            els.flow.textContent = flowDisplay !== null ? flowDisplay : '—';
+            state.flow = flowRate;
+          } else {
+            els.flow.textContent = '—';
+            state.flow = NaN;
+          }
         } else {
           els.flow.textContent = '—';
+          state.flow = NaN;
+        }
+
+        if (!invalidRequired && gmProvided && !invalidGm && isFinite(avaValue) && avaValue > 0) {
+          const ratio = gradienteMedio / avaValue;
+          if (isFinite(ratio)) {
+            const formatted = formatSummaryValue(ratio, 0);
+            if (formatted !== null) {
+              els.gmAva.textContent = formatted;
+            } else {
+              els.gmAva.textContent = '—';
+            }
+            state.gmAva = ratio;
+          } else {
+            els.gmAva.textContent = '—';
+            state.gmAva = NaN;
+          }
+        } else {
+          els.gmAva.textContent = '—';
+          state.gmAva = NaN;
         }
       }
 
@@ -438,11 +708,140 @@
         els.vtiLvot.addEventListener(evt, recompute);
         els.vtiAo.addEventListener(evt, recompute);
         els.diametro.addEventListener(evt, recompute);
+        els.gradienteMedio.addEventListener(evt, recompute);
+        els.velocidadeMax.addEventListener(evt, recompute);
         els.at.addEventListener(evt, recompute);
         els.et.addEventListener(evt, recompute);
         els.peso.addEventListener(evt, recompute);
         els.altura.addEventListener(evt, recompute);
       });
+
+      function buildSummary() {
+        const parts = ['Valva aórtica calcificada, com cúspides restritas.'];
+        const velMax = parsePtNumber(els.velocidadeMax.value);
+        if (isFinite(velMax) && velMax > 0) {
+          const formatted = formatSummaryValue(velMax, 1);
+          if (formatted !== null) {
+            parts.push(`Vmax = ${formatted} m/s.`);
+          }
+        }
+        const gradiente = parsePtNumber(els.gradienteMedio.value);
+        if (isFinite(gradiente) && gradiente > 0) {
+          const formatted = formatSummaryValue(gradiente, 0);
+          if (formatted !== null) {
+            parts.push(`Gradiente sistólico médio = ${formatted} mmHg.`);
+          }
+        }
+        if (Number.isFinite(state.ava) && state.ava > 0) {
+          const formatted = formatSummaryValue(state.ava, 1);
+          if (formatted !== null) {
+            parts.push(`Área valvar = ${formatted} cm².`);
+          }
+        }
+        if (Number.isFinite(state.avaIndexed) && state.avaIndexed > 0) {
+          const formatted = formatSummaryValue(state.avaIndexed, 2);
+          if (formatted !== null) {
+            parts.push(`AVAi = ${formatted} cm²/m².`);
+          }
+        }
+        if (Number.isFinite(state.dvi) && state.dvi > 0) {
+          const formatted = formatSummaryValue(state.dvi, 2);
+          if (formatted !== null) {
+            parts.push(`DVI = ${formatted}.`);
+          }
+        }
+        const diametro = parsePtNumber(els.diametro.value);
+        if (isFinite(diametro) && diametro > 0) {
+          const formatted = formatSummaryValue(diametro, 1);
+          if (formatted !== null) {
+            parts.push(`VSVE = ${formatted} cm.`);
+          }
+        }
+        if (Number.isFinite(state.svi) && state.svi > 0) {
+          const formatted = formatSummaryValue(state.svi, 0);
+          if (formatted !== null) {
+            parts.push(`Volume sistólico ejetado = ${formatted} ml/m².`);
+          }
+        }
+        
+        if (Number.isFinite(state.atet) && state.atet > 0) {
+          const formatted = formatSummaryValue(state.atet, 2);
+          if (formatted !== null) {
+            parts.push(`Razão AT/ET = ${formatted}.`);
+          }
+        }
+        if (Number.isFinite(state.gmAva) && state.gmAva > 0) {
+          const formatted = formatSummaryValue(state.gmAva, 0);
+          if (formatted !== null) {
+            parts.push(`Razão GM/AVA = ${formatted} mmHg/cm².`);
+          }
+        }
+        if (Number.isFinite(state.flow) && state.flow > 0) {
+          const formatted = formatSummaryValue(state.flow, 0);
+          if (formatted !== null) {
+            parts.push(`Taxa de fluxo = ${formatted} ml/s.`);
+          }
+        }
+        return parts.join(' ');
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          return navigator.clipboard.writeText(text);
+        }
+        return new Promise((resolve, reject) => {
+          try {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (successful) {
+              resolve();
+            } else {
+              reject(new Error('execCommand falhou'));
+            }
+          } catch (err) {
+            reject(err);
+          }
+        });
+      }
+
+      function showCopyStatus(message, type = 'success') {
+        if (!els.copyStatus) return;
+        els.copyStatus.textContent = message;
+        els.copyStatus.classList.remove('success', 'error');
+        if (type === 'success') {
+          els.copyStatus.classList.add('success');
+        } else if (type === 'error') {
+          els.copyStatus.classList.add('error');
+        }
+        if (copyStatusTimer) {
+          clearTimeout(copyStatusTimer);
+        }
+        copyStatusTimer = window.setTimeout(() => {
+          els.copyStatus.textContent = '';
+          els.copyStatus.classList.remove('success', 'error');
+        }, 4000);
+      }
+
+      if (els.copyBtn) {
+        els.copyBtn.addEventListener('click', async () => {
+          const summary = buildSummary();
+          try {
+            await copyTextToClipboard(summary);
+            showCopyStatus('Resumo copiado!', 'success');
+          } catch (error) {
+            console.error('Falha ao copiar resumo', error);
+            showCopyStatus('Não foi possível copiar.', 'error');
+          }
+        });
+      }
 
       // Valores de exemplo para testar rapidamente
       // Descomente se quiser ver um exemplo carregado.
