@@ -64,6 +64,9 @@
         border-radius: 10px;
         padding: 12px 12px 10px;
       }
+      .field.span-3 {
+        grid-column: span 3;
+      }
       .field input[type="text"] {
         margin-top: 6px;
         background: transparent;
@@ -72,6 +75,23 @@
         outline: none;
         font-size: 1.05rem;
       }
+      .field-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .subfield {
+        flex: 1;
+        min-width: 140px;
+        display: flex;
+        flex-direction: column;
+      }
+      .subfield label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
       .suffix {
         color: var(--muted);
         font-size: 0.85rem;
@@ -79,7 +99,7 @@
       .results {
         margin-top: 18px;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
       }
       @media (max-width: 720px) {
@@ -93,6 +113,11 @@
       }
       .value {
         font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .value-sm {
+        font-size: 1.2rem;
         font-weight: 600;
         color: var(--accent);
       }
@@ -118,12 +143,59 @@
         font-size: 0.85rem;
       }
       .small { font-size: 0.9rem; color: var(--muted); }
+      .help-link{
+        display:inline-flex;
+        justify-content:center;
+        align-items:center;
+        width:18px;
+        height:18px;
+        border-radius:50%;
+        background: rgba(105,179,255,0.15);
+        color: var(--accent);
+        font-size:0.75rem;
+        margin-left:6px;
+        text-decoration:none;
+        border:1px solid rgba(105,179,255,0.35);
+      }
+      .help-link:hover{
+        background: rgba(105,179,255,0.25);
+      }
+      .info-block{
+        margin-top:32px;
+        background:#0d1526;
+        border:1px solid #243557;
+        border-radius:12px;
+        padding:20px;
+        display:grid;
+        gap:14px;
+      }
+      .info-block h3{
+        margin:0;
+        font-size:1.05rem;
+        color:var(--accent);
+      }
+      .info-block h4{
+        margin:0;
+        font-size:0.95rem;
+        color:var(--text);
+      }
+      .info-block p, .info-block li{
+        color:var(--muted);
+        font-size:0.9rem;
+        line-height:1.5;
+      }
+      .info-block ol{
+        margin:0;
+        padding-left:18px;
+        display:grid;
+        gap:10px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Área da Valva Aórtica</h1>
-      <p class="sub">Equação da continuidade: AVA = (CSA<sub>VSVE</sub> × VTI<sub>VSVE</sub>) ÷ VTI<sub>Ao</sub>, com CSA<sub>VSVE</sub> = π × (D/2)<sup>2</sup>.</p>
+      <p class="sub">Estimativa de taxa de fluxo e outros parâmetros associados
 
       <div class="grid">
         <div class="field">
@@ -138,9 +210,38 @@
           <label for="diametro">Diâmetro VSVE <span class="suffix">(cm)</span></label>
           <input id="diametro" inputmode="decimal" placeholder="ex.: 2,0" type="text" />
         </div>
+        <div class="field span-3">
+          <label>Dados antropométricos (opcionais)</label>
+          <div class="field-row">
+            <div class="subfield">
+              <label for="peso">Peso <span class="suffix">(kg)</span></label>
+              <input id="peso" inputmode="decimal" placeholder="ex.: 70" type="text" />
+            </div>
+            <div class="subfield">
+              <label for="altura">Altura <span class="suffix">(cm)</span></label>
+              <input id="altura" inputmode="decimal" placeholder="ex.: 170" type="text" />
+            </div>
+            <div class="subfield">
+              <label>Superfície corporal (DuBois)</label>
+              <div><span id="bsa" class="value-sm">—</span><span class="unit">m²</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="field span-3">
+          <div class="field-row">
+            <div class="subfield">
+              <label for="at">Tempo de aceleração <span class="suffix">(ms)</span></label>
+              <input id="at" inputmode="decimal" placeholder="ex.: 90" type="text" />
+            </div>
+            <div class="subfield">
+              <label for="et">Tempo de ejeção <span class="suffix">(ms)</span></label>
+              <input id="et" inputmode="decimal" placeholder="ex.: 300" type="text" />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div id="warn" class="warning">Informe valores numéricos positivos. VTI Ao não pode ser 0.</div>
+      <div id="warn" class="warning">Informe valores numéricos positivos. VTI Ao, tempos e dados antropométricos não podem ser 0.</div>
 
       <div class="results">
         <div class="card">
@@ -151,13 +252,57 @@
           <div class="small">Área da via de saída (CSA VSVE)</div>
           <div><span id="csa" class="value">—</span><span class="unit">cm²</span></div>
         </div>
+        <div class="card">
+          <div class="small">Volume sistólico (SV)</div>
+          <div><span id="sv" class="value">—</span><span class="unit">mL</span></div>
+          <div class="small">SV indexado</div>
+          <div><span id="svi" class="value">—</span><span class="unit">mL/m²</span></div>
+          
+        </div>
+        <div class="card">
+          <div class="small">DVI (VTI VSVE / VTI Ao)</div>
+          <div><span id="dvi" class="value">—</span></div>
+        </div>
+        <div class="card">
+          <div class="small">Relação AT/ET</div>
+          <div><span id="atet" class="value">—</span></div>
+          <div class="small">Taxa de fluxo média (Q̄)<a class="help-link" href="#explicacao-flow" title="Entenda a importância da taxa de fluxo">?</a></div>
+          <div><span id="flow" class="value">—</span><span class="unit">mL/s</span></div>
+        </div>
       </div>
 
-      <div class="formula">
-        AVA = π × (D/2)<sup>2</sup> × VTI<sub>VSVE</sub> ÷ VTI<sub>Ao</sub>
-      </div>
       <div class="foot">Dica: você pode usar vírgula ou ponto nos decimais.</div>
     </div>
+
+    <section id="explicacao-flow" class="info-block">
+      <h3>Por que a taxa de fluxo importa na estenose aórtica?</h3>
+      <p>Nos casos de estenose aórtica com discordância entre área valvar (AVA) e gradiente médio, especialmente no fenótipo low-flow, low-gradient (LFLG), a taxa de fluxo transvalvar (Q) é crucial para entender a hemodinâmica e definir a gravidade real da doença.</p>
+
+      <h4>1. Conceito de baixo fluxo</h4>
+      <p>Diretrizes ESC/EACTS 2025 e o consenso ASE/ESC sobre estresse valvar definem baixo fluxo quando o volume sistólico indexado (SVI) é &lt; 35 mL/m² ou a taxa de fluxo média (Q) é &lt; 200 mL/s.</p>
+      <p><strong>Fórmula:</strong> Q = SV / ET &nbsp;&nbsp;|&nbsp;&nbsp; SV derivado do VTI do LVOT e ET em segundos.</p>
+      <p>Fluxo reduzido leva a gradientes menores mesmo em estenoses anatomicamente graves, resultando em AVA ≤ 1,0 cm² com gradiente &lt; 40 mmHg.</p>
+
+      <h4>2. Papel fisiopatológico</h4>
+      <p>O gradiente médio depende do fluxo (ΔP ∝ Q²). Em baixo débito, pós-carga elevada ou remodelamento com cavidade pequena, a energia cinética diminui e o gradiente fica subestimado. A AVA pela continuidade pode superestimar a severidade se houver erro no LVOT ou fluxo muito baixo.</p>
+
+      <h4>3. Aplicação clínica</h4>
+      <p>Na estenose LFLG com fração de ejeção reduzida, usa-se ecocardiografia com dobutamina de baixa dose para avaliar reserva contrátil (↑ SV ≥ 20%) e a resposta de AVA/gradiente:</p>
+      <ul>
+        <li>Gradiente médio ≥ 40 mmHg com AVA ≤ 1,0 cm² → estenose verdadeiramente grave.</li>
+        <li>Gradiente &lt; 40 mmHg com AVA &gt; 1,0 cm² → pseudograve (estenose moderada).</li>
+      </ul>
+      <p>No fenótipo paradoxal (FE preservada), fluxos médios e o índice de fluxo projetado ajudam a reconhecer o impacto do débito reduzido por hipertrofia e rigidez diastólica. O fluxo projetado (Qproj) normaliza o gradiente para 250 mL/s e possui forte correlação com desfechos.</p>
+
+      <h4>4. Interpretação integrada (ESC/EACTS 2025)</h4>
+      <ol>
+        <li>Confirmar medidas e excluir erros técnicos.</li>
+        <li>Calcular SVI e/ou Q médio.</li>
+        <li>Se baixo fluxo, investigar disfunção sistólica ou fenótipo paradoxal.</li>
+        <li>Persistindo dúvida, recorrer ao estresse farmacológico ou ao calcium score valvar (≥ 2000 AU homens, ≥ 1200 AU mulheres sugerem estenose grave).</li>
+      </ol>
+      <p><strong>Resumo:</strong> O fluxo é o determinante primário do gradiente. Utilizar Q médio e Q projetado permite distinguir estenose verdadeiramente grave de pseudograve, orientando com mais segurança a indicação de TAVI ou cirurgia.</p>
+    </section>
 
     <script>
       function parsePtNumber(str) {
@@ -171,8 +316,18 @@
         vtiLvot: document.getElementById('vtiLvot'),
         vtiAo: document.getElementById('vtiAo'),
         diametro: document.getElementById('diametro'),
+        at: document.getElementById('at'),
+        et: document.getElementById('et'),
+        peso: document.getElementById('peso'),
+        altura: document.getElementById('altura'),
         ava: document.getElementById('ava'),
         csa: document.getElementById('csa'),
+        sv: document.getElementById('sv'),
+        svi: document.getElementById('svi'),
+        bsa: document.getElementById('bsa'),
+        dvi: document.getElementById('dvi'),
+        atet: document.getElementById('atet'),
+        flow: document.getElementById('flow'),
         warn: document.getElementById('warn')
       };
 
@@ -180,34 +335,113 @@
         // Mostra com 2 casas decimais e vírgula como separador local
         return isFinite(val) ? val.toFixed(2).replace('.', ',') : '—';
       }
+      function formatRatio(val) {
+        return isFinite(val) ? val.toFixed(2).replace('.', ',') : '—';
+      }
 
       function recompute() {
         const vtiLvot = parsePtNumber(els.vtiLvot.value);
         const vtiAo = parsePtNumber(els.vtiAo.value);
         const d = parsePtNumber(els.diametro.value);
+        const at = parsePtNumber(els.at.value);
+        const et = parsePtNumber(els.et.value);
+        const peso = parsePtNumber(els.peso.value);
+        const altura = parsePtNumber(els.altura.value);
 
-        const invalid = !isFinite(vtiLvot) || !isFinite(vtiAo) || !isFinite(d) || vtiLvot <= 0 || vtiAo <= 0 || d <= 0;
-        els.warn.style.display = invalid && (els.vtiLvot.value || els.vtiAo.value || els.diametro.value) ? 'block' : 'none';
+        const invalidRequired = !isFinite(vtiLvot) || !isFinite(vtiAo) || !isFinite(d) || vtiLvot <= 0 || vtiAo <= 0 || d <= 0;
+        const atProvided = els.at.value !== '';
+        const etProvided = els.et.value !== '';
+        const validAt = atProvided && isFinite(at) && at > 0;
+        const validEt = etProvided && isFinite(et) && et > 0;
+        const invalidAt = atProvided && !validAt;
+        const invalidEt = etProvided && !validEt;
+        const pesoProvided = els.peso.value !== '';
+        const alturaProvided = els.altura.value !== '';
+        const validPeso = pesoProvided && isFinite(peso) && peso > 0;
+        const validAltura = alturaProvided && isFinite(altura) && altura > 0;
+        const invalidAnthro = (pesoProvided && !validPeso) || (alturaProvided && !validAltura);
 
-        if (invalid) {
+        const hasRequiredInput = els.vtiLvot.value || els.vtiAo.value || els.diametro.value;
+        const hasAtEtInput = els.at.value || els.et.value;
+        const hasAnthroInput = els.peso.value || els.altura.value;
+        els.warn.style.display =
+          (invalidRequired && hasRequiredInput) ||
+          ((invalidAt || invalidEt) && hasAtEtInput) ||
+          (invalidAnthro && hasAnthroInput)
+            ? 'block'
+            : 'none';
+
+        let strokeVolume = NaN;
+
+        if (invalidRequired) {
           els.ava.textContent = '—';
           els.csa.textContent = '—';
-          return;
+          els.sv.textContent = '—';
+          els.svi.textContent = '—';
+          els.bsa.textContent = '—';
+          els.dvi.textContent = '—';
+          els.flow.textContent = '—';
+        } else {
+          // CSA em cm²
+          const csa = Math.PI * Math.pow(d / 2, 2);
+          // AVA em cm² pela continuidade
+          const ava = (csa * vtiLvot) / vtiAo;
+          const dvi = vtiLvot / vtiAo;
+          strokeVolume = csa * vtiLvot; // em mL (cm³)
+
+          els.csa.textContent = format(csa);
+          els.ava.textContent = format(ava);
+          els.sv.textContent = format(strokeVolume);
+          els.dvi.textContent = formatRatio(dvi);
         }
 
-        // CSA em cm²
-        const csa = Math.PI * Math.pow(d / 2, 2);
-        // AVA em cm² pela continuidade
-        const ava = (csa * vtiLvot) / vtiAo;
+        let bsaValue = NaN;
+        if (validPeso && validAltura) {
+          bsaValue = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
+          els.bsa.textContent = isFinite(bsaValue) ? format(bsaValue) : '—';
+        } else if (!pesoProvided && !alturaProvided) {
+          els.bsa.textContent = '—';
+        } else if (pesoProvided || alturaProvided) {
+          els.bsa.textContent = '—';
+        }
 
-        els.csa.textContent = format(csa);
-        els.ava.textContent = format(ava);
+        if (!invalidRequired && isFinite(strokeVolume) && isFinite(bsaValue) && bsaValue > 0) {
+          const svi = strokeVolume / bsaValue;
+          els.svi.textContent = isFinite(svi) ? format(svi) : '—';
+        } else if (!pesoProvided && !alturaProvided) {
+          els.svi.textContent = '—';
+        } else if (pesoProvided || alturaProvided) {
+          els.svi.textContent = '—';
+        }
+
+        if (!atProvided && !etProvided) {
+          els.atet.textContent = '—';
+        } else if (!invalidAt && !invalidEt && validAt && validEt) {
+          const ratio = at / et;
+          els.atet.textContent = formatRatio(ratio);
+        } else {
+          els.atet.textContent = '—';
+        }
+
+        if (!invalidRequired && !invalidEt && validEt) {
+          const etSeconds = et / 1000;
+          const flowRate = etSeconds > 0 && isFinite(strokeVolume) ? strokeVolume / etSeconds : NaN;
+          els.flow.textContent = isFinite(flowRate) ? format(flowRate) : '—';
+        } else if (!invalidRequired && !etProvided) {
+          els.flow.textContent = '—';
+        } else {
+          els.flow.textContent = '—';
+        }
       }
 
       ['input', 'change'].forEach(evt => {
         els.vtiLvot.addEventListener(evt, recompute);
         els.vtiAo.addEventListener(evt, recompute);
         els.diametro.addEventListener(evt, recompute);
+        els.at.addEventListener(evt, recompute);
+        els.et.addEventListener(evt, recompute);
+        els.peso.addEventListener(evt, recompute);
+        els.altura.addEventListener(evt, recompute);
       });
 
       // Valores de exemplo para testar rapidamente
@@ -219,4 +453,3 @@
     </script>
   </body>
 </html>
-
