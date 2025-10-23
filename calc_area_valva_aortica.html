@@ -343,7 +343,7 @@
           <div><span id="gmAva" class="value">—</span><span class="unit">mmHg/cm²</span></div>
         </div>
         <div class="card">
-          <div class="small">Volume sistólico (SV)</div>
+          <div class="small">Volume sistólico ejetado (SV)</div>
           <div><span id="sv" class="value">—</span><span class="unit">mL</span></div>
           <div class="small">SV indexado</div>
           <div><span id="svi" class="value">—</span><span class="unit">mL/m²</span></div>
@@ -764,24 +764,6 @@
           }
         }
         
-        if (Number.isFinite(state.atet) && state.atet > 0) {
-          const formatted = formatSummaryValue(state.atet, 2);
-          if (formatted !== null) {
-            parts.push(`Razão AT/ET = ${formatted}.`);
-          }
-        }
-        if (Number.isFinite(state.gmAva) && state.gmAva > 0) {
-          const formatted = formatSummaryValue(state.gmAva, 0);
-          if (formatted !== null) {
-            parts.push(`Razão GM/AVA = ${formatted} mmHg/cm².`);
-          }
-        }
-        if (Number.isFinite(state.flow) && state.flow > 0) {
-          const formatted = formatSummaryValue(state.flow, 0);
-          if (formatted !== null) {
-            parts.push(`Taxa de fluxo = ${formatted} ml/s.`);
-          }
-        }
         return parts.join(' ');
       }
 
