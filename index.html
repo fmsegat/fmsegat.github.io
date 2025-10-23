@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -276,7 +277,6 @@
     <button type="button"><a href="https://fmsegat.github.io/calc_area_valva_aortica.html">Área Valva Aórtica</a></button>
     <!-- Botão para índice por altura -->
     <button type="button" id="calcAlturaBtn" class="btn-info">VAE indexado à altura (IMC&gt;30)</button>
-    <span>* Usar somente em baixo fluxo</span>
   </div>
 
   <!-- Tabela principal -->
@@ -469,9 +469,9 @@
       vaeDisp = (vaeDisp || '').toString().replace('.', ',');
   
       const dados = [
-        ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}", fe.toFixed(1).replace('.', ','), "%"],
-        ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}", vdf.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}", vsf.toFixed(1).replace('.', ','), "ml/m²"],
+        ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1).replace('.', ','), "%"],
+        ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "ml/m²"],
+        ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "ml/m²"],
         ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "ml/m²"],
         ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
         ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
