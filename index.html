@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,34 +6,69 @@
   <link rel="icon" type="image/x-icon" href="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/favicon.png">
   <style>
     :root{
-      --bg:#bdbfc4;
-      --panel:#111827;
-      --card:#1f2937;
-      --muted:#c3c7cd;
-      --text:#ffffff;
-      --accent:#22c55e;
+      --bg:#0b1220;
+      --panel:#121a2b;
+      --card:#0d1526;
+      --muted:#9fb0c0;
+      --text:#e6edf3;
+      --accent:#69b3ff;
       --warn:#f59e0b;
-      --danger:#ef4444;
-      --info:#3b82f6;
-      --ink:#ffffff;
-      --text-input:#ffffff;
-      --border:rgba(148,163,184,.25);
-      --border-soft:rgba(148,163,184,.12);
+      --accent-light:#69b3ff;
+      --info-light:#4c8dff;
+      --warn-light:#f59e0b;
+      --danger:#ff6b6b;
+      --info:#4c8dff;
+      --ink:#0d1526;
+      --text-input:#e6edf3;
+      --border:#243557;
+      --border-soft:rgba(36,53,87,0.6);
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
+      --bg-gradient-1:#12213c;
+      --bg-gradient-2:#1a2a48;
+      --btn-base:#1f2c45;
+      --btn-info-hover:color-mix(in srgb, #69b3ff 55%, #1f2c45 45%);
+      --btn-primary-hover:color-mix(in srgb, #4c8dff 60%, #1f2c45 40%);
+      --btn-success-hover:color-mix(in srgb, #69b3ff 65%, #1f2c45 35%);
+      --btn-warning-hover:color-mix(in srgb, #f59e0b 65%, #1f2c45 35%);
     }
-    a { text-decoration:none; color:#ffff }
+    *{ box-sizing:border-box; }
+    a { text-decoration:none; color:var(--text) }
+    a:hover{ color:var(--accent); }
     html, body { height:100% }
     body{
-      margin:20px;
-      font-family: Arial;
+      margin:0;
+      min-height:100vh;
+      padding:32px 16px 48px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 12pt;
       color: var(--text);
-      background: var(--bg);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, var(--bg-gradient-1), transparent),
+        radial-gradient(900px 500px at 110% -10%, var(--bg-gradient-2), transparent),
+        var(--bg);
+    }
+    .logo-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 18px;
+      background: color-mix(in srgb, var(--muted) 18%, transparent);
+      border:1px solid color-mix(in srgb, var(--muted) 40%, transparent);
+      border-radius:14px;
+      margin:0 auto 24px;
+      box-shadow: var(--shadow);
+      transition: transform .02s ease-in-out, filter .2s ease;
+    }
+    .logo-link:hover{ filter:brightness(1.08); }
+    .logo-link:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:2px;
     }
     .logo{ width:25%; height:auto }
     h1{
       text-align:center;
       margin-top:0%;
-      color: black;
+      color: var(--text);
       letter-spacing:.2px;
     }
 
@@ -44,11 +77,11 @@
       width:100%;
       max-width:800px;
       margin:0 auto;
-      background: rgba(31,41,55,.7);
-      backdrop-filter: blur(6px);
-      border:1px solid var(--border-soft);
+      background: color-mix(in oklab, var(--panel) 92%, #000 8%);
+      border:1px solid var(--border);
       border-radius:18px;
       padding:16px;
+      box-shadow: var(--shadow);
     }
 
     /* Columns of inputs */
@@ -65,7 +98,7 @@
     .input-field{ display:flex; flex-direction:column }
     .input-field label{
       margin-bottom:6px;
-      font-size:18px;
+      font-size:16px;
       color: var(--muted);
       font-weight:600;
     }
@@ -76,11 +109,22 @@
       font-weight: bold;
       width:100%;
       box-sizing:border-box;
-      color: #000000;
+      color: var(--text-input);
       background: var(--ink);
       border:1px solid var(--border);
       border-radius:12px;
       outline:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    input::placeholder,
+    textarea::placeholder{
+      color: color-mix(in srgb, var(--muted) 65%, var(--text) 35%);
+    }
+    input:focus,
+    select:focus,
+    textarea:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(105,179,255,0.25);
     }
     input[type="number"]{ appearance:textfield }
     select{ height: fit-content }
@@ -100,18 +144,77 @@
       cursor:pointer;
       border:0;
       border-radius:14px;
-      background: rgb(112, 129, 142);
+      background: var(--btn-base);
       color: var(--text);
       font-weight:700;
-      transition: transform .02s ease-in-out, background .2s ease;
+      transition: transform .02s ease-in-out, filter .2s ease;
+    }
+    button:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:2px;
+    }
+    button a{ color:inherit; }
+    button:hover{
+      filter: brightness(1.1);
     }
     button:active{ transform: scale(.98) }
-    .btn-primary{ background: var(--info) }
-    .btn-success{ background: var(--accent) }
-    .btn-warning{ background: var(--warn) }
+    .btn-primary{ background: var(--info-light) }
+    .btn-success{ background: var(--accent-light) }
+    .btn-warning{ background: var(--warn-light); color: var(--text); }
+    .btn-primary:hover,
+    .btn-primary:focus-visible{
+      background: var(--btn-primary-hover);
+      filter:none;
+    }
+    .btn-success:hover,
+    .btn-success:focus-visible{
+      background: var(--btn-success-hover);
+      filter:none;
+    }
+    .btn-warning:hover,
+    .btn-warning:focus-visible{
+      background: var(--btn-warning-hover);
+      filter:none;
+    }
     .btn-danger{ background: var(--danger) }
     /* ADICIONADO: estilo para o botão “VAE indexado à altura” */
-    .btn-info{ background: rgb(112, 129, 142) }
+    .btn-info{ background: var(--btn-base) }
+    .btn-info:hover,
+    .btn-info:focus-visible{
+      background: var(--btn-info-hover);
+      filter:none;
+    }
+    .link-button{
+      padding:0;
+    }
+    .link-button > a{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 14px;
+      width:100%;
+      height:100%;
+      color:inherit;
+      border-radius:inherit;
+    }
+    .link-button > a:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:2px;
+    }
+    .theme-toggle{
+      position:fixed;
+      top:18px;
+      right:18px;
+      padding:8px 14px;
+      font-size:0.75rem;
+      border-radius:999px;
+      z-index:10;
+      border:1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+      background: color-mix(in srgb, var(--muted) 18%, transparent);
+      color: var(--text);
+      cursor:pointer;
+    }
+    .theme-toggle:hover{ filter:brightness(1.08); }
 
     /* Inline alert */
     #alerta{
@@ -128,23 +231,24 @@
       border-collapse:collapse;
       margin-top:16px;
       font-size: 8pt;
-      background: whitesmoke;
-      border:1px solid var(--border-soft);
+      background: var(--card);
+      border:1px solid var(--border);
       border-radius:14px;
       overflow:hidden;
+      box-shadow: var(--shadow);
     }
     thead th{
-      color: var(--muted);
+      color: var(--text);
       font-weight:700;
-      background:whitesmoke;
-      border-bottom:1px solid var(--border-soft);
+      background: color-mix(in srgb, var(--card) 70%, var(--border) 30%);
+      border-bottom:1px solid color-mix(in srgb, var(--border) 60%, transparent);
     }
-    tr + tr td{ border-top:1px solid var(--border-soft) }
+    tr + tr td{ border-top:1px solid color-mix(in srgb, var(--border) 50%, transparent) }
     td, th{
       padding:4px;
       text-align:center;
       border:none;
-      color: #000000;
+      color: var(--text);
     }
     table tr:first-child{ border-top: 0 }
     table tr:last-child{ border-bottom: 0 }
@@ -162,21 +266,23 @@
       text-align: center;
       font-size: 12pt;
       font-weight: 700;
-      color: black;
-      background-color: whitesmoke;
+      color: var(--text);
+      background: transparent;
       margin-top: 30px;
       margin-bottom: 10px; /* título próximo da tabela */
     }
 
     /* Flags visuais para cortes */
 .flag-abn{ color: var(--danger); font-weight: 800; }
-.flag-ok{ color: #000000; }
+.flag-ok{ color: var(--text); }
 
   </style>
 </head>
 <body>
 
-  <a href="https://www.cardiodiagnostico.com.br/" target="_blank">
+  <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema">Tema claro</button>
+
+  <a class="logo-link" href="https://www.cardiodiagnostico.com.br/" target="_blank">
     <img src="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/logo.png" alt="Cardiodiagnóstico" class="logo">
   </a>
 
@@ -270,11 +376,11 @@
   </div>
 
   <div class="actions">
-    <button type="button"><a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/teer.html">Checklist TEER</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/stress-echo-abcde.html">Estresse</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/wilkins_EM.html">Escore Wilkins</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/calc_area_valva_aortica.html">Área Valva Aórtica</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/teer.html">Checklist TEER</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/stress-echo-abcde.html">Estresse</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/wilkins_EM.html">Escore Wilkins</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/calc_area_valva_aortica.html">Área Valva Aórtica</a></button>
     <!-- Botão para índice por altura -->
     <button type="button" id="calcAlturaBtn" class="btn-info">VAE indexado à altura (IMC&gt;30)</button>
   </div>
@@ -300,6 +406,95 @@
     const calcAlturaBtn  = document.getElementById('calcAlturaBtn');
     const tabelaAltura   = document.getElementById('resultadoAltura');
     const tituloAlturaEl = document.getElementById('tituloAltura');
+    const themeToggleBtn = document.getElementById('themeToggle');
+
+    const themes = {
+      dark: {
+        '--bg':'#0b1220',
+        '--panel':'#121a2b',
+        '--card':'#0d1526',
+        '--muted':'#9fb0c0',
+        '--text':'#e6edf3',
+        '--accent':'#69b3ff',
+        '--warn':'#f59e0b',
+        '--danger':'#ff6b6b',
+        '--info':'#4c8dff',
+        '--ink':'#0d1526',
+        '--text-input':'#e6edf3',
+        '--border':'#243557',
+        '--border-soft':'rgba(36,53,87,0.6)',
+        '--shadow':'0 10px 30px rgba(0,0,0,0.35)',
+        '--bg-gradient-1':'#12213c',
+        '--bg-gradient-2':'#1a2a48',
+        '--btn-base':'#1f2c45',
+        '--btn-info-hover':'color-mix(in srgb, #69b3ff 55%, #1f2c45 45%)',
+        '--btn-primary-hover':'color-mix(in srgb, #4c8dff 60%, #1f2c45 40%)',
+        '--btn-success-hover':'color-mix(in srgb, #69b3ff 65%, #1f2c45 35%)',
+        '--btn-warning-hover':'color-mix(in srgb, #f59e0b 65%, #1f2c45 35%)',
+        '--accent-light':'#69b3ff',
+        '--info-light':'#4c8dff',
+        '--warn-light':'#f59e0b'
+      },
+      light: {
+        '--bg':'#f3f4f6',
+        '--panel':'#ffffff',
+        '--card':'#f8fafc',
+        '--muted':'#4b5563',
+        '--text':'#111827',
+        '--accent':'#2563eb',
+        '--warn':'#c2410c',
+        '--danger':'#dc2626',
+        '--info':'#1d4ed8',
+        '--ink':'#ffffff',
+        '--text-input':'#111827',
+        '--border':'rgba(148,163,184,0.45)',
+        '--border-soft':'rgba(148,163,184,0.25)',
+        '--shadow':'0 12px 24px rgba(15,23,42,0.12)',
+        '--bg-gradient-1':'#cbd5f5',
+        '--bg-gradient-2':'#a5b4fc',
+        '--btn-base':'#e2e8f0',
+        '--btn-info-hover':'color-mix(in srgb, #93c5fd 55%, #e2e8f0 45%)',
+        '--btn-primary-hover':'color-mix(in srgb, #93c5fd 60%, #e2e8f0 40%)',
+        '--btn-success-hover':'color-mix(in srgb, #bcdfff 60%, #e2e8f0 40%)',
+        '--btn-warning-hover':'color-mix(in srgb, #fce9c2 65%, #e2e8f0 35%)',
+        '--accent-light':'#93c5fd',
+        '--info-light':'#93c5fd',
+        '--warn-light':'#facc87'
+      }
+    };
+
+    function applyTheme(themeName) {
+      const theme = themes[themeName];
+      if (!theme) return;
+      Object.entries(theme).forEach(([name, value]) => setCssVar(name, value));
+      document.documentElement.dataset.theme = themeName;
+      if (themeToggleBtn) {
+        const label = themeName === 'dark' ? 'Tema claro' : 'Tema escuro';
+        themeToggleBtn.textContent = label;
+        themeToggleBtn.setAttribute('aria-label', label);
+      }
+      try {
+        localStorage.setItem('eco-theme', themeName);
+      } catch (error) {
+        /* ignore storage failures */
+      }
+    }
+
+    let storedTheme = null;
+    try {
+      storedTheme = localStorage.getItem('eco-theme');
+    } catch (error) {
+      storedTheme = null;
+    }
+    const initialTheme = themes[storedTheme] ? storedTheme : 'dark';
+    applyTheme(initialTheme);
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+      });
+    }
   
     calcAlturaBtn.addEventListener('click', calcularIndexAltura);
     calcularBtn.addEventListener('click', calcular);
@@ -404,10 +599,16 @@
         });
       }
   
-      function mostraAlerta(msg, cor = "green") {
+      function mostraAlerta(msg, cor = null) {
         alerta.textContent = msg;
         alerta.style.display = "block";
-        alerta.style.color = (cor === "orange") ? "#f59e0b" : cor;
+        const palette = {
+          orange: getCssVar('--warn'),
+          red: getCssVar('--danger'),
+          green: getCssVar('--accent')
+        };
+        const resolved = palette[cor] || cor || getCssVar('--accent');
+        alerta.style.color = resolved;
         setTimeout(() => alerta.style.display = "none", 2500);
       }
     }
@@ -500,7 +701,7 @@
       if (!tabela.innerText.trim()) {
         alerta.textContent = "Nenhum resultado para copiar.";
         alerta.style.display = "block";
-        alerta.style.color = "red";
+        alerta.style.color = getCssVar('--danger');
         setTimeout(() => alerta.style.display = "none", 2000);
         return;
       }
@@ -516,10 +717,10 @@
       try {
         document.execCommand('copy');
         alerta.textContent = "Tabela copiada para a área de transferência.";
-        alerta.style.color = "green";
+        alerta.style.color = getCssVar('--accent');
       } catch (err) {
         alerta.textContent = "Erro ao copiar a tabela.";
-        alerta.style.color = "red";
+        alerta.style.color = getCssVar('--danger');
       }
   
       alerta.style.display = "block";
