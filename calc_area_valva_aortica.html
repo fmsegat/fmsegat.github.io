@@ -310,7 +310,7 @@
               <input id="altura" inputmode="decimal" placeholder="ex.: 170" type="text" />
             </div>
             <div class="subfield">
-              <label>Superfície corporal (DuBois)</label>
+              <label>Superfície corporal (Mosteller)</label>
               <div><span id="bsa" class="value-sm">—</span><span class="unit">m²</span></div>
             </div>
           </div>
@@ -605,7 +605,7 @@
 
         let bsaValue = NaN;
         if (validPeso && validAltura) {
-          bsaValue = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
+          bsaValue = Math.sqrt((peso * altura) / 3600);
           els.bsa.textContent = isFinite(bsaValue) ? format(bsaValue) : '—';
           if (!invalidRequired && isFinite(avaValue) && isFinite(bsaValue) && bsaValue > 0) {
             const avaIdx = avaValue / bsaValue;
