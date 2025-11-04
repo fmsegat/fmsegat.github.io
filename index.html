@@ -331,8 +331,8 @@
       }
       const alturaM = alturaCm / 100;
   
-      // DuBois (altura em cm)
-      const sc  = 0.007184 * Math.pow(peso, 0.425) * Math.pow(alturaCm, 0.725);
+      // Mosteller (altura em cm)
+      const sc  = Math.sqrt((peso * alturaCm) / 3600);
       const imc = peso / Math.pow(alturaM, 2);
   
       if (!vaeStr) {
@@ -433,8 +433,8 @@
       let vaeTipo = document.getElementById('vaeTipo').value;
       const metodoSel = document.getElementById('metodoSelect').value;
   
-      // SC (DuBois) com altura em cm
-      const sc  = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
+      // SC (Mosteller) com altura em cm
+      const sc  = Math.sqrt((peso * altura) / 3600);
       const imc = peso / Math.pow((altura / 100), 2);
   
       function teichholz(d) {
@@ -476,7 +476,7 @@
         ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
         ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
         ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2).replace('.', ','), ""],
-        ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Dubois)", sc.toFixed(2).replace('.', ','), "m²"],
+        ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Mosteller)", sc.toFixed(2).replace('.', ','), "m²"],
         ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
         ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vaeDisp, vae_tipo_display]
       ];
