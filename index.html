@@ -938,7 +938,7 @@
         metodo = metodoSel || "Manual";
       }
   
-      const fe  = ((vdf - vsf) / vdf) * 100;
+      const fe = Math.round(((vdf - vsf) / vdf) * 100);
       const ve  = vdf - vsf;
       const ic  = (fc * ve) / 1000; // L/min/m²
       const imve = (0.8 * (1.04 * (Math.pow((ddve/10 + septo/10 + parede/10), 3) - Math.pow((ddve/10), 3))) + 0.6) / sc;
