@@ -955,17 +955,18 @@
       vaeDisp = (vaeDisp || '').toString().replace('.', ',');
   
       const dados = [
-        ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1).replace('.', ','), "%"],
-        ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
-        ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
-        ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2).replace('.', ','), ""],
-        ["Frequência cardíaca", fc, "bpm", `Superfície corporal (${metodoBsa.label})`, sc.toFixed(2).replace('.', ','), "m²"],
-        ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
-        ["Altura", (Number.isInteger(alturaCm) ? alturaCm.toString() : alturaCm.toFixed(1)).replace('.', ','), "cm", "Volume do Átrio Esquerdo", vaeDisp, vae_tipo_display]
-      ];
+  ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, Math.round(fe).toString().replace('.', ','), "%"],
+  ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "ml/m²"],
+  ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "ml/m²"],
+  ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "ml/m²"],
+  ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
+  ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
+  ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2).replace('.', ','), ""],
+  ["Frequência cardíaca", fc, "bpm", `Superfície corporal (${metodoBsa.label})`, sc.toFixed(2).replace('.', ','), "m²"],
+  ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
+  ["Altura", (Number.isInteger(alturaCm) ? alturaCm.toString() : alturaCm.toFixed(1)).replace('.', ','), "cm", "Volume do Átrio Esquerdo", vaeDisp, vae_tipo_display]
+];
+
   
       tabela.innerHTML = '';
       dados.forEach(linha => {
