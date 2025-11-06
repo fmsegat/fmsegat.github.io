@@ -354,6 +354,28 @@
       margin-top: 30px;
       margin-bottom: 10px; /* título próximo da tabela */
     }
+    #apiKeyContainer{
+      margin:16px auto 0;
+      max-width:800px;
+      display:flex;
+      justify-content:center;
+    }
+    #key{
+      width:220px;
+      max-width:100%;
+    }
+    #gptOutputContainer{
+      width:100%;
+      max-width:800px;
+      margin:16px auto 0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    #gptOutput{
+      min-height:160px;
+      resize:vertical;
+    }
 
     /* Flags visuais para cortes */
 .flag-abn{ color: var(--danger); font-weight: 800; }
@@ -463,6 +485,7 @@
       <button id="calcularBtn" type="button" class="btn-success">Calcular</button>
       <button type="button" onclick="copiarTabela()" class="btn-primary">Copiar</button>
       <button type="button" onclick="limparFormulario()" class="btn-warning">Limpar</button>
+      <button class="btn-success" id="gptBtn">Analizar GPT (é necessário inserir sua chave)</button>
     </div>
 
     <div id="alerta"></div>
@@ -477,9 +500,17 @@
     <!-- Botão para índice por altura -->
     <button type="button" id="calcAlturaBtn" class="btn-info">VAE indexado à altura (IMC&gt;30)</button>
   </div>
+  <div id="apiKeyContainer">
+    <input type="text" id="key" placeholder="Insira sua chave da OpenAI">
+  </div>
 
   <!-- Tabela principal -->
   <table id="resultado"></table>
+
+  <div id="gptOutputContainer" class="hidden">
+    <label for="gptOutput">Análise GPT</label>
+    <textarea id="gptOutput" readonly placeholder="A análise do GPT aparecerá aqui."></textarea>
+  </div>
 
   <!-- Tabela de referência para obesos -->
   <h2 id="tituloAltura" class="hidden">Avaliação do volume atrial em obesos (apenas para consulta/referência)</h2>
@@ -504,6 +535,8 @@
     const bsaMethodPanel  = document.getElementById('bsaMethodPanel');
     const bsaMethodOptions = bsaMethodPanel ? Array.from(bsaMethodPanel.querySelectorAll('[data-bsa-metodo]')) : [];
     const alertaEl        = document.getElementById('alerta');
+    const gptOutputContainer = document.getElementById('gptOutputContainer');
+    const gptOutput       = document.getElementById('gptOutput');
     let alertaTimeoutId   = null;
 
     function showAlert(msg, cor = null, duracao = 2500) {
@@ -780,6 +813,78 @@
   
     calcAlturaBtn.addEventListener('click', calcularIndexAltura);
     calcularBtn.addEventListener('click', calcular);
+    document.getElementById("gptBtn").addEventListener("click", function() {
+      calcular();
+      const sexo = prompt("Informe o sexo do paciente (M/F):").toUpperCase();
+      const idade = prompt("Informe a idade do paciente (em anos):");
+      const apiKey = document.getElementById("key").value.trim();
+      if (!apiKey) {
+        showAlert("Por favor, insira sua chave da OpenAI no campo abaixo.", "red");
+        return;
+      }
+      analizeGpt(sexo, idade, apiKey);
+    });
+
+    function analizeGpt(sexo, idade, apiKey) {
+      const tabelaHtml = tabela.outerHTML;
+      const prompt = `
+      Aja como um ecocardiografista experiente: com base nos dados antropométricos e ecocardiográficos inseridos,
+       correlacione às diretrizes da American Society of Echocardiography (ASE) e da European Association of Cardiovascular Imaging (EACVI),
+        oriente a graduaçao de severidade das doenças cardiovasculares. Para avaliaçoes da aorta torácica,
+         leve em consideraçao o estudo MATEAR.
+      \n\n${tabelaHtml}`;
+
+      if (gptOutputContainer) {
+        gptOutputContainer.classList.remove('hidden');
+      }
+      if (gptOutput) {
+        gptOutput.value = "Gerando análise clínica...";
+      }
+      
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-5",
+          messages: [{ role: "user", content: prompt }],
+          
+        })
+      })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => "");
+          throw new Error(errorText || `Falha HTTP ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.choices && data.choices.length > 0) {
+          const gptResponse = data.choices[0].message.content;
+          if (gptOutput) {
+            gptOutput.value = gptResponse;
+            gptOutput.scrollTop = 0;
+          }
+        } else {
+          const message = "Nenhuma resposta recebida da API GPT.";
+          if (gptOutput) {
+            gptOutput.value = message;
+          }
+          showAlert(message, "red");
+        }
+      })
+      .catch(error => {
+        console.error("Erro ao chamar a API GPT:", error);
+        const message = "Erro ao chamar a API GPT. Verifique sua chave e conexão.";
+        if (gptOutput) {
+          gptOutput.value = message;
+        }
+        showAlert(message, "red");
+      });
+    }
+
   
     /* ---- utilitário: oculta e limpa a tabela de obesos ---- */
     function hideAlturaTable(){
