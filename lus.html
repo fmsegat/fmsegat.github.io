@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Quantificador de Linhas B – Cardiodiagnóstico</title>
+<title>Quantificador de Linhas B – </title>
 <style>
   :root{
     --bg: #0b1220; /* fundo escuro elegante */
@@ -21,6 +21,11 @@
   .title{font-weight:700;font-size:1.25rem;letter-spacing:.2px}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px}
   .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  /* ForÃ§ar quebra de linha para elementos marcados e separadores */
+  .controls .controls-sep{grid-column:1 / -1}
+  /* Não forçar largura total dos rótulos para aproximar selects dos textos */
+  .controls .ctrl-probe,
+  .controls .ctrl-sliding{grid-column:auto}
   @media (max-width:820px){.controls{grid-template-columns:1fr}}
   select, input[type="number"], button, textarea{background:#0e1626;color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px}
   select:focus, input[type="number"]:focus, textarea:focus, button:focus{outline:2px solid var(--brand);outline-offset:1px}
@@ -46,40 +51,68 @@
   .mini{padding:6px 10px;border-radius:10px}
   .caption{font-size:.82rem;color:var(--muted)}
   .divider{height:1px;background:var(--border);margin:12px 0}
+  .divider-tight{margin:8px 0}
   textarea{width:100%;min-height:120px;resize:vertical}
+  /* Aproximar rÃ³tulo e select nos controles de topo */
+  .controls .row{gap:4px}
+  
+  .controls .row label{color:#fff}
+
+  /* 4 quadrantes (protocolo 4 zonas) */
+  .zones--quad{grid-template-columns:1fr 1fr !important;grid-template-rows:auto auto;grid-template-areas:
+    "r-top l-top"
+    "r-bottom l-bottom";
+  }
+  .zones--quad .zone[data-pos="r-top"]{grid-area:r-top}
+  .zones--quad .zone[data-pos="r-bottom"]{grid-area:r-bottom}
+  .zones--quad .zone[data-pos="l-top"]{grid-area:l-top}
+  .zones--quad .zone[data-pos="l-bottom"]{grid-area:l-bottom}
+  /* DiferenciaÃ§Ã£o visual por lado (cores claras) */
+  .zone--right{
+    background: linear-gradient(0deg, rgba(90,169,255,0.14), rgba(90,169,255,0.14)), #0f1a2d;
+    border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
+  }
+  .zone--left{
+    background: linear-gradient(0deg, rgba(100,220,180,0.14), rgba(100,220,180,0.14)), #0f1a2d;
+    border-color: color-mix(in srgb, #34d399 35%, var(--border));
+  }
+  /* 8 zonas: duas colunas por lateralidade */
+  .zones--eight{grid-template-columns:1fr 1fr !important}
+  .zones--eight .zone--right{grid-column:1}
+  .zones--eight .zone--left{grid-column:2}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="title">🫁 Quantificador de Linhas B · Cardiodiagnóstico</div>
+    <div class="title">🫁 Quantificador de Linhas B · (em desenvolvimento)</div>
     <button class="mini ghost" id="btnReset">Reiniciar</button>
   </header>
 
   <section class="card">
     <div class="controls">
-      <label class="row"><span class="grow">Protocolo de zonas</span>
+      <label class="row ctrl ctrl-protocol"><span class="grow">Protocolo de zonas</span>
         <select id="protocol">
-          <option value="8" selected>8 zonas (clínico)</option>
-          <option value="12">12 zonas (inclui posterior)</option>
-          <option value="28">28 zonas (pesquisa)</option>
-        </select>
-      </label>
-      <label class="row"><span class="grow">Transdutor</span>
+          <option value="4" selected>4 zonas</option>
+          <option value="8">8 zonas</option>
+        </select>      </label>
+      <div class="divider controls-sep divider-tight"></div>
+      <label class="row ctrl ctrl-probe"><span class="grow">Transdutor</span>
         <select id="probe">
-          <option>Convexo 2–5 MHz</option>
-          <option>Linear 7–12 MHz</option>
-          <option>Setorial 1–5 MHz</option>
+          <option>Convexo 2-5 MHz</option>
+          <option>Linear 7-12 MHz</option>
+          <option selected>Setorial 1-5 MHz</option>
         </select>
       </label>
-      <div class="row" title="Se qualquer zona tiver 'white lung', a gravidade final será pelo menos Grave.">
-        <label class="grow">Deslizamento pleural</label>
+            <div class="divider controls-sep divider-tight"></div>
+<label class="row ctrl ctrl-sliding" for="sliding">
+        <span class="grow">Deslizamento pleural</span>
         <select id="sliding">
           <option value="presente" selected>Presente</option>
           <option value="reduzido">Reduzido</option>
           <option value="ausente">Ausente</option>
         </select>
-      </div>
+      </label>
     </div>
 
     <div class="divider"></div>
@@ -87,15 +120,13 @@
     <div id="zones" class="zones"></div>
 
     <div class="kpi" id="kpis">
-      <div class="tile"><h5>Total de linhas B</h5><div class="val" id="total">0</div></div>
-      <div class="tile"><h5>Distribuição (dir/esq)</h5><div class="val" id="distLR">0 / 0</div></div>
-      <div class="tile"><h5>Distribuição (ant/lat/post)</h5><div class="val" id="distALP">0 / 0 / 0</div></div>
+      <div class="tile" id="tileDistALP"><h5>Distribuição (ant/lat/post)</h5><div class="val" id="distALP">0 / 0 / 0</div></div>
       <div class="tile"><h5>Gravidade</h5><div class="val"><span id="severity" class="badge ok">Normal</span></div></div>
     </div>
 
     <div class="footer-actions">
-      <button class="primary" id="btnReport">Gerar relatório</button>
-      <button class="ghost" id="btnCopy">Copiar relatório</button>
+      <button class="primary" id="btnReport" type="button" onclick="generateReport()">Gerar relatório</button>
+      <button class="ghost" id="btnCopy">Copiar Relatório</button>
       <button class="ghost" id="btnSave">Salvar JSON</button>
       <input type="file" id="fileLoad" accept="application/json" style="display:none" />
       <button class="ghost" id="btnLoad">Carregar JSON</button>
@@ -104,7 +135,7 @@
     <div class="divider"></div>
     <div>
       <label class="row"><span class="grow">Relatório</span></label>
-      <textarea id="report" placeholder="Clique em 'Gerar relatório' para compor um texto clínico padronizado."></textarea>
+      <textarea id="report" placeholder="Clique em 'Gerar Relatório' para compor um texto clínico padronizado."></textarea>
       <div class="caption">Critérios de gravidade (base clínica): Normal &lt; 5 | Leve 6–15 | Moderada 16–30 | Grave &gt;30 ou padrão white lung difuso. Ajuste conforme protocolo institucional.</div>
     </div>
   </section>
@@ -129,6 +160,12 @@
   const fileLoad = document.getElementById('fileLoad');
 
   const LABELS = {
+    4: [
+      {key:'RAS', side:'R', plane:'ANT', pos:'r-top',    label:'Direita Anterior Superior'},
+      {key:'RAI', side:'R', plane:'ANT', pos:'r-bottom', label:'Direita Anterior Inferior'},
+      {key:'LAS', side:'L', plane:'ANT', pos:'l-top',    label:'Esquerda Anterior Superior'},
+      {key:'LAI', side:'L', plane:'ANT', pos:'l-bottom', label:'Esquerda Anterior Inferior'},
+    ],
     8: [
       {key:'RAS', side:'R', plane:'ANT', label:'Direita Anterior Superior'},
       {key:'RAI', side:'R', plane:'ANT', label:'Direita Anterior Inferior'},
@@ -139,41 +176,22 @@
       {key:'LLS', side:'L', plane:'LAT', label:'Esquerda Lateral Superior'},
       {key:'LLI', side:'L', plane:'LAT', label:'Esquerda Lateral Inferior'},
     ],
-    12: [
-      // 8 anteriores/ laterais + 4 posteriores (2 por lado)
-      {key:'RAS', side:'R', plane:'ANT', label:'Direita Anterior Superior'},
-      {key:'RAI', side:'R', plane:'ANT', label:'Direita Anterior Inferior'},
-      {key:'RLS', side:'R', plane:'LAT', label:'Direita Lateral Superior'},
-      {key:'RLI', side:'R', plane:'LAT', label:'Direita Lateral Inferior'},
-      {key:'RPS', side:'R', plane:'POS', label:'Direita Posterior Superior'},
-      {key:'RPI', side:'R', plane:'POS', label:'Direita Posterior Inferior'},
-      {key:'LAS', side:'L', plane:'ANT', label:'Esquerda Anterior Superior'},
-      {key:'LAI', side:'L', plane:'ANT', label:'Esquerda Anterior Inferior'},
-      {key:'LLS', side:'L', plane:'LAT', label:'Esquerda Lateral Superior'},
-      {key:'LLI', side:'L', plane:'LAT', label:'Esquerda Lateral Inferior'},
-      {key:'LPS', side:'L', plane:'POS', label:'Esquerda Posterior Superior'},
-      {key:'LPI', side:'L', plane:'POS', label:'Esquerda Posterior Inferior'},
-    ],
-    28: (function(){
-      const arr=[]; // 14 por lado, numeradas apical->basal (modelo de pesquisa)
-      for(let i=1;i<=14;i++){arr.push({key:`R${i}`,side:'R',plane:i<=6?'ANT':(i<=10?'LAT':'POS'),label:`Direita Zona ${i}`});}
-      for(let i=1;i<=14;i++){arr.push({key:`L${i}`,side:'L',plane:i<=6?'ANT':(i<=10?'LAT':'POS'),label:`Esquerda Zona ${i}`});}
-      return arr;
-    })()
   };
 
-  let state = { protocol: 8, sliding:'presente', zones:{} };
+  let state = { protocol: 4, sliding:'presente', zones:{} };
 
   function zoneTemplate(z){
     const id = `z_${z.key}`;
+    const sideClass = z.side==='R' ? 'zone--right' : 'zone--left';
+    const posAttr = z.pos ? ` data-pos="${z.pos}"` : '';
     return `
-      <div class="zone" data-key="${z.key}" data-side="${z.side}" data-plane="${z.plane}">
+      <div class="zone ${sideClass}" data-key="${z.key}" data-side="${z.side}" data-plane="${z.plane}"${posAttr}>
         <h4>${z.label}</h4>
         <div class="row">
           <label class="grow">Linhas B</label>
           <input type="number" min="0" step="1" value="0" id="${id}_n" />
           <button class="mini" data-act="inc" data-for="${id}_n">+1</button>
-          <button class="mini" data-act="dec" data-for="${id}_n">−1</button>
+          <button class="mini" data-act="dec" data-for="${id}_n">-1</button>
         </div>
         <div class="row">
           <label class="grow">Coalescente / white lung</label>
@@ -190,7 +208,11 @@
   }
 
   function render(){
+    zonesEl.classList.toggle('zones--quad', state.protocol === 4);
+    zonesEl.classList.toggle('zones--eight', state.protocol === 8);
     zonesEl.innerHTML = LABELS[state.protocol].map(zoneTemplate).join('');
+    // Show ant/lat/post KPI only for protocol 8
+    const tileDist = document.getElementById('tileDistALP'); if (tileDist) { tileDist.style.display = 'none'; }
     attachZoneEvents();
     compute();
   }
@@ -229,9 +251,9 @@
     });
 
     // KPIs
-    totalEl.textContent = total;
-    distLREl.textContent = `${right} / ${left}`;
-    distALPEl.textContent = `${ant} / ${lat} / ${pos}`;
+    (document.getElementById('total')||{}).textContent = String(total);
+    (document.getElementById('distLR')||{}).textContent = `${right} / ${left}`;
+    (function(d){ if(d){ d.textContent = `${ant} / ${lat} / ${pos}`; } })(document.getElementById('distALP'));
 
     // Severity by ESC-like buckets
     let cls='ok', label='Normal';
@@ -239,43 +261,51 @@
     else if(total>=16){cls='warn';label='Moderada';}
     else if(total>=6){cls='warn';label='Leve';}
     else {cls='ok';label='Normal';}
-    severityEl.className = `badge ${cls}`; severityEl.textContent = label;
+    (function(s){ if(s){ s.className = 'badge ' + cls; s.textContent = label; } })(document.getElementById('severity'));
   }
 
   function generateReport(){
-    const total = parseInt(totalEl.textContent,10);
-    const sever = severityEl.textContent;
-    const sliding = slidingEl.value;
+  try{
+    // Garantir cálculo atualizado antes de ler os elementos
+    if (typeof compute === 'function') { compute(); }
+    // Ler elementos diretamente do DOM para evitar nulos de escopo
+    const totalNode = document.getElementById('total');
+    const severityNode = document.getElementById('severity');
+    const slidingSel = document.getElementById('sliding');
+    const total = totalNode ? (parseInt(totalNode.textContent, 10) || 0) : 0;
+    const sever = severityNode ? severityNode.textContent : '';
+    const sliding = slidingSel ? slidingSel.value : '';
 
-    // summarize distribution by plane and hotspots
-    const zonesArr = Object.values(state.zones);
+    const zonesArr = Object.values(state.zones || {});
     const ant = zonesArr.filter(z=>z.plane==='ANT').reduce((s,z)=>s+z.n,0);
     const lat = zonesArr.filter(z=>z.plane==='LAT').reduce((s,z)=>s+z.n,0);
-    const pos = zonesArr.filter(z=>z.plane==='POS').reduce((s,z)=>s+z.n,0);
 
-    const top = [...zonesArr].sort((a,b)=>b.n-a.n).slice(0,3).filter(z=>z.n>0)
-      .map(z=>`${z.label} (${z.n})`).join('; ');
+    const top = zonesArr.slice().sort((a,b)=>b.n-a.n).slice(0,3).filter(z=>z.n>0)
+      .map(z=>z.label + ' (' + z.n + ')').join('; ');
 
     const whites = zonesArr.filter(z=>z.w).map(z=>z.label).join('; ');
 
-    const listLines = zonesArr.filter(z=>z.n>0).map(z=>`${z.label}: ${z.n}${z.obs?` [${z.obs}]`:''}`).join(' | ');
+    const listLines = zonesArr.filter(z=>z.n>0)
+      .map(z=>z.label + ': ' + z.n + (z.obs ? (' [' + z.obs + ']') : ''))
+      .join(' | ');
 
     const proto = state.protocol;
 
-    const txt = [
-      `Ultrassonografia pulmonar (LUS) – Protocolo ${proto} zonas. Deslizamento pleural ${sliding}.`,
-      `Total de linhas B: ${total}. Distribuição por planos: anterior ${ant}, lateral ${lat}${proto===12||proto===28?`, posterior ${pos}`:''}.`,
-      whites?`Áreas com padrão coalescente/white lung: ${whites}.`:``,
-      top?`Maiores cargas por zona: ${top}.`:``,
-      `Classificação de congestão: ${sever}.`,
-      listLines?`Detalhe por zona: ${listLines}.`:``,
-      `Observação: os limiares utilizados foram Normal <5; Leve 6–15; Moderada 16–30; Grave >30 ou white lung. Ajustar conforme diretriz institucional.`,
-    ].filter(Boolean).join('\n');
+    const parts = [];
+    parts.push('Ultrassonografia pulmonar (LUS) – Protocolo ' + proto + ' zonas. Deslizamento pleural ' + sliding + '.');
+    parts.push('Total de linhas B: ' + total + '.');
+    if (whites) parts.push('Áreas com padrão coalescente/white lung: ' + whites + '.');
+    if (top) parts.push('Maiores cargas por zona: ' + top + '.');
+    if (sever) parts.push('Classificação de congestão: ' + sever + '.');
+    if (listLines) parts.push('Detalhe por zona: ' + listLines + '.');
+    parts.push('Observação: os limiares utilizados foram Normal <5; Leve 6–15; Moderada 16–30; Grave >30 ou white lung. Ajustar conforme diretriz institucional.');
 
-    reportEl.value = txt;
+    if (reportEl) reportEl.value = parts.join('\n');
+  }catch(e){
+    if (reportEl) reportEl.value = 'Erro ao gerar relatório: ' + (e && e.message ? e.message : String(e));
   }
-
-  function saveJSON(){
+}window.generateReport = generateReport;
+function saveJSON(){
     const data = {
       meta:{ts: new Date().toISOString()},
       protocol: state.protocol,
@@ -309,7 +339,7 @@
         }
         compute();
       }catch(err){
-        alert('Arquivo inválido.');
+        alert('Arquivo invÃ¡lido.');
       }
     };
     reader.readAsText(file);
@@ -333,3 +363,43 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
