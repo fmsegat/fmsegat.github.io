@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quantificador de Linhas B – Cardiodiagnóstico</title>
+<style>
+  :root{
+    --bg: #0b1220; /* fundo escuro elegante */
+    --panel:#121a2b;
+    --ink:#e7ecf6;
+    --muted:#9fb2d0;
+    --brand:#5aa9ff;
+    --ok:#2ecc71; --warn:#f1c40f; --bad:#e74c3c;
+    --border: #223253;
+  }
+  html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";}
+  body{background:var(--bg);color:var(--ink);}
+  .wrap{max-width:1050px;margin:24px auto;padding:0 16px;}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .title{font-weight:700;font-size:1.25rem;letter-spacing:.2px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px}
+  .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media (max-width:820px){.controls{grid-template-columns:1fr}}
+  select, input[type="number"], button, textarea{background:#0e1626;color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px}
+  select:focus, input[type="number"]:focus, textarea:focus, button:focus{outline:2px solid var(--brand);outline-offset:1px}
+  .zones{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+  @media (min-width:800px){.zones{grid-template-columns:repeat(4,1fr)}}
+  .zone{background:#0f1a2d;border:1px solid var(--border);border-radius:16px;padding:12px;display:grid;gap:8px}
+  .zone h4{margin:0;font-size:0.95rem;letter-spacing:.2px}
+  .row{display:flex;gap:8px;align-items:center}
+  .row label{font-size:.8rem;color:var(--muted)}
+  .row .grow{flex:1}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+  .kpi .tile{background:#0f1a2d;border:1px solid var(--border);border-radius:14px;padding:12px}
+  .tile h5{margin:0;font-size:.8rem;color:var(--muted)}
+  .tile .val{font-size:1.3rem;font-weight:700;margin-top:6px}
+  .badge{border-radius:999px;padding:.25rem .6rem;font-weight:700;font-size:.78rem}
+  .ok{background:rgba(46,204,113,.15);color:#79e5a9;border:1px solid rgba(46,204,113,.35)}
+  .warn{background:rgba(241,196,15,.12);color:#ffe28a;border:1px solid rgba(241,196,15,.35)}
+  .bad{background:rgba(231,76,60,.12);color:#ff9f96;border:1px solid rgba(231,76,60,.35)}
+  .muted{color:var(--muted)}
+  .footer-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .primary{background:linear-gradient(180deg,#5aa9ff,#347bd9);border:none}
+  .ghost{background:transparent}
+  .mini{padding:6px 10px;border-radius:10px}
+  .caption{font-size:.82rem;color:var(--muted)}
+  .divider{height:1px;background:var(--border);margin:12px 0}
+  textarea{width:100%;min-height:120px;resize:vertical}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">🫁 Quantificador de Linhas B · Cardiodiagnóstico</div>
+    <button class="mini ghost" id="btnReset">Reiniciar</button>
+  </header>
+
+  <section class="card">
+    <div class="controls">
+      <label class="row"><span class="grow">Protocolo de zonas</span>
+        <select id="protocol">
+          <option value="8" selected>8 zonas (clínico)</option>
+          <option value="12">12 zonas (inclui posterior)</option>
+          <option value="28">28 zonas (pesquisa)</option>
+        </select>
+      </label>
+      <label class="row"><span class="grow">Transdutor</span>
+        <select id="probe">
+          <option>Convexo 2–5 MHz</option>
+          <option>Linear 7–12 MHz</option>
+          <option>Setorial 1–5 MHz</option>
+        </select>
+      </label>
+      <div class="row" title="Se qualquer zona tiver 'white lung', a gravidade final será pelo menos Grave.">
+        <label class="grow">Deslizamento pleural</label>
+        <select id="sliding">
+          <option value="presente" selected>Presente</option>
+          <option value="reduzido">Reduzido</option>
+          <option value="ausente">Ausente</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div id="zones" class="zones"></div>
+
+    <div class="kpi" id="kpis">
+      <div class="tile"><h5>Total de linhas B</h5><div class="val" id="total">0</div></div>
+      <div class="tile"><h5>Distribuição (dir/esq)</h5><div class="val" id="distLR">0 / 0</div></div>
+      <div class="tile"><h5>Distribuição (ant/lat/post)</h5><div class="val" id="distALP">0 / 0 / 0</div></div>
+      <div class="tile"><h5>Gravidade</h5><div class="val"><span id="severity" class="badge ok">Normal</span></div></div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="primary" id="btnReport">Gerar relatório</button>
+      <button class="ghost" id="btnCopy">Copiar relatório</button>
+      <button class="ghost" id="btnSave">Salvar JSON</button>
+      <input type="file" id="fileLoad" accept="application/json" style="display:none" />
+      <button class="ghost" id="btnLoad">Carregar JSON</button>
+    </div>
+
+    <div class="divider"></div>
+    <div>
+      <label class="row"><span class="grow">Relatório</span></label>
+      <textarea id="report" placeholder="Clique em 'Gerar relatório' para compor um texto clínico padronizado."></textarea>
+      <div class="caption">Critérios de gravidade (base clínica): Normal &lt; 5 | Leve 6–15 | Moderada 16–30 | Grave &gt;30 ou padrão white lung difuso. Ajuste conforme protocolo institucional.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const zonesEl = document.getElementById('zones');
+  const protocolSel = document.getElementById('protocol');
+  const totalEl = document.getElementById('total');
+  const distLREl = document.getElementById('distLR');
+  const distALPEl = document.getElementById('distALP');
+  const severityEl = document.getElementById('severity');
+  const slidingEl = document.getElementById('sliding');
+  const reportEl = document.getElementById('report');
+
+  const btnReport = document.getElementById('btnReport');
+  const btnCopy = document.getElementById('btnCopy');
+  const btnReset = document.getElementById('btnReset');
+  const btnSave = document.getElementById('btnSave');
+  const btnLoad = document.getElementById('btnLoad');
+  const fileLoad = document.getElementById('fileLoad');
+
+  const LABELS = {
+    8: [
+      {key:'RAS', side:'R', plane:'ANT', label:'Direita Anterior Superior'},
+      {key:'RAI', side:'R', plane:'ANT', label:'Direita Anterior Inferior'},
+      {key:'RLS', side:'R', plane:'LAT', label:'Direita Lateral Superior'},
+      {key:'RLI', side:'R', plane:'LAT', label:'Direita Lateral Inferior'},
+      {key:'LAS', side:'L', plane:'ANT', label:'Esquerda Anterior Superior'},
+      {key:'LAI', side:'L', plane:'ANT', label:'Esquerda Anterior Inferior'},
+      {key:'LLS', side:'L', plane:'LAT', label:'Esquerda Lateral Superior'},
+      {key:'LLI', side:'L', plane:'LAT', label:'Esquerda Lateral Inferior'},
+    ],
+    12: [
+      // 8 anteriores/ laterais + 4 posteriores (2 por lado)
+      {key:'RAS', side:'R', plane:'ANT', label:'Direita Anterior Superior'},
+      {key:'RAI', side:'R', plane:'ANT', label:'Direita Anterior Inferior'},
+      {key:'RLS', side:'R', plane:'LAT', label:'Direita Lateral Superior'},
+      {key:'RLI', side:'R', plane:'LAT', label:'Direita Lateral Inferior'},
+      {key:'RPS', side:'R', plane:'POS', label:'Direita Posterior Superior'},
+      {key:'RPI', side:'R', plane:'POS', label:'Direita Posterior Inferior'},
+      {key:'LAS', side:'L', plane:'ANT', label:'Esquerda Anterior Superior'},
+      {key:'LAI', side:'L', plane:'ANT', label:'Esquerda Anterior Inferior'},
+      {key:'LLS', side:'L', plane:'LAT', label:'Esquerda Lateral Superior'},
+      {key:'LLI', side:'L', plane:'LAT', label:'Esquerda Lateral Inferior'},
+      {key:'LPS', side:'L', plane:'POS', label:'Esquerda Posterior Superior'},
+      {key:'LPI', side:'L', plane:'POS', label:'Esquerda Posterior Inferior'},
+    ],
+    28: (function(){
+      const arr=[]; // 14 por lado, numeradas apical->basal (modelo de pesquisa)
+      for(let i=1;i<=14;i++){arr.push({key:`R${i}`,side:'R',plane:i<=6?'ANT':(i<=10?'LAT':'POS'),label:`Direita Zona ${i}`});}
+      for(let i=1;i<=14;i++){arr.push({key:`L${i}`,side:'L',plane:i<=6?'ANT':(i<=10?'LAT':'POS'),label:`Esquerda Zona ${i}`});}
+      return arr;
+    })()
+  };
+
+  let state = { protocol: 8, sliding:'presente', zones:{} };
+
+  function zoneTemplate(z){
+    const id = `z_${z.key}`;
+    return `
+      <div class="zone" data-key="${z.key}" data-side="${z.side}" data-plane="${z.plane}">
+        <h4>${z.label}</h4>
+        <div class="row">
+          <label class="grow">Linhas B</label>
+          <input type="number" min="0" step="1" value="0" id="${id}_n" />
+          <button class="mini" data-act="inc" data-for="${id}_n">+1</button>
+          <button class="mini" data-act="dec" data-for="${id}_n">−1</button>
+        </div>
+        <div class="row">
+          <label class="grow">Coalescente / white lung</label>
+          <select id="${id}_w">
+            <option value="nao" selected>Não</option>
+            <option value="sim">Sim</option>
+          </select>
+        </div>
+        <div class="row">
+          <label class="grow">Observação</label>
+          <input id="${id}_obs" placeholder="opcional" />
+        </div>
+      </div>`;
+  }
+
+  function render(){
+    zonesEl.innerHTML = LABELS[state.protocol].map(zoneTemplate).join('');
+    attachZoneEvents();
+    compute();
+  }
+
+  function attachZoneEvents(){
+    zonesEl.querySelectorAll('button[data-act]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const t = e.currentTarget; const forId = t.getAttribute('data-for');
+        const input = document.getElementById(forId);
+        const act = t.getAttribute('data-act');
+        let v = parseInt(input.value||'0',10);
+        if(act==='inc') v+=1; else v=Math.max(0,v-1);
+        input.value = v; compute();
+      })
+    });
+    zonesEl.querySelectorAll('input,select').forEach(el=>{
+      el.addEventListener('input', compute);
+      el.addEventListener('change', compute);
+    });
+  }
+
+  function compute(){
+    // persist simple state per zone
+    state.zones = {};
+    let total=0, right=0, left=0, ant=0, lat=0, pos=0, anyWhite=false;
+
+    LABELS[state.protocol].forEach(z=>{
+      const id = `z_${z.key}`;
+      const n = parseInt(document.getElementById(`${id}_n`).value||'0',10);
+      const w = document.getElementById(`${id}_w`).value==='sim';
+      const obs = document.getElementById(`${id}_obs`).value||'';
+      state.zones[z.key] = {n, w, obs, side:z.side, plane:z.plane, label:z.label};
+      total += n; if(z.side==='R') right += n; else left += n;
+      if(z.plane==='ANT') ant += n; else if(z.plane==='LAT') lat += n; else pos += n;
+      if(w) anyWhite = true;
+    });
+
+    // KPIs
+    totalEl.textContent = total;
+    distLREl.textContent = `${right} / ${left}`;
+    distALPEl.textContent = `${ant} / ${lat} / ${pos}`;
+
+    // Severity by ESC-like buckets
+    let cls='ok', label='Normal';
+    if(anyWhite || total>30){cls='bad';label='Grave';}
+    else if(total>=16){cls='warn';label='Moderada';}
+    else if(total>=6){cls='warn';label='Leve';}
+    else {cls='ok';label='Normal';}
+    severityEl.className = `badge ${cls}`; severityEl.textContent = label;
+  }
+
+  function generateReport(){
+    const total = parseInt(totalEl.textContent,10);
+    const sever = severityEl.textContent;
+    const sliding = slidingEl.value;
+
+    // summarize distribution by plane and hotspots
+    const zonesArr = Object.values(state.zones);
+    const ant = zonesArr.filter(z=>z.plane==='ANT').reduce((s,z)=>s+z.n,0);
+    const lat = zonesArr.filter(z=>z.plane==='LAT').reduce((s,z)=>s+z.n,0);
+    const pos = zonesArr.filter(z=>z.plane==='POS').reduce((s,z)=>s+z.n,0);
+
+    const top = [...zonesArr].sort((a,b)=>b.n-a.n).slice(0,3).filter(z=>z.n>0)
+      .map(z=>`${z.label} (${z.n})`).join('; ');
+
+    const whites = zonesArr.filter(z=>z.w).map(z=>z.label).join('; ');
+
+    const listLines = zonesArr.filter(z=>z.n>0).map(z=>`${z.label}: ${z.n}${z.obs?` [${z.obs}]`:''}`).join(' | ');
+
+    const proto = state.protocol;
+
+    const txt = [
+      `Ultrassonografia pulmonar (LUS) – Protocolo ${proto} zonas. Deslizamento pleural ${sliding}.`,
+      `Total de linhas B: ${total}. Distribuição por planos: anterior ${ant}, lateral ${lat}${proto===12||proto===28?`, posterior ${pos}`:''}.`,
+      whites?`Áreas com padrão coalescente/white lung: ${whites}.`:``,
+      top?`Maiores cargas por zona: ${top}.`:``,
+      `Classificação de congestão: ${sever}.`,
+      listLines?`Detalhe por zona: ${listLines}.`:``,
+      `Observação: os limiares utilizados foram Normal <5; Leve 6–15; Moderada 16–30; Grave >30 ou white lung. Ajustar conforme diretriz institucional.`,
+    ].filter(Boolean).join('\n');
+
+    reportEl.value = txt;
+  }
+
+  function saveJSON(){
+    const data = {
+      meta:{ts: new Date().toISOString()},
+      protocol: state.protocol,
+      sliding: slidingEl.value,
+      zones: state.zones
+    };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `lus_blines_${Date.now()}.json`; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function loadJSON(file){
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      try{
+        const data = JSON.parse(e.target.result);
+        if(data.protocol) { protocolSel.value = String(data.protocol); state.protocol = Number(data.protocol); render(); }
+        if(data.sliding) { slidingEl.value = data.sliding; }
+        if(data.zones){
+          for(const [k, z] of Object.entries(data.zones)){
+            const id = `z_${k}`;
+            const nEl = document.getElementById(`${id}_n`);
+            const wEl = document.getElementById(`${id}_w`);
+            const oEl = document.getElementById(`${id}_obs`);
+            if(nEl) nEl.value = z.n ?? 0;
+            if(wEl) wEl.value = z.w ? 'sim':'nao';
+            if(oEl) oEl.value = z.obs ?? '';
+          }
+        }
+        compute();
+      }catch(err){
+        alert('Arquivo inválido.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Events
+  protocolSel.addEventListener('change', ()=>{state.protocol = Number(protocolSel.value); render();});
+  slidingEl.addEventListener('change', compute);
+  btnReport.addEventListener('click', generateReport);
+  btnCopy.addEventListener('click', ()=>{
+    reportEl.select(); document.execCommand('copy');
+  });
+  btnReset.addEventListener('click', ()=>{ render(); reportEl.value=''; });
+  btnSave.addEventListener('click', saveJSON);
+  btnLoad.addEventListener('click', ()=> fileLoad.click());
+  fileLoad.addEventListener('change', ()=>{ if(fileLoad.files && fileLoad.files[0]) loadJSON(fileLoad.files[0]); });
+
+  // init
+  render();
+})();
+</script>
+</body>
+</html>
