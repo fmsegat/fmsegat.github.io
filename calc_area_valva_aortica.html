@@ -422,6 +422,63 @@
       </details>
     </section>
 
+    <section id="explicacao-sv-et-fc" class="info-block">
+      <h3>Taxa de fluxo, stroke volume e frequência cardíaca</h3>
+      <p><strong>Conceito (Ao flow rate):</strong> a taxa de fluxo aórtico (Q) representa o fluxo volumétrico médio durante a ejeção ventricular esquerda.</p>
+      <p><strong>Fórmula:</strong> Q = SV / ET</p>
+      <p>onde SV (stroke volume) é o volume ejetado por batimento e ET (ejection time) é a duração da ejeção (em segundos). O resultado é expresso em mL/s (ou cm³/s) e descreve o fluxo médio instantâneo durante a ejeção, não ao longo de todo o ciclo cardíaco.</p>
+
+      <h4>Por que a frequência cardíaca (FC) não entra?</h4>
+      <p>Q = SV / ET mede a taxa média de ejeção durante o período de ejeção, enquanto o débito por minuto considera todo o ciclo.</p>
+      <ul>
+        <li><strong>SV / ET</strong> — considera apenas o tempo de ejeção — taxa de ejeção média (mL/s)</li>
+        <li><strong>SV × FC</strong> — considera todo o ciclo cardíaco — débito cardíaco (mL/min)</li>
+        <li><strong>(SV / ET) × FC</strong> — mistura de conceitos — não representa um fluxo fisiológico útil</li>
+      </ul>
+      <p>A FC modifica o débito cardíaco total (SV × FC), mas não altera a taxa média de ejeção dentro de cada batimento, desde que o volume e a mecânica contrátil permaneçam constantes. O ET já reflete indiretamente a influência da FC — quando a FC aumenta, o ciclo encurta e o ET tende a diminuir; assim, a razão SV/ET incorpora essa adaptação.</p>
+
+      <h4>Interpretação prática</h4>
+      <ul>
+        <li><strong>Low-flow (baixo fluxo):</strong> SV/ET &lt; ~200 mL/s</li>
+        <li><strong>Normal-flow:</strong> SV/ET ≥ ~200–250 mL/s</li>
+      </ul>
+      <p>Critério especialmente útil em estenose aórtica de baixo gradiente (ex.: Lancellotti et al., Heart 2018).</p>
+
+      <h4>Resumo</h4>
+      <ul>
+        <li>A razão SV/ET avalia fluxo médio de ejeção, não débito por minuto.</li>
+        <li>A FC não entra porque o ET já incorpora a variação do ciclo.</li>
+        <li>Para fluxo global sistêmico, usa-se SV × FC (débito cardíaco).</li>
+        <li>Para avaliar “low-flow” valvar, usa-se SV/ET, pois reflete o fluxo real durante a ejeção, determinante do gradiente e da carga sobre a valva aórtica.</li>
+      </ul>
+    </section>
+
+    <section id="explicacao-bsa" class="info-block">
+      <h3>Superfície corporal (BSA): Mosteller vs DuBois</h3>
+      <p>Esta calculadora utiliza a fórmula de Mosteller para estimar a superfície corporal (BSA), por ser simples, amplamente adotada e com resultados muito próximos aos de DuBois na maioria dos pacientes.</p>
+
+      <h4>Fórmulas</h4>
+      <ul>
+        <li><strong>Mosteller</strong> (m²) = sqrt((altura(cm) × peso(kg)) / 3600)</li>
+        <li><strong>DuBois</strong> (m²) = 0,007184 × peso(kg)^0,425 × altura(cm)^0,725</li>
+      </ul>
+
+      <h4>Diferenças práticas</h4>
+      <ul>
+        <li><strong>Simplicidade:</strong> Mosteller é mais fácil de lembrar e calcular.</li>
+        <li><strong>Precisão clínica:</strong> Para faixas usuais de peso/altura, as diferenças entre Mosteller e DuBois costumam ser pequenas (geralmente &lt; 2%).</li>
+        <li><strong>Origem dos métodos:</strong> DuBois (1916) foi derivada de uma amostra pequena; Mosteller (1987) simplifica mantendo boa concordância.</li>
+        <li><strong>Impacto na indexação:</strong> Pequenas variações de BSA podem alterar ligeiramente valores indexados (ex.: AVAi, SVI). Mantenha consistência do método ao comparar exames.</li>
+      </ul>
+      <p><strong>Nota:</strong> Para manter consistência neste app, todos os índices por BSA usam Mosteller.</p>
+
+      <h4>Referências</h4>
+      <ul>
+        <li>Mosteller RD. Simplified calculation of body-surface area. N Engl J Med. 1987;317(17):1098.</li>
+        <li>DuBois D, DuBois EF. A formula to estimate the approximate surface area if height and weight be known. Arch Intern Med (Chic). 1916;17(6):863–871.</li>
+      </ul>
+    </section>
+
     <section id="explicacao-gmava" class="info-block">
       <h3>Por que a razão GM/AVA importa?</h3>
       <p>Em pacientes com AS de baixo fluxo e baixo gradiente (LG-AS), a razão MG/EOA oferece uma visão adicional da gravidade hemodinâmica.</p>
