@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,34 +6,73 @@
   <link rel="icon" type="image/x-icon" href="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/favicon.png">
   <style>
     :root{
-      --bg:#bdbfc4;
-      --panel:#111827;
-      --card:#1f2937;
-      --muted:#c3c7cd;
-      --text:#ffffff;
-      --accent:#22c55e;
+      --bg:#0b1220;
+      --panel:#121a2b;
+      --card:#0d1526;
+      --muted:#9fb0c0;
+      --text:#e6edf3;
+      --accent:#69b3ff;
       --warn:#f59e0b;
-      --danger:#ef4444;
-      --info:#3b82f6;
-      --ink:#ffffff;
-      --text-input:#ffffff;
-      --border:rgba(148,163,184,.25);
-      --border-soft:rgba(148,163,184,.12);
+      --accent-light:#69b3ff;
+      --info-light:#4c8dff;
+      --warn-light:#f59e0b;
+      --danger:#ff6b6b;
+      --info:#4c8dff;
+      --ink:#0d1526;
+      --text-input:#e6edf3;
+      --border:#243557;
+      --border-soft:rgba(36,53,87,0.6);
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
+      --bg-gradient-1:#12213c;
+      --bg-gradient-2:#1a2a48;
+      --btn-base:#1f2c45;
+      --btn-info-hover:color-mix(in srgb, #69b3ff 55%, #1f2c45 45%);
+      --btn-primary-hover:color-mix(in srgb, #4c8dff 60%, #1f2c45 40%);
+      --btn-success-hover:color-mix(in srgb, #69b3ff 65%, #1f2c45 35%);
+      --btn-warning-hover:color-mix(in srgb, #f59e0b 65%, #1f2c45 35%);
+      --bsa-mosteller:#69b3ff;
+      --bsa-dubois:#34d399;
+      --bsa-haycock:#f59e0b;
+      --bsa-method-text:#0b1220;
     }
-    a { text-decoration:none; color:#ffff }
+    *{ box-sizing:border-box; }
+    a { text-decoration:none; color:var(--text) }
+    a:hover{ color:var(--accent); }
     html, body { height:100% }
     body{
-      margin:20px;
-      font-family: Arial;
+      margin:0;
+      min-height:100vh;
+      padding:32px 16px 48px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 12pt;
       color: var(--text);
-      background: var(--bg);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, var(--bg-gradient-1), transparent),
+        radial-gradient(900px 500px at 110% -10%, var(--bg-gradient-2), transparent),
+        var(--bg);
+    }
+    .logo-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 18px;
+      background: color-mix(in srgb, var(--muted) 18%, transparent);
+      border:1px solid color-mix(in srgb, var(--muted) 40%, transparent);
+      border-radius:14px;
+      margin:0 auto 24px;
+      box-shadow: var(--shadow);
+      transition: transform .02s ease-in-out, filter .2s ease;
+    }
+    .logo-link:hover{ filter:brightness(1.08); }
+    .logo-link:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:2px;
     }
     .logo{ width:25%; height:auto }
     h1{
       text-align:center;
       margin-top:0%;
-      color: black;
+      color: var(--text);
       letter-spacing:.2px;
     }
 
@@ -44,11 +81,11 @@
       width:100%;
       max-width:800px;
       margin:0 auto;
-      background: rgba(31,41,55,.7);
-      backdrop-filter: blur(6px);
-      border:1px solid var(--border-soft);
+      background: color-mix(in oklab, var(--panel) 92%, #000 8%);
+      border:1px solid var(--border);
       border-radius:18px;
       padding:16px;
+      box-shadow: var(--shadow);
     }
 
     /* Columns of inputs */
@@ -65,7 +102,7 @@
     .input-field{ display:flex; flex-direction:column }
     .input-field label{
       margin-bottom:6px;
-      font-size:18px;
+      font-size:16px;
       color: var(--muted);
       font-weight:600;
     }
@@ -76,11 +113,22 @@
       font-weight: bold;
       width:100%;
       box-sizing:border-box;
-      color: #000000;
+      color: var(--text-input);
       background: var(--ink);
       border:1px solid var(--border);
       border-radius:12px;
       outline:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    input::placeholder,
+    textarea::placeholder{
+      color: color-mix(in srgb, var(--muted) 65%, var(--text) 35%);
+    }
+    input:focus,
+    select:focus,
+    textarea:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(105,179,255,0.25);
     }
     input[type="number"]{ appearance:textfield }
     select{ height: fit-content }
@@ -100,18 +148,156 @@
       cursor:pointer;
       border:0;
       border-radius:14px;
-      background: rgb(112, 129, 142);
+      background: var(--btn-base);
       color: var(--text);
       font-weight:700;
-      transition: transform .02s ease-in-out, background .2s ease;
+      transition: transform .02s ease-in-out, filter .2s ease;
+    }
+    button:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:2px;
+    }
+    button a{ color:inherit; }
+    button:hover{
+      filter: brightness(1.1);
     }
     button:active{ transform: scale(.98) }
-    .btn-primary{ background: var(--info) }
-    .btn-success{ background: var(--accent) }
-    .btn-warning{ background: var(--warn) }
+    .btn-primary{ background: var(--info-light) }
+    .btn-success{ background: var(--accent-light) }
+    .btn-warning{ background: var(--warn-light); color: var(--text); }
+    .btn-primary:hover,
+    .btn-primary:focus-visible{
+      background: var(--btn-primary-hover);
+      filter:none;
+    }
+    .btn-success:hover,
+    .btn-success:focus-visible{
+      background: var(--btn-success-hover);
+      filter:none;
+    }
+    .btn-warning:hover,
+    .btn-warning:focus-visible{
+      background: var(--btn-warning-hover);
+      filter:none;
+    }
     .btn-danger{ background: var(--danger) }
     /* ADICIONADO: estilo para o botão “VAE indexado à altura” */
-    .btn-info{ background: rgb(112, 129, 142) }
+    .btn-info{ background: var(--btn-base) }
+    .btn-info:hover,
+    .btn-info:focus-visible{
+      background: var(--btn-info-hover);
+      filter:none;
+    }
+    .link-button{
+      padding:0;
+    }
+    .link-button > a{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 14px;
+      width:100%;
+      height:100%;
+      color:inherit;
+      border-radius:inherit;
+    }
+    .link-button > a:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:2px;
+    }
+    .theme-toggle{
+      position:fixed;
+      top:18px;
+      right:18px;
+      padding:8px 14px;
+      font-size:0.75rem;
+      border-radius:999px;
+      z-index:10;
+      border:1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+      background: color-mix(in srgb, var(--muted) 18%, transparent);
+      color: var(--text);
+      cursor:pointer;
+    }
+    .theme-toggle:hover{ filter:brightness(1.08); }
+    .floating-menu{
+      position:fixed;
+      right:18px;
+      bottom:24px;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:8px;
+      z-index:15;
+    }
+    .floating-menu__trigger{
+      padding:10px 18px;
+      border-radius:999px;
+      border:1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+      background: color-mix(in srgb, var(--muted) 15%, transparent);
+      color: var(--text);
+      cursor:pointer;
+      font-weight:600;
+      font-size:0.9rem;
+      box-shadow: var(--shadow);
+      transition: filter .2s ease;
+    }
+    .floating-menu__trigger:hover{
+      filter:brightness(1.08);
+    }
+    .floating-menu__trigger:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:3px;
+    }
+    .floating-menu__trigger.floating-menu__trigger--mosteller{
+      background: var(--bsa-mosteller);
+      border-color: color-mix(in srgb, var(--bsa-mosteller) 55%, transparent);
+      color: var(--bsa-method-text);
+    }
+    .floating-menu__trigger.floating-menu__trigger--dubois{
+      background: var(--bsa-dubois);
+      border-color: color-mix(in srgb, var(--bsa-dubois) 55%, transparent);
+      color: var(--bsa-method-text);
+    }
+    .floating-menu__trigger.floating-menu__trigger--haycock{
+      background: var(--bsa-haycock);
+      border-color: color-mix(in srgb, var(--bsa-haycock) 55%, transparent);
+      color: var(--bsa-method-text);
+    }
+    .floating-menu__panel{
+      display:none;
+      flex-direction:column;
+      gap:6px;
+      padding:12px;
+      min-width:210px;
+      background: color-mix(in oklab, var(--panel) 94%, #000 6%);
+      border:1px solid var(--border);
+      border-radius:14px;
+      box-shadow: var(--shadow);
+    }
+    .floating-menu__panel.is-open{
+      display:flex;
+    }
+    .floating-menu__option{
+      padding:8px 10px;
+      border-radius:10px;
+      border:0;
+      background:transparent;
+      color: var(--text);
+      font-weight:600;
+      font-size:0.9rem;
+      cursor:pointer;
+      text-align:left;
+      transition: background .15s ease, color .15s ease;
+    }
+    .floating-menu__option:hover,
+    .floating-menu__option:focus-visible{
+      background: color-mix(in srgb, var(--accent) 20%, transparent);
+      color: var(--text);
+      outline:none;
+    }
+    .floating-menu__option[aria-checked="true"]{
+      background: color-mix(in srgb, var(--accent) 15%, transparent);
+    }
 
     /* Inline alert */
     #alerta{
@@ -128,23 +314,24 @@
       border-collapse:collapse;
       margin-top:16px;
       font-size: 8pt;
-      background: whitesmoke;
-      border:1px solid var(--border-soft);
+      background: var(--card);
+      border:1px solid var(--border);
       border-radius:14px;
       overflow:hidden;
+      box-shadow: var(--shadow);
     }
     thead th{
-      color: var(--muted);
+      color: var(--text);
       font-weight:700;
-      background:whitesmoke;
-      border-bottom:1px solid var(--border-soft);
+      background: color-mix(in srgb, var(--card) 70%, var(--border) 30%);
+      border-bottom:1px solid color-mix(in srgb, var(--border) 60%, transparent);
     }
-    tr + tr td{ border-top:1px solid var(--border-soft) }
+    tr + tr td{ border-top:1px solid color-mix(in srgb, var(--border) 50%, transparent) }
     td, th{
       padding:4px;
       text-align:center;
       border:none;
-      color: #000000;
+      color: var(--text);
     }
     table tr:first-child{ border-top: 0 }
     table tr:last-child{ border-bottom: 0 }
@@ -162,21 +349,33 @@
       text-align: center;
       font-size: 12pt;
       font-weight: 700;
-      color: black;
-      background-color: whitesmoke;
+      color: var(--text);
+      background: transparent;
       margin-top: 30px;
       margin-bottom: 10px; /* título próximo da tabela */
     }
 
     /* Flags visuais para cortes */
 .flag-abn{ color: var(--danger); font-weight: 800; }
-.flag-ok{ color: #000000; }
+.flag-ok{ color: var(--text); }
 
   </style>
 </head>
 <body>
 
-  <a href="https://www.cardiodiagnostico.com.br/" target="_blank">
+  <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema">Tema claro</button>
+  <div class="floating-menu" id="bsaMethodMenu">
+    <button id="bsaMethodToggle" class="floating-menu__trigger" type="button" aria-haspopup="true" aria-expanded="false">
+      BSA: Mosteller
+    </button>
+    <div id="bsaMethodPanel" class="floating-menu__panel" role="menu" aria-label="Escolher método de superfície corporal">
+      <button type="button" class="floating-menu__option" data-bsa-metodo="mosteller" role="menuitemradio" aria-checked="true">Mosteller</button>
+      <button type="button" class="floating-menu__option" data-bsa-metodo="dubois" role="menuitemradio" aria-checked="false">Du Bois</button>
+      <button type="button" class="floating-menu__option" data-bsa-metodo="haycock" role="menuitemradio" aria-checked="false">Haycock</button>
+    </div>
+  </div>
+
+  <a class="logo-link" href="https://www.cardiodiagnostico.com.br/" target="_blank">
     <img src="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/logo.png" alt="Cardiodiagnóstico" class="logo">
   </a>
 
@@ -270,11 +469,11 @@
   </div>
 
   <div class="actions">
-    <button type="button"><a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/teer.html">Checklist TEER</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/stress-echo-abcde.html">Estresse</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/wilkins_EM.html">Escore Wilkins</a></button>
-    <button type="button"><a href="https://fmsegat.github.io/calc_area_valva_aortica.html">Área Valva Aórtica</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/teer.html">Checklist TEER</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/stress-echo-abcde.html">Estresse</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/wilkins_EM.html">Escore Wilkins</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/calc_area_valva_aortica.html">Área Valva Aórtica</a></button>
     <!-- Botão para índice por altura -->
     <button type="button" id="calcAlturaBtn" class="btn-info">VAE indexado à altura (IMC&gt;30)</button>
   </div>
@@ -294,12 +493,290 @@
       el.style.setProperty(name, value);
     }
   
-    const ecoContainer   = document.getElementById('ecoContainer');
-    const tabela         = document.getElementById('resultado');
-    const calcularBtn    = document.getElementById('calcularBtn');
-    const calcAlturaBtn  = document.getElementById('calcAlturaBtn');
-    const tabelaAltura   = document.getElementById('resultadoAltura');
-    const tituloAlturaEl = document.getElementById('tituloAltura');
+    const ecoContainer    = document.getElementById('ecoContainer');
+    const tabela          = document.getElementById('resultado');
+    const calcularBtn     = document.getElementById('calcularBtn');
+    const calcAlturaBtn   = document.getElementById('calcAlturaBtn');
+    const tabelaAltura    = document.getElementById('resultadoAltura');
+    const tituloAlturaEl  = document.getElementById('tituloAltura');
+    const themeToggleBtn  = document.getElementById('themeToggle');
+    const bsaMethodToggle = document.getElementById('bsaMethodToggle');
+    const bsaMethodPanel  = document.getElementById('bsaMethodPanel');
+    const bsaMethodOptions = bsaMethodPanel ? Array.from(bsaMethodPanel.querySelectorAll('[data-bsa-metodo]')) : [];
+    const alertaEl        = document.getElementById('alerta');
+    let alertaTimeoutId   = null;
+
+    function showAlert(msg, cor = null, duracao = 2500) {
+      if (!alertaEl) return;
+      if (alertaTimeoutId) {
+        clearTimeout(alertaTimeoutId);
+        alertaTimeoutId = null;
+      }
+      const palette = {
+        orange: getCssVar('--warn'),
+        red: getCssVar('--danger'),
+        green: getCssVar('--accent')
+      };
+      const resolved = palette[cor] || (cor && cor.startsWith('--') ? getCssVar(cor) : cor) || getCssVar('--accent');
+      alertaEl.textContent = msg;
+      alertaEl.style.display = 'block';
+      alertaEl.style.color = resolved;
+      if (Number.isFinite(duracao) && duracao > 0) {
+        alertaTimeoutId = setTimeout(() => {
+          alertaEl.style.display = 'none';
+        }, duracao);
+      }
+    }
+
+    function normalizarAlturaInput(valor) {
+      if (!Number.isFinite(valor) || valor <= 0) {
+        return { cm: NaN, converted: false };
+      }
+      if (valor < 10) {
+        return { cm: valor * 100, converted: true };
+      }
+      return { cm: valor, converted: false };
+    }
+
+    function atualizarCampoAlturaSeConvertida(alturaCm, foiConvertida) {
+      if (!foiConvertida) return;
+      const alturaInput = document.getElementById('altura');
+      if (!alturaInput) return;
+      const valor = Number.isInteger(alturaCm) ? String(alturaCm) : alturaCm.toFixed(1);
+      alturaInput.value = valor;
+    }
+
+    const BSA_METHODS = {
+      mosteller: {
+        label: 'Mosteller',
+        compute: (pesoKg, alturaCm) => Math.sqrt((pesoKg * alturaCm) / 3600)
+      },
+      dubois: {
+        label: 'Du Bois',
+        compute: (pesoKg, alturaCm) => 0.007184 * Math.pow(pesoKg, 0.425) * Math.pow(alturaCm, 0.725)
+      },
+      haycock: {
+        label: 'Haycock',
+        compute: (pesoKg, alturaCm) => 0.024265 * Math.pow(pesoKg, 0.5378) * Math.pow(alturaCm, 0.3964)
+      }
+    };
+    const BSA_STORAGE_KEY = 'eco-bsa-method';
+    const BSA_METHOD_CLASS = {
+      mosteller: 'floating-menu__trigger--mosteller',
+      dubois: 'floating-menu__trigger--dubois',
+      haycock: 'floating-menu__trigger--haycock'
+    };
+    const BSA_ALL_METHOD_CLASSES = Object.values(BSA_METHOD_CLASS);
+
+    const storedBsaMethod = readStoredBsaMethod();
+    let bsaMetodoAtual = BSA_METHODS[storedBsaMethod] ? storedBsaMethod : 'mosteller';
+
+    updateBsaMenuUI();
+
+    if (bsaMethodToggle) {
+      bsaMethodToggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleBsaMenu();
+      });
+    }
+
+    if (bsaMethodOptions.length) {
+      bsaMethodOptions.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const metodoSelecionado = btn.dataset.bsaMetodo;
+          if (metodoSelecionado && BSA_METHODS[metodoSelecionado]) {
+            if (metodoSelecionado !== bsaMetodoAtual) {
+              definirMetodoBsa(metodoSelecionado);
+            }
+            toggleBsaMenu(false);
+            if (bsaMethodToggle) {
+              bsaMethodToggle.focus();
+            }
+          }
+        });
+      });
+    }
+
+    document.addEventListener('click', (event) => {
+      if (!bsaMethodPanel || !bsaMethodToggle) return;
+      if (!bsaMethodPanel.classList.contains('is-open')) return;
+      if (bsaMethodPanel.contains(event.target) || bsaMethodToggle.contains(event.target)) return;
+      toggleBsaMenu(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && bsaMethodPanel && bsaMethodPanel.classList.contains('is-open')) {
+        toggleBsaMenu(false);
+        if (bsaMethodToggle) {
+          bsaMethodToggle.focus();
+        }
+      }
+    });
+
+    function readStoredBsaMethod() {
+      try {
+        return localStorage.getItem(BSA_STORAGE_KEY);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function writeStoredBsaMethod(method) {
+      try {
+        localStorage.setItem(BSA_STORAGE_KEY, method);
+      } catch (error) {
+        /* ignore storage failures */
+      }
+    }
+
+    function definirMetodoBsa(novoMetodo) {
+      if (!BSA_METHODS[novoMetodo]) return;
+      bsaMetodoAtual = novoMetodo;
+      updateBsaMenuUI();
+      writeStoredBsaMethod(novoMetodo);
+    }
+
+    function calcularBsa(pesoKg, alturaCm) {
+      const metodo = BSA_METHODS[bsaMetodoAtual] || BSA_METHODS.mosteller;
+      if (!Number.isFinite(pesoKg) || !Number.isFinite(alturaCm) || pesoKg < 0 || alturaCm < 0) {
+        return NaN;
+      }
+      return metodo.compute(pesoKg, alturaCm);
+    }
+
+    function updateBsaMenuUI() {
+      if (!bsaMethodToggle) return;
+      const metodo = BSA_METHODS[bsaMetodoAtual] || BSA_METHODS.mosteller;
+      bsaMethodToggle.textContent = `BSA: ${metodo.label}`;
+      BSA_ALL_METHOD_CLASSES.forEach(cls => bsaMethodToggle.classList.remove(cls));
+      const metodoClass = BSA_METHOD_CLASS[bsaMetodoAtual];
+      if (metodoClass) {
+        bsaMethodToggle.classList.add(metodoClass);
+      }
+      if (bsaMethodPanel) {
+        const isOpen = bsaMethodPanel.classList.contains('is-open');
+        bsaMethodToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+      bsaMethodOptions.forEach((btn) => {
+        const checked = btn.dataset.bsaMetodo === bsaMetodoAtual;
+        btn.setAttribute('aria-checked', checked ? 'true' : 'false');
+      });
+    }
+
+    function toggleBsaMenu(forceState) {
+      if (!bsaMethodPanel || !bsaMethodToggle) return;
+      const shouldOpen = typeof forceState === 'boolean'
+        ? forceState
+        : !bsaMethodPanel.classList.contains('is-open');
+      bsaMethodPanel.classList.toggle('is-open', shouldOpen);
+      bsaMethodToggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+      if (shouldOpen) {
+        const selected = bsaMethodPanel.querySelector('[data-bsa-metodo][aria-checked="true"]');
+        if (selected) {
+          selected.focus();
+        }
+      }
+      updateBsaMenuUI();
+    }
+
+    const themes = {
+      dark: {
+        '--bg':'#0b1220',
+        '--panel':'#121a2b',
+        '--card':'#0d1526',
+        '--muted':'#9fb0c0',
+        '--text':'#e6edf3',
+        '--accent':'#69b3ff',
+        '--warn':'#f59e0b',
+        '--danger':'#ff6b6b',
+        '--info':'#4c8dff',
+        '--ink':'#0d1526',
+        '--text-input':'#e6edf3',
+        '--border':'#243557',
+        '--border-soft':'rgba(36,53,87,0.6)',
+        '--shadow':'0 10px 30px rgba(0,0,0,0.35)',
+        '--bg-gradient-1':'#12213c',
+        '--bg-gradient-2':'#1a2a48',
+        '--btn-base':'#1f2c45',
+        '--btn-info-hover':'color-mix(in srgb, #69b3ff 55%, #1f2c45 45%)',
+        '--btn-primary-hover':'color-mix(in srgb, #4c8dff 60%, #1f2c45 40%)',
+        '--btn-success-hover':'color-mix(in srgb, #69b3ff 65%, #1f2c45 35%)',
+        '--btn-warning-hover':'color-mix(in srgb, #f59e0b 65%, #1f2c45 35%)',
+        '--accent-light':'#69b3ff',
+        '--info-light':'#4c8dff',
+        '--warn-light':'#f59e0b',
+        '--bsa-mosteller':'#69b3ff',
+        '--bsa-dubois':'#34d399',
+        '--bsa-haycock':'#f59e0b',
+        '--bsa-method-text':'#0b1220'
+      },
+      light: {
+        '--bg':'#f3f4f6',
+        '--panel':'#ffffff',
+        '--card':'#f8fafc',
+        '--muted':'#4b5563',
+        '--text':'#111827',
+        '--accent':'#2563eb',
+        '--warn':'#c2410c',
+        '--danger':'#dc2626',
+        '--info':'#1d4ed8',
+        '--ink':'#ffffff',
+        '--text-input':'#111827',
+        '--border':'rgba(148,163,184,0.45)',
+        '--border-soft':'rgba(148,163,184,0.25)',
+        '--shadow':'0 12px 24px rgba(15,23,42,0.12)',
+        '--bg-gradient-1':'#cbd5f5',
+        '--bg-gradient-2':'#a5b4fc',
+        '--btn-base':'#e2e8f0',
+        '--btn-info-hover':'color-mix(in srgb, #93c5fd 55%, #e2e8f0 45%)',
+        '--btn-primary-hover':'color-mix(in srgb, #93c5fd 60%, #e2e8f0 40%)',
+        '--btn-success-hover':'color-mix(in srgb, #bcdfff 60%, #e2e8f0 40%)',
+        '--btn-warning-hover':'color-mix(in srgb, #fce9c2 65%, #e2e8f0 35%)',
+        '--accent-light':'#93c5fd',
+        '--info-light':'#93c5fd',
+        '--warn-light':'#facc87',
+        '--bsa-mosteller':'#3b82f6',
+        '--bsa-dubois':'#22c55e',
+        '--bsa-haycock':'#f97316',
+        '--bsa-method-text':'#0b1220'
+      }
+    };
+
+    function applyTheme(themeName) {
+      const theme = themes[themeName];
+      if (!theme) return;
+      Object.entries(theme).forEach(([name, value]) => setCssVar(name, value));
+      document.documentElement.dataset.theme = themeName;
+      if (themeToggleBtn) {
+        const label = themeName === 'dark' ? 'Tema claro' : 'Tema escuro';
+        themeToggleBtn.textContent = label;
+        themeToggleBtn.setAttribute('aria-label', label);
+      }
+      try {
+        localStorage.setItem('eco-theme', themeName);
+      } catch (error) {
+        /* ignore storage failures */
+      }
+    }
+
+    let storedTheme = null;
+    try {
+      storedTheme = localStorage.getItem('eco-theme');
+    } catch (error) {
+      storedTheme = null;
+    }
+    const initialTheme = themes[storedTheme] ? storedTheme : 'dark';
+    applyTheme(initialTheme);
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+      });
+    }
   
     calcAlturaBtn.addEventListener('click', calcularIndexAltura);
     calcularBtn.addEventListener('click', calcular);
@@ -317,52 +794,56 @@
   
     /* ---- cálculo por altura (para IMC > 30) + flags ---- */
     function calcularIndexAltura() {
-      const alerta   = document.getElementById('alerta');
-  
-      // Ler campos necessários
-      const peso     = +document.getElementById('peso').value.replace(',', '.');
-      const alturaCm = +document.getElementById('altura').value.replace(',', '.');
-      const vaeStr   = document.getElementById('vae').value.replace(',', '.');
-      const vaeTipo  = document.getElementById('vaeTipo').value;
-  
-      if (!peso || !alturaCm) {
-        mostraAlerta("Informe peso e altura.", "red");
+      const peso       = +document.getElementById('peso').value.replace(',', '.');
+      const alturaRaw  = +document.getElementById('altura').value.replace(',', '.');
+      const { cm: alturaCm, converted: alturaConvertida } = normalizarAlturaInput(alturaRaw);
+      const vaeStr     = document.getElementById('vae').value.replace(',', '.');
+      const vaeTipo    = document.getElementById('vaeTipo').value;
+
+      if (!Number.isFinite(peso) || peso <= 0 || !Number.isFinite(alturaCm)) {
+        showAlert("Informe peso e altura.", "red");
         return;
       }
+      atualizarCampoAlturaSeConvertida(alturaCm, alturaConvertida);
+
       const alturaM = alturaCm / 100;
-  
-      // DuBois (altura em cm)
-      const sc  = 0.007184 * Math.pow(peso, 0.425) * Math.pow(alturaCm, 0.725);
+
+      // Superfície corporal conforme método selecionado
+      const sc  = calcularBsa(peso, alturaCm);
+      if (!Number.isFinite(sc) || sc <= 0) {
+        showAlert("Não foi possível calcular a superfície corporal. Verifique peso e altura.", "red");
+        return;
+      }
       const imc = peso / Math.pow(alturaM, 2);
-  
+
       if (!vaeStr) {
-        mostraAlerta("Informe o volume do átrio esquerdo (VAE).", "red");
+        showAlert("Informe o volume do átrio esquerdo (VAE).", "red");
         return;
       }
       const vaeNum = +vaeStr;
       if (Number.isNaN(vaeNum)) {
-        mostraAlerta("VAE inválido.", "red");
+        showAlert("VAE inválido.", "red");
         return;
       }
-  
+
       // Converte VAE absoluto vs indexado por SC
       const vae_indexado = (vaeTipo === "ml") ? vaeNum / sc : vaeNum;   // ml/m²
       const vae_ml       = (vaeTipo === "ml/m²") ? vaeNum * sc : vaeNum; // ml
-  
+
       // Recomendação para obesos (IMC>30)
       if (imc <= 30) {
-        mostraAlerta(`IMC = ${imc.toFixed(1).replace('.', ',')} (≤ 30). Este índice é recomendado para obesos.`, "orange");
+        showAlert(`IMC = ${imc.toFixed(1).replace('.', ',')} (≤ 30). Este índice é recomendado para obesos.`, "orange");
         return;
       }
-  
+
       // Índices por altura
       const idx_h   = vae_ml / alturaM;                 // ml/m
       const idx_h27 = vae_ml / Math.pow(alturaM, 2.7);  // ml/m^2.7
-  
+
       // Cut-offs (geral)
       const cut_h   = 29;   // ml/m
       const cut_h27 = 16;   // ml/m^2.7
-  
+
       // Monta linhas + flags
       const linhas = [
         { rotulo: "Parâmetro", valor: "Valor", ref: "Unidade / Referência", header: true },
@@ -370,26 +851,26 @@
         { rotulo: "VAE/altura", valor: idx_h.toFixed(1).replace('.', ','), ref: "Normal: < 29 ml/m", flag: (idx_h > cut_h) },
         { rotulo: "VAE/altura²·⁷", valor: idx_h27.toFixed(1).replace('.', ','), ref: "Normal: < 16 ml/m²·⁷", flag: (idx_h27 > cut_h27) },
       ];
-  
+
       renderTabelaAltura(linhas);
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  
+
       function renderTabelaAltura(rows) {
         tabelaAltura.innerHTML = "";
         tabelaAltura.classList.remove("hidden");
         tituloAlturaEl.classList.remove("hidden");
-  
+
         rows.forEach((r) => {
           const tr = document.createElement('tr');
-  
+
           const c1 = r.header ? document.createElement('th') : document.createElement('td');
           const c2 = r.header ? document.createElement('th') : document.createElement('td');
           const c3 = r.header ? document.createElement('th') : document.createElement('td');
-  
+
           c1.textContent = r.rotulo;
           c2.textContent = r.valor;
           c3.textContent = r.ref;
-  
+
           // Aplica flag visual se ultrapassar corte (apenas nas linhas com flag)
           if (!r.header && r.flag !== undefined) {
             if (r.flag) {
@@ -398,17 +879,10 @@
               c2.classList.add('flag-ok');
             }
           }
-  
+
           tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3);
           tabelaAltura.appendChild(tr);
         });
-      }
-  
-      function mostraAlerta(msg, cor = "green") {
-        alerta.textContent = msg;
-        alerta.style.display = "block";
-        alerta.style.color = (cor === "orange") ? "#f59e0b" : cor;
-        setTimeout(() => alerta.style.display = "none", 2500);
       }
     }
   
@@ -426,16 +900,28 @@
       const parede = +document.getElementById('parede').value.replace(',', '.');
       const fc = +document.getElementById('fc').value.replace(',', '.');
       const peso = +document.getElementById('peso').value.replace(',', '.');
-      const altura = +document.getElementById('altura').value.replace(',', '.'); // cm
+      const alturaRaw = +document.getElementById('altura').value.replace(',', '.');
+      const { cm: alturaCm, converted: alturaConvertida } = normalizarAlturaInput(alturaRaw);
       const vdf_in = document.getElementById('vdf').value.replace(',', '.');
       const vsf_in = document.getElementById('vsf').value.replace(',', '.');
       const vaeInputRaw = document.getElementById('vae').value.replace(',', '.');
       let vaeTipo = document.getElementById('vaeTipo').value;
       const metodoSel = document.getElementById('metodoSelect').value;
-  
-      // SC (DuBois) com altura em cm
-      const sc  = 0.007184 * Math.pow(peso, 0.425) * Math.pow(altura, 0.725);
-      const imc = peso / Math.pow((altura / 100), 2);
+ 
+      if (!Number.isFinite(peso) || peso <= 0 || !Number.isFinite(alturaCm)) {
+        showAlert("Informe peso e altura válidos.", "red");
+        return;
+      }
+      atualizarCampoAlturaSeConvertida(alturaCm, alturaConvertida);
+
+      // Superfície corporal conforme método selecionado
+      const sc  = calcularBsa(peso, alturaCm);
+      if (!Number.isFinite(sc) || sc <= 0) {
+        showAlert("Não foi possível calcular a superfície corporal. Verifique peso e altura.", "red");
+        return;
+      }
+      const metodoBsa = BSA_METHODS[bsaMetodoAtual] || BSA_METHODS.mosteller;
+      const imc = peso / Math.pow((alturaCm / 100), 2);
   
       function teichholz(d) {
         // d em mm -> cm ao dividir por 10; retorna ml/m²
@@ -452,7 +938,7 @@
         metodo = metodoSel || "Manual";
       }
   
-      const fe  = ((vdf - vsf) / vdf) * 100;
+      const fe = Math.round(((vdf - vsf) / vdf) * 100);
       const ve  = vdf - vsf;
       const ic  = (fc * ve) / 1000; // L/min/m²
       const imve = (0.8 * (1.04 * (Math.pow((ddve/10 + septo/10 + parede/10), 3) - Math.pow((ddve/10), 3))) + 0.6) / sc;
@@ -469,17 +955,18 @@
       vaeDisp = (vaeDisp || '').toString().replace('.', ',');
   
       const dados = [
-        ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, fe.toFixed(1).replace('.', ','), "%"],
-        ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "ml/m²"],
-        ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
-        ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
-        ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2).replace('.', ','), ""],
-        ["Frequência cardíaca", fc, "bpm", "Superfície corporal (Dubois)", sc.toFixed(2).replace('.', ','), "m²"],
-        ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
-        ["Altura", altura, "cm", "Volume do Átrio Esquerdo", vaeDisp, vae_tipo_display]
-      ];
+  ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, Math.round(fe).toString().replace('.', ','), "%"],
+  ["Átrio Esquerdo", atrio, "mm", `Volume Diastólico Final ${metodoTexto}`, vdf.toFixed(1).replace('.', ','), "ml/m²"],
+  ["Ventrículo Direito", ventriculo, "mm", `Volume Sistólico Final ${metodoTexto}`, vsf.toFixed(1).replace('.', ','), "ml/m²"],
+  ["Diâmetro Diastólico VE", ddve, "mm", "Volume Ejetado/batimento", ve.toFixed(1).replace('.', ','), "ml/m²"],
+  ["Diâmetro Sistólico VE", dsve, "mm", "Índice Cardíaco", ic.toFixed(1).replace('.', ','), "L/min/m²"],
+  ["Septo", septo, "mm", "Índice de Massa do VE", imve.toFixed(1).replace('.', ','), "g/m²"],
+  ["Parede Posterior", parede, "mm", "Espessura relativa", er.toFixed(2).replace('.', ','), ""],
+  ["Frequência cardíaca", fc, "bpm", `Superfície corporal (${metodoBsa.label})`, sc.toFixed(2).replace('.', ','), "m²"],
+  ["Peso", peso, "kg", "Índice de Massa Corpórea", imc.toFixed(1).replace('.', ','), "kg/m²"],
+  ["Altura", (Number.isInteger(alturaCm) ? alturaCm.toString() : alturaCm.toFixed(1)).replace('.', ','), "cm", "Volume do Átrio Esquerdo", vaeDisp, vae_tipo_display]
+];
+
   
       tabela.innerHTML = '';
       dados.forEach(linha => {
@@ -500,7 +987,7 @@
       if (!tabela.innerText.trim()) {
         alerta.textContent = "Nenhum resultado para copiar.";
         alerta.style.display = "block";
-        alerta.style.color = "red";
+        alerta.style.color = getCssVar('--danger');
         setTimeout(() => alerta.style.display = "none", 2000);
         return;
       }
@@ -516,10 +1003,10 @@
       try {
         document.execCommand('copy');
         alerta.textContent = "Tabela copiada para a área de transferência.";
-        alerta.style.color = "green";
+        alerta.style.color = getCssVar('--accent');
       } catch (err) {
         alerta.textContent = "Erro ao copiar a tabela.";
-        alerta.style.color = "red";
+        alerta.style.color = getCssVar('--danger');
       }
   
       alerta.style.display = "block";
@@ -541,8 +1028,13 @@
       hideAlturaTable();
   
       // esconder alerta
-      const alerta = document.getElementById("alerta");
-      alerta.style.display = "none";
+      if (alertaTimeoutId) {
+        clearTimeout(alertaTimeoutId);
+        alertaTimeoutId = null;
+      }
+      if (alertaEl) {
+        alertaEl.style.display = "none";
+      }
     }
   
     // Avançar para próximo input ao pressionar Enter

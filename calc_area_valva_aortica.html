@@ -310,9 +310,7 @@
               <input id="altura" inputmode="decimal" placeholder="ex.: 170" type="text" />
             </div>
             <div class="subfield">
-              <label>Superfície corporal (Mosteller)
-                <a class="help-link" href="#explicacao-bsa" title="Clique para entender Mosteller vs DuBois">?</a>
-              </label>
+              <label>Superfície corporal (Mosteller)</label>
               <div><span id="bsa" class="value-sm">—</span><span class="unit">m²</span></div>
             </div>
           </div>
@@ -345,7 +343,7 @@
           <div><span id="gmAva" class="value">—</span><span class="unit">mmHg/cm²</span></div>
         </div>
         <div class="card">
-          <div class="small">Volume sistólico ejetado (SV)</div>
+          <div class="small">Volume ejetado - stroke volume (SV)</div>
           <div><span id="sv" class="value">—</span><span class="unit">mL</span></div>
           <div class="small">SV indexado</div>
           <div><span id="svi" class="value">—</span><span class="unit">mL/m²</span></div>
@@ -664,7 +662,6 @@
 
         let bsaValue = NaN;
         if (validPeso && validAltura) {
-          // Mosteller: BSA (m²) = sqrt( (altura(cm) * peso(kg)) / 3600 )
           bsaValue = Math.sqrt((peso * altura) / 3600);
           els.bsa.textContent = isFinite(bsaValue) ? format(bsaValue) : '—';
           if (!invalidRequired && isFinite(avaValue) && isFinite(bsaValue) && bsaValue > 0) {
