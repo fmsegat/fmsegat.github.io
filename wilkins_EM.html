@@ -143,6 +143,31 @@
     .btn-success{ background: var(--accent) }
     .btn-warning{ background: var(--warn) }
     .btn-secondary{ background: rgb(50, 148, 102) }
+    textarea{
+      padding:12px 14px;
+      font-size:1rem;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: var(--ink);
+      color: var(--text-input);
+      min-height:140px;
+      resize:vertical;
+      font-family:inherit;
+    }
+    .report-block{
+      margin-top:24px;
+      background: rgba(17,24,39,.8);
+      border-radius:16px;
+      border:1px solid var(--border-soft);
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .report-block label{
+      font-weight:700;
+      color:var(--muted);
+    }
 
     table{
       width:100%;
@@ -182,14 +207,20 @@
 
     <section class="actions">
       <button class="btn-primary" id="btnCalcular">Calcular escore</button>
-      <button class="btn-secondary" id="btnCopiar">Copiar texto</button>
-      <button class="btn-warning" id="btnLimpar">Limpar</button>
+      <button class="btn-secondary" id="btnGerar">Gerar relatório</button>
+      <button class="btn-warning" id="btnCopiarRelatorio">Copiar relatório</button>
+      <button class="btn-success" id="btnLimpar">Limpar</button>
     </section>
 
     <section class="score-display" id="resultado" hidden>
       <div>Escore total (4 a 16)</div>
       <div class="score-total" id="total">0</div>
       <div id="interpretacao"></div>
+    </section>
+
+    <section class="report-block">
+      <label for="report">Relatório</label>
+      <textarea id="report" placeholder="Clique em &quot;Gerar relatório&quot; para compor o texto automatizado. Você pode editar manualmente após gerado."></textarea>
     </section>
 
   </main>
@@ -244,7 +275,7 @@
 
     const interpretacoes = [
       { limite: 8, mensagem: 'Anatomia muito favorável. Probabilidade de sucesso da valvoplastia por balão > 80%.', cor: 'var(--accent)' },
-      { limite: 11, mensagem: 'Anatomia intermediária. Probabilidade de sucesso aproximada de 50-70%; correlacionar com clínica.', cor: 'var(--warn)' },
+      { limite: 11, mensagem: 'Anatomia intermediária. Probabilidade de sucesso aproximada de 50-70%', cor: 'var(--warn)' },
       { limite: 16, mensagem: 'Anatomia desfavorável. Baixa probabilidade (< 50%) de resultado ótimo com valvoplastia por balão.', cor: 'var(--danger)' }
     ];
 
@@ -283,32 +314,34 @@
     });
 
     const btnCalcular = document.getElementById('btnCalcular');
-    const btnCopiar = document.getElementById('btnCopiar');
+    const btnGerar = document.getElementById('btnGerar');
+    const btnCopiarRelatorio = document.getElementById('btnCopiarRelatorio');
     const btnLimpar = document.getElementById('btnLimpar');
     const resultado = document.getElementById('resultado');
     const totalElement = document.getElementById('total');
     const interpretacaoElement = document.getElementById('interpretacao');
+    const reportEl = document.getElementById('report');
 
-    btnCalcular.addEventListener('click', () => {
+    function coletarSelecoes(){
       let soma = 0;
       let incompleto = false;
+      const detalhes = [];
 
       criterios.forEach(criterio => {
-        const valor = document.getElementById(criterio.id).value;
-        if (!valor) {
+        const select = document.getElementById(criterio.id);
+        const opcao = select.options[select.selectedIndex];
+        if (!opcao || !opcao.value) {
           incompleto = true;
         } else {
-          soma += Number(valor);
+          soma += Number(opcao.value);
+          detalhes.push({ titulo: criterio.titulo, texto: opcao.textContent.trim() });
         }
       });
 
-      if (incompleto) {
-        alert('Preencha um escore (1-4) para todos os critérios.');
-        return;
-      }
+      return { soma, incompleto, detalhes };
+    }
 
-      totalElement.textContent = soma;
-
+    function interpretarSoma(soma){
       let texto = '';
       let cor = 'var(--text)';
       for (const item of interpretacoes) {
@@ -318,7 +351,19 @@
           break;
         }
       }
+      return { texto, cor };
+    }
 
+    btnCalcular.addEventListener('click', () => {
+      const { soma, incompleto } = coletarSelecoes();
+
+      if (incompleto) {
+        alert('Preencha um escore (1-4) para todos os critérios.');
+        return;
+      }
+
+      totalElement.textContent = soma;
+      const { texto, cor } = interpretarSoma(soma);
       interpretacaoElement.textContent = texto;
       interpretacaoElement.style.color = cor;
       resultado.hidden = false;
@@ -333,40 +378,35 @@
       interpretacaoElement.textContent = '';
       interpretacaoElement.style.color = 'var(--text)';
       totalElement.textContent = '0';
+      if (reportEl) reportEl.value = '';
     });
 
-    btnCopiar.addEventListener('click', () => {
-      const tituloPrincipal = document.querySelector('#app h1')?.textContent.trim() || '';
-      const subtitulo = document.querySelector('#app h2')?.textContent.trim() || '';
-
-      const linhas = [];
-      if (tituloPrincipal) linhas.push(tituloPrincipal);
-      if (subtitulo) linhas.push(subtitulo);
-      if (linhas.length) linhas.push('');
-      linhas.push('Critérios:');
-
-      let soma = 0;
-
-      criterios.forEach(criterio => {
-        const select = document.getElementById(criterio.id);
-        const opcao = select.options[select.selectedIndex];
-        const texto = opcao && opcao.value ? opcao.textContent.trim() : 'não selecionado';
-        if (opcao && opcao.value) {
-          soma += Number(opcao.value);
-        }
-        linhas.push(`- ${criterio.titulo}: ${texto}`);
-      });
-
-      linhas.push('');
-      linhas.push(`Soma dos critérios: ${soma}`);
-
-      const interpretacaoTexto = interpretacaoElement.textContent.trim();
-      if (interpretacaoTexto) {
-        linhas.push(`Interpretação: ${interpretacaoTexto}`);
+    btnGerar.addEventListener('click', () => {
+      const { soma, incompleto, detalhes } = coletarSelecoes();
+      if (incompleto) {
+        alert('Selecione um escore (1-4) para todos os critérios antes de gerar o relatório.');
+        return;
       }
+      const { texto } = interpretarSoma(soma);
+      const partes = [
+        'Escore de Wilkins',
+        '',
+        'Critérios avaliados:',
+        ...detalhes.map(item => `- ${item.titulo}: ${item.texto}`),
+        '',
+        `Soma total dos critérios: ${soma}`,
+        `Interpretação: ${texto || '—'}`
+      ];
+      reportEl.value = partes.join('\n');
+    });
 
-      const textoFinal = linhas.join('\n');
-      copiarParaAreaDeTransferencia(textoFinal);
+    btnCopiarRelatorio.addEventListener('click', () => {
+      const texto = reportEl.value.trim();
+      if (!texto) {
+        alert('Gere o relatório antes de copiar.');
+        return;
+      }
+      copiarParaAreaDeTransferencia(texto);
     });
 
     function copiarParaAreaDeTransferencia(texto) {
