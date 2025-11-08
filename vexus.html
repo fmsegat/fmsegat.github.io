@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quantificador VExUS &ndash; Congestão Venosa Sistêmica</title>
+<style>
+  :root{
+    --bg: #0b1220;
+    --panel:#121a2b;
+    --ink:#e7ecf6;
+    --muted:#9fb2d0;
+    --brand:#5aa9ff;
+    --ok:#2ecc71; --warn:#f1c40f; --bad:#e74c3c;
+    --border: #223253;
+  }
+  html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";}
+  body{background:var(--bg);color:var(--ink);}
+  .wrap{max-width:1050px;margin:24px auto;padding:0 16px;}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .title{font-weight:700;font-size:1.25rem;letter-spacing:.2px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px}
+  .controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .controls .ctrl-wide{grid-column:1 / -1}
+  @media (max-width:820px){.controls{grid-template-columns:1fr}}
+  select, input[type="number"], input[type="text"], button, textarea{background:#0e1626;color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px}
+  select:focus, input:focus, textarea:focus, button:focus{outline:2px solid var(--brand);outline-offset:1px}
+  .row{display:flex;gap:8px;align-items:center}
+  .row label{font-size:.85rem;color:var(--muted)}
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .tile{background:#0f1a2d;border:1px solid var(--border);border-radius:14px;padding:12px}
+  .tile h5{margin:0;font-size:.8rem;color:var(--muted)}
+  .tile .val{font-size:1.2rem;font-weight:700;margin-top:6px}
+  .badge{border-radius:999px;padding:.25rem .6rem;font-weight:700;font-size:.78rem}
+  .ok{background:rgba(46,204,113,.15);color:#79e5a9;border:1px solid rgba(46,204,113,.35)}
+  .warn{background:rgba(241,196,15,.12);color:#ffe28a;border:1px solid rgba(241,196,15,.35)}
+  .bad{background:rgba(231,76,60,.12);color:#ff9f96;border:1px solid rgba(231,76,60,.35)}
+  .muted{color:var(--muted)}
+  .divider{height:1px;background:var(--border);margin:16px 0}
+  textarea{width:100%;min-height:120px;resize:vertical}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .pill{border-radius:999px;padding:6px 12px;font-size:.8rem;background:#0d1728;border:1px solid var(--border);color:var(--muted)}
+  .pill strong{color:var(--ink);font-weight:600;margin-right:4px}
+  .pill-hot{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.45);color:#ffb2ac}
+  .footer-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .primary{background:linear-gradient(180deg,#5aa9ff,#347bd9);border:none}
+  .ghost{background:transparent}
+  .mini{padding:6px 10px;border-radius:10px}
+  .caption{font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">🫀 VExUS &ndash; Quantificador de Congestão Venosa Sistêmica</div>
+    <button class="mini ghost" id="btnReset" type="button">Reiniciar</button>
+  </header>
+
+  <section class="card">
+    <div class="controls">
+      <label class="row ctrl">
+        <span class="grow">Veia cava inferior</span>
+        <select id="ivc">
+          <option value="normal" selected>&le;2,1 cm + colapso respiratório &gt;50%</option>
+          <option value="abnormal">&gt;2,1 cm ou colapso &lt;50%</option>
+          <option value="indisponivel">Não avaliada / janela ruim</option>
+        </select>
+      </label>
+
+      <label class="row ctrl">
+        <span class="grow">Veia hepática</span>
+        <select id="hepatic">
+          <option value="normal" selected>Padrão fisiológico (S &gt; D)</option>
+          <option value="mild">Congestão leve (S &lt; D, ainda anterógrada)</option>
+          <option value="severe">Congestão grave (S reverso/bidirecional)</option>
+        </select>
+      </label>
+
+      <label class="row ctrl">
+        <span class="grow">Veia porta</span>
+        <select id="portal">
+          <option value="normal" selected>Pulsatilidade &lt;30%</option>
+          <option value="mild">Pulsatilidade 30-50%</option>
+          <option value="severe">Pulsatilidade &gt;50% / fluxo bidirecional</option>
+        </select>
+      </label>
+
+      <label class="row ctrl">
+        <span class="grow">Veia renal interlobar (opcional)</span>
+        <select id="renal">
+          <option value="nao" selected>Não avaliada</option>
+          <option value="normal">Fluxo contínuo</option>
+          <option value="mild">Desaceleração/ausência diastólica</option>
+          <option value="severe">Fluxo reverso diastólico</option>
+        </select>
+      </label>
+
+      <label class="row ctrl ctrl-wide">
+        <span class="grow">Observações rápidas</span>
+        <input id="notes" placeholder="Ex.: após expansão volêmica, uso de aminas, etc." />
+      </label>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="kpi">
+      <div class="tile">
+        <h5>Classificação VExUS</h5>
+        <div class="val"><span id="grade" class="badge ok">VExUS 0</span></div>
+      </div>
+      <div class="tile">
+        <h5>Critérios positivos</h5>
+        <div class="val" id="positiveCount">0</div>
+      </div>
+      <div class="tile">
+        <h5>Estado da IVC</h5>
+        <div class="val" id="ivcSummary">Normal</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <h4 style="margin:0 0 8px;">Detalhamento dos achados</h4>
+      <div id="criteriaList" class="pills"></div>
+      <div class="caption">Gradação baseada no protocolo VExUS: IVC dilatada é pré-requisito para progressão dos estágios. Critérios severos (portal &gt;50% ou fluxo renal reverso) elevam para VExUS III.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer-actions">
+      <button class="primary" id="btnReport" type="button">Gerar relatório</button>
+      <button class="ghost" id="btnCopy" type="button">Copiar relatório</button>
+      <button class="ghost" id="btnSave" type="button">Salvar JSON</button>
+      <input type="file" id="fileLoad" accept="application/json" style="display:none" />
+      <button class="ghost" id="btnLoad" type="button">Carregar JSON</button>
+    </div>
+
+    <div class="divider"></div>
+    <div>
+      <label class="row"><span class="grow">Relatório</span></label>
+      <textarea id="report" placeholder="Clique em 'Gerar relatório' para compor o texto padronizado."></textarea>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const ivcEl = document.getElementById('ivc');
+  const hepaticEl = document.getElementById('hepatic');
+  const portalEl = document.getElementById('portal');
+  const renalEl = document.getElementById('renal');
+  const notesEl = document.getElementById('notes');
+  const reportEl = document.getElementById('report');
+
+  const gradeEl = document.getElementById('grade');
+  const positiveCountEl = document.getElementById('positiveCount');
+  const ivcSummaryEl = document.getElementById('ivcSummary');
+  const criteriaListEl = document.getElementById('criteriaList');
+
+  const btnReport = document.getElementById('btnReport');
+  const btnCopy = document.getElementById('btnCopy');
+  const btnReset = document.getElementById('btnReset');
+  const btnSave = document.getElementById('btnSave');
+  const btnLoad = document.getElementById('btnLoad');
+  const fileLoad = document.getElementById('fileLoad');
+
+  const OPTIONS = {
+    ivc:{
+      normal:{label:'<=2,1 cm e variação respiratória preservada', severity:0},
+      abnormal:{label:'>2,1 cm ou colapso <50%', severity:1},
+      indisponivel:{label:'Não avaliada', severity:null}
+    },
+    hepatic:{
+      normal:{label:'S>D, fluxo predominantemente anterógrado', severity:0},
+      mild:{label:'S<D, porém sem reversão', severity:1},
+      severe:{label:'S reverso/bidirecional', severity:2}
+    },
+    portal:{
+      normal:{label:'Pulsatilidade <30%', severity:0},
+      mild:{label:'Pulsatilidade 30-50%', severity:1},
+      severe:{label:'Pulsatilidade >50% ou fluxo bidirecional', severity:2}
+    },
+    renal:{
+      nao:{label:'Não avaliada', severity:null},
+      normal:{label:'Fluxo contínuo trifásico', severity:0},
+      mild:{label:'Desaceleração/ausência de fase diastólica', severity:1},
+      severe:{label:'Fluxo reverso na diástole', severity:2}
+    }
+  };
+
+  let state = {
+    ivc:'normal',
+    hepatic:'normal',
+    portal:'normal',
+    renal:'nao',
+    notes:''
+  };
+
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function evaluate(){
+    const ivc = state.ivc;
+    const values = [];
+
+    const hepatic = OPTIONS.hepatic[state.hepatic];
+    const portal = OPTIONS.portal[state.portal];
+    const renal = OPTIONS.renal[state.renal];
+
+    values.push({name:'Veia hepática', key:'hepatic', include:true, severity:hepatic.severity, text:hepatic.label});
+    values.push({name:'Veia porta', key:'portal', include:true, severity:portal.severity, text:portal.label});
+    if(state.renal !== 'nao'){
+      values.push({name:'Veia renal', key:'renal', include:true, severity:renal.severity, text:renal.label});
+    }
+
+    const positive = values.filter(v=>typeof v.severity==='number' && v.severity>0).length;
+    positiveCountEl.textContent = positive.toString();
+
+    const ivcData = OPTIONS.ivc[ivc];
+    ivcSummaryEl.textContent = ivcData ? ivcData.label : 'N/A';
+
+    const detailHtml = [
+      {name:'Veia cava inferior', text:ivcData ? ivcData.label : 'N/A', severity:ivcData ? ivcData.severity : null, include:true},
+      ...values
+    ].map(item=>{
+      const cls = ['pill'];
+      if(typeof item.severity==='number' && item.severity>0){ cls.push('pill-hot'); }
+      return `<div class="${cls.join(' ')}"><strong>${escapeHtml(item.name)}:</strong> ${escapeHtml(item.text || '')}</div>`;
+    }).join('');
+    criteriaListEl.innerHTML = detailHtml;
+
+    const result = computeStage(ivcData ? ivcData.severity : null, values);
+    gradeEl.textContent = result.label;
+    gradeEl.className = 'badge ' + result.badge;
+    return result;
+  }
+
+  function computeStage(ivcSeverity, values){
+    if(ivcSeverity === null){
+      return {stage:'N/A', label:'Dados incompletos', badge:'warn'};
+    }
+    if(ivcSeverity === 0){
+      return {stage:0, label:'VExUS 0 (sem congestão significativa)', badge:'ok'};
+    }
+
+    const maxSeverity = values.reduce((acc,item)=>{
+      const lvl = typeof item.severity==='number' ? item.severity : 0;
+      return Math.max(acc, lvl);
+    },0);
+
+    if(maxSeverity === 0){
+      return {stage:1, label:'VExUS I (congestão leve)', badge:'warn'};
+    }else if(maxSeverity === 1){
+      return {stage:2, label:'VExUS II (congestão moderada)', badge:'warn'};
+    }
+    return {stage:3, label:'VExUS III (congestão grave)', badge:'bad'};
+  }
+
+  function compute(){
+    state.ivc = ivcEl.value;
+    state.hepatic = hepaticEl.value;
+    state.portal = portalEl.value;
+    state.renal = renalEl.value;
+    state.notes = notesEl.value.trim();
+    return evaluate();
+  }
+
+  function generateReport(){
+    const result = compute();
+    const parts = [];
+    parts.push('Ultrassonografia point-of-care para congestão venosa (VExUS).');
+    parts.push('IVC: ' + OPTIONS.ivc[state.ivc].label + '.');
+    parts.push('Veia hepática: ' + OPTIONS.hepatic[state.hepatic].label + '.');
+    parts.push('Veia porta: ' + OPTIONS.portal[state.portal].label + '.');
+    if(state.renal !== 'nao'){
+      parts.push('Veia renal interlobar: ' + OPTIONS.renal[state.renal].label + '.');
+    }else{
+      parts.push('Veia renal não avaliada.');
+    }
+    parts.push('Classificação final: ' + result.label + '.');
+    parts.push('Critérios positivos contabilizados: ' + positiveCountEl.textContent + '.');
+    if(state.notes){
+      parts.push('Observações: ' + state.notes + '.');
+    }
+    parts.push('Interpretação baseada nos limiares originais do escore VExUS.');
+    reportEl.value = parts.join('\n');
+  }
+  window.generateReport = generateReport;
+
+  function resetAll(){
+    ivcEl.value = 'normal';
+    hepaticEl.value = 'normal';
+    portalEl.value = 'normal';
+    renalEl.value = 'nao';
+    notesEl.value = '';
+    reportEl.value = '';
+    compute();
+  }
+
+  function saveJSON(){
+    const data = {
+      meta:{tool:'vexus', ts:new Date().toISOString()},
+      form:{...state}
+    };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vexus_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function loadJSON(file){
+    const reader = new FileReader();
+    reader.onload = (evt)=>{
+      try{
+        const data = JSON.parse(evt.target.result);
+        const form = data.form || data;
+        if(form.ivc) ivcEl.value = form.ivc;
+        if(form.hepatic) hepaticEl.value = form.hepatic;
+        if(form.portal) portalEl.value = form.portal;
+        if(form.renal) renalEl.value = form.renal;
+        if(typeof form.notes === 'string') notesEl.value = form.notes;
+        compute();
+      }catch(err){
+        alert('Arquivo inválido.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  ivcEl.addEventListener('change', compute);
+  hepaticEl.addEventListener('change', compute);
+  portalEl.addEventListener('change', compute);
+  renalEl.addEventListener('change', compute);
+  notesEl.addEventListener('input', compute);
+
+  btnReport.addEventListener('click', generateReport);
+  btnCopy.addEventListener('click', ()=>{
+    reportEl.select();
+    document.execCommand('copy');
+  });
+  btnReset.addEventListener('click', resetAll);
+  btnSave.addEventListener('click', saveJSON);
+  btnLoad.addEventListener('click', ()=>fileLoad.click());
+  fileLoad.addEventListener('change', ()=>{
+    if(fileLoad.files && fileLoad.files[0]){
+      loadJSON(fileLoad.files[0]);
+    }
+  });
+
+  compute();
+})();
+</script>
+</body>
+</html>
