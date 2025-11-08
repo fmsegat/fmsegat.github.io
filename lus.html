@@ -24,7 +24,6 @@
   /* ForÃ§ar quebra de linha para elementos marcados e separadores */
   .controls .controls-sep{grid-column:1 / -1}
   /* Não forçar largura total dos rótulos para aproximar selects dos textos */
-  .controls .ctrl-probe,
   .controls .ctrl-sliding{grid-column:auto}
   @media (max-width:820px){.controls{grid-template-columns:1fr}}
   select, input[type="number"], button, textarea{background:#0e1626;color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px}
@@ -85,7 +84,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="title">🫁 Quantificador de Linhas B · (em desenvolvimento)</div>
+    <div class="title">🫁 Quantificador de Linhas B</div>
     <button class="mini ghost" id="btnReset">Reiniciar</button>
   </header>
 
@@ -97,15 +96,7 @@
           <option value="8">8 zonas</option>
         </select>      </label>
       <div class="divider controls-sep divider-tight"></div>
-      <label class="row ctrl ctrl-probe"><span class="grow">Transdutor</span>
-        <select id="probe">
-          <option>Convexo 2-5 MHz</option>
-          <option>Linear 7-12 MHz</option>
-          <option selected>Setorial 1-5 MHz</option>
-        </select>
-      </label>
-            <div class="divider controls-sep divider-tight"></div>
-<label class="row ctrl ctrl-sliding" for="sliding">
+      <label class="row ctrl ctrl-sliding" for="sliding">
         <span class="grow">Deslizamento pleural</span>
         <select id="sliding">
           <option value="presente" selected>Presente</option>
@@ -200,10 +191,6 @@
             <option value="sim">Sim</option>
           </select>
         </div>
-        <div class="row">
-          <label class="grow">Observação</label>
-          <input id="${id}_obs" placeholder="opcional" />
-        </div>
       </div>`;
   }
 
@@ -243,8 +230,7 @@
       const id = `z_${z.key}`;
       const n = parseInt(document.getElementById(`${id}_n`).value||'0',10);
       const w = document.getElementById(`${id}_w`).value==='sim';
-      const obs = document.getElementById(`${id}_obs`).value||'';
-      state.zones[z.key] = {n, w, obs, side:z.side, plane:z.plane, label:z.label};
+      state.zones[z.key] = {n, w, side:z.side, plane:z.plane, label:z.label};
       total += n; if(z.side==='R') right += n; else left += n;
       if(z.plane==='ANT') ant += n; else if(z.plane==='LAT') lat += n; else pos += n;
       if(w) anyWhite = true;
@@ -286,7 +272,7 @@
     const whites = zonesArr.filter(z=>z.w).map(z=>z.label).join('; ');
 
     const listLines = zonesArr.filter(z=>z.n>0)
-      .map(z=>z.label + ': ' + z.n + (z.obs ? (' [' + z.obs + ']') : ''))
+      .map(z=>z.label + ': ' + z.n)
       .join(' | ');
 
     const proto = state.protocol;
@@ -331,10 +317,8 @@ function saveJSON(){
             const id = `z_${k}`;
             const nEl = document.getElementById(`${id}_n`);
             const wEl = document.getElementById(`${id}_w`);
-            const oEl = document.getElementById(`${id}_obs`);
             if(nEl) nEl.value = z.n ?? 0;
             if(wEl) wEl.value = z.w ? 'sim':'nao';
-            if(oEl) oEl.value = z.obs ?? '';
           }
         }
         compute();
@@ -363,10 +347,6 @@ function saveJSON(){
 </script>
 </body>
 </html>
-
-
-
-
 
 
 
