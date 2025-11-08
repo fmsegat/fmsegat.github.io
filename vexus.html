@@ -20,9 +20,7 @@
   header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
   .title{font-weight:700;font-size:1.25rem;letter-spacing:.2px}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px}
-  .controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .controls .ctrl-wide{grid-column:1 / -1}
-  @media (max-width:820px){.controls{grid-template-columns:1fr}}
+  .controls{display:flex;flex-direction:column;gap:12px}
   select, input[type="number"], input[type="text"], button, textarea{background:#0e1626;color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px}
   select:focus, input:focus, textarea:focus, button:focus{outline:2px solid var(--brand);outline-offset:1px}
   .row{display:flex;gap:8px;align-items:center}
@@ -38,10 +36,12 @@
   .muted{color:var(--muted)}
   .divider{height:1px;background:var(--border);margin:16px 0}
   textarea{width:100%;min-height:120px;resize:vertical}
-  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .pill{border-radius:999px;padding:6px 12px;font-size:.8rem;background:#0d1728;border:1px solid var(--border);color:var(--muted)}
-  .pill strong{color:var(--ink);font-weight:600;margin-right:4px}
-  .pill-hot{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.45);color:#ffb2ac}
+  .select-level{transition:background .2s, border-color .2s, color .2s}
+  .level-neutral{background:#0e1626;color:var(--ink);border-color:var(--border)}
+  .level-normal{background:rgba(46,204,113,.18);color:#b7f7cf;border-color:rgba(46,204,113,.4)}
+  .level-mild{background:rgba(241,196,15,.18);color:#ffe7a0;border-color:rgba(241,196,15,.45)}
+  .level-severe{background:rgba(231,76,60,.2);color:#ffc1ba;border-color:rgba(231,76,60,.5)}
+  .level-missing{background:rgba(159,178,208,.2);color:#d2daeb;border-color:rgba(159,178,208,.4)}
   .footer-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
   .primary{background:linear-gradient(180deg,#5aa9ff,#347bd9);border:none}
   .ghost{background:transparent}
@@ -61,8 +61,8 @@
       <label class="row ctrl">
         <span class="grow">Veia cava inferior</span>
         <select id="ivc">
-          <option value="normal" selected>&le;2,1 cm + colapso respiratório &gt;50%</option>
-          <option value="abnormal">&gt;2,1 cm ou colapso &lt;50%</option>
+          <option value="normal" selected>&le;2 cm + colapso respiratório &gt;50%</option>
+          <option value="abnormal">&gt;2 cm ou colapso &lt;50%</option>
           <option value="indisponivel">Não avaliada / janela ruim</option>
         </select>
       </label>
@@ -120,14 +120,6 @@
 
     <div class="divider"></div>
 
-    <div>
-      <h4 style="margin:0 0 8px;">Detalhamento dos achados</h4>
-      <div id="criteriaList" class="pills"></div>
-      <div class="caption">Gradação baseada no protocolo VExUS: IVC dilatada é pré-requisito para progressão dos estágios. Critérios severos (portal &gt;50% ou fluxo renal reverso) elevam para VExUS III.</div>
-    </div>
-
-    <div class="divider"></div>
-
     <div class="footer-actions">
       <button class="primary" id="btnReport" type="button">Gerar relatório</button>
       <button class="ghost" id="btnCopy" type="button">Copiar relatório</button>
@@ -156,7 +148,6 @@
   const gradeEl = document.getElementById('grade');
   const positiveCountEl = document.getElementById('positiveCount');
   const ivcSummaryEl = document.getElementById('ivcSummary');
-  const criteriaListEl = document.getElementById('criteriaList');
 
   const btnReport = document.getElementById('btnReport');
   const btnCopy = document.getElementById('btnCopy');
@@ -167,8 +158,8 @@
 
   const OPTIONS = {
     ivc:{
-      normal:{label:'<=2,1 cm e variação respiratória preservada', severity:0},
-      abnormal:{label:'>2,1 cm ou colapso <50%', severity:1},
+      normal:{label:'<=2 cm e variação respiratória preservada', severity:0},
+      abnormal:{label:'>2 cm ou colapso <50%', severity:1},
       indisponivel:{label:'Não avaliada', severity:null}
     },
     hepatic:{
@@ -197,13 +188,21 @@
     notes:''
   };
 
-  function escapeHtml(str){
-    return String(str)
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#39;');
+  function tintSelect(el, severity){
+    const cls = ['level-neutral','level-normal','level-mild','level-severe','level-missing'];
+    el.classList.add('select-level');
+    cls.forEach(c=>el.classList.remove(c));
+    let target = 'level-neutral';
+    if(severity === null){
+      target = 'level-missing';
+    }else if(severity === 0){
+      target = 'level-normal';
+    }else if(severity === 1){
+      target = 'level-mild';
+    }else if(severity >= 2){
+      target = 'level-severe';
+    }
+    el.classList.add(target);
   }
 
   function evaluate(){
@@ -226,28 +225,39 @@
     const ivcData = OPTIONS.ivc[ivc];
     ivcSummaryEl.textContent = ivcData ? ivcData.label : 'N/A';
 
-    const detailHtml = [
-      {name:'Veia cava inferior', text:ivcData ? ivcData.label : 'N/A', severity:ivcData ? ivcData.severity : null, include:true},
-      ...values
-    ].map(item=>{
-      const cls = ['pill'];
-      if(typeof item.severity==='number' && item.severity>0){ cls.push('pill-hot'); }
-      return `<div class="${cls.join(' ')}"><strong>${escapeHtml(item.name)}:</strong> ${escapeHtml(item.text || '')}</div>`;
-    }).join('');
-    criteriaListEl.innerHTML = detailHtml;
+    tintSelect(ivcEl, ivcData ? ivcData.severity : null);
+    tintSelect(hepaticEl, hepatic.severity);
+    tintSelect(portalEl, portal.severity);
+    tintSelect(renalEl, state.renal === 'nao' ? null : renal.severity);
 
-    const result = computeStage(ivcData ? ivcData.severity : null, values);
+    const includeRenal = state.renal !== 'nao';
+    const result = computeStage(ivcData ? ivcData.severity : null, values, includeRenal);
     gradeEl.textContent = result.label;
     gradeEl.className = 'badge ' + result.badge;
     return result;
   }
 
-  function computeStage(ivcSeverity, values){
+  function computeStage(ivcSeverity, values, includeRenal){
+    const prefix = includeRenal ? 'VExUS' : 'mVExUS';
     if(ivcSeverity === null){
-      return {stage:'N/A', label:'Dados incompletos', badge:'warn'};
+      return {stage:'N/A', label:`${prefix}: dados incompletos`, badge:'warn'};
     }
     if(ivcSeverity === 0){
-      return {stage:0, label:'VExUS 0 (sem congestão significativa)', badge:'ok'};
+      return {stage:0, label:`${prefix} 0 (sem congestão significativa)`, badge:'ok'};
+    }
+
+    if(!includeRenal){
+      const hepatic = values.find(v=>v.key==='hepatic');
+      const portal = values.find(v=>v.key==='portal');
+      const hepaticSevere = hepatic && hepatic.severity === 2;
+      const portalSevere = portal && portal.severity === 2;
+      if(hepaticSevere && portalSevere){
+        return {stage:3, label:'mVExUS 3 (congestão grave)', badge:'bad'};
+      }
+      if(hepaticSevere || portalSevere){
+        return {stage:2, label:'mVExUS 2 (congestão moderada)', badge:'warn'};
+      }
+      return {stage:1, label:'mVExUS 1 (congestão leve)', badge:'warn'};
     }
 
     const maxSeverity = values.reduce((acc,item)=>{
@@ -274,8 +284,9 @@
 
   function generateReport(){
     const result = compute();
+    const methodName = state.renal === 'nao' ? 'mVExUS' : 'VExUS';
     const parts = [];
-    parts.push('Ultrassonografia point-of-care para congestão venosa (VExUS).');
+    parts.push(`Ultrassonografia point-of-care para congestão venosa (${methodName}).`);
     parts.push('IVC: ' + OPTIONS.ivc[state.ivc].label + '.');
     parts.push('Veia hepática: ' + OPTIONS.hepatic[state.hepatic].label + '.');
     parts.push('Veia porta: ' + OPTIONS.portal[state.portal].label + '.');
