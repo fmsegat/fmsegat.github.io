@@ -116,7 +116,7 @@
         <div class="val" id="positiveCount">0</div>
       </div>
       <div class="tile">
-        <h5>Estado da IVC</h5>
+        <h5>Estado da Veia cava inferior</h5>
         <div class="val" id="ivcSummary">Normal</div>
       </div>
     </div>
@@ -290,7 +290,7 @@
     const methodName = state.renal === 'nao' ? 'mVExUS' : 'VExUS';
     const parts = [];
     parts.push(`Ultrassonografia point-of-care para congestão venosa (${methodName}).`);
-    parts.push('IVC: ' + OPTIONS.ivc[state.ivc].label + '.');
+    parts.push('Veia cava inferior: ' + OPTIONS.ivc[state.ivc].label + '.');
     parts.push('Veia hepática: ' + OPTIONS.hepatic[state.hepatic].label + '.');
     parts.push('Veia porta: ' + OPTIONS.portal[state.portal].label + '.');
     if(state.renal !== 'nao'){
