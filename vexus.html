@@ -70,8 +70,8 @@
       <label class="row ctrl">
         <span class="grow">Veia cava inferior</span>
         <select id="ivc">
-          <option value="normal" selected>&le;2 cm + colapso respiratório &gt;50%</option>
-          <option value="abnormal">&gt;2 cm ou colapso &lt;50%</option>
+          <option value="normal" selected>&lt;2 cm + colapso respiratório &gt;50%</option>
+          <option value="abnormal">&ge; 2,0 cm ou colapso &lt;50%</option>
           <option value="indisponivel">Não avaliada / janela ruim</option>
         </select>
       </label>
@@ -175,8 +175,8 @@
 
   const OPTIONS = {
     ivc:{
-      normal:{label:'<=2 cm e variação respiratória preservada', severity:0},
-      abnormal:{label:'>2 cm ou colapso <50%', severity:1},
+      normal:{label:'<2 cm e variação respiratória preservada', severity:0},
+     abnormal:{label:'≥ 2,0 cm ou colapso <50%', severity:1},
       indisponivel:{label:'Não avaliada', severity:null}
     },
     hepatic:{
@@ -317,7 +317,6 @@
     if(state.notes){
       parts.push('Observações: ' + state.notes + '.');
     }
-    parts.push('Interpretação baseada nos limiares originais do escore VExUS.');
     reportEl.value = parts.join('\n');
   }
   window.generateReport = generateReport;
