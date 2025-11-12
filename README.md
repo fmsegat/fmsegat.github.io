@@ -1,4 +1,2 @@
 # ecocalculos
-Ferramenta web para realizacao de calculos de ecocardiografia
-/n
-Desenvolvedor: Fabiano Mendoza Segat; fmsegat@gmail.com
+Ferramenta web para realizacao de calculos de ecocardiografia. Desenvolvedor: Fabiano Mendoza Segat; fmsegat@gmail.com
