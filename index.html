@@ -359,6 +359,49 @@
 .flag-abn{ color: var(--danger); font-weight: 800; }
 .flag-ok{ color: var(--text); }
 
+    /* Overlay para imagem em tela cheia */
+    .fullscreen-overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background: rgba(0,0,0,0.78);
+      z-index:30;
+    }
+    .fullscreen-overlay.hidden{ display:none !important; }
+    .fullscreen-overlay__img{
+      max-width: min(1200px, 95vw);
+      max-height: 95vh;
+      border-radius:14px;
+      box-shadow: var(--shadow);
+      background: var(--card);
+      object-fit: contain;
+    }
+    .fullscreen-overlay__close{
+      position:absolute;
+      top:18px;
+      right:18px;
+      border:1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+      background: color-mix(in srgb, var(--muted) 18%, transparent);
+      color: var(--text);
+      border-radius:50%;
+      width:42px;
+      height:42px;
+      font-size:1.4rem;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      line-height:1;
+    }
+    .fullscreen-overlay__close:hover,
+    .fullscreen-overlay__close:focus-visible{
+      filter:brightness(1.08);
+      outline:2px solid rgba(105,179,255,0.45);
+      outline-offset:2px;
+    }
+
   </style>
 </head>
 <body>
@@ -469,16 +512,16 @@
   </div>
 
   <div class="actions">
+    <button type="button" class="btn-info link-button"><a href="aorta-bsa.html">Aorta</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/calc_area_valva_aortica.html">Área Valva Aórtica</a></button>
     <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/cmph.html">Checklist CMPH</a></button>
     <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/teer.html">Checklist TEER</a></button>
-    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/stress-echo-abcde.html">Estresse</a></button>
     <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/wilkins_EM.html">Escore Wilkins</a></button>
-    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/calc_area_valva_aortica.html">Área Valva Aórtica</a></button>
+    <button type="button" class="btn-info link-button"><a href="https://fmsegat.github.io/stress-echo-abcde.html">Estresse</a></button>
     <button type="button" class="btn-info link-button"><a href="lus.html">LUS</a></button>
-    <button type="button" class="btn-info link-button"><a href="vexus.html">VExUS</a></button>
-    <button type="button" class="btn-info link-button"><a href="aorta-bsa.html">Aorta</a></button>
-    <!-- Botão para índice por altura -->
     <button type="button" id="calcAlturaBtn" class="btn-info">VAE indexado à altura (IMC&gt;30)</button>
+    <button type="button" class="btn-info link-button"><a href="vexus.html">VExUS</a></button>
+    <button type="button" id="openWorkflowBtn" class="btn-info">Workflow diastólico (Assef)</button>
   </div>
 
   <!-- Tabela principal -->
@@ -487,6 +530,11 @@
   <!-- Tabela de referência para obesos -->
   <h2 id="tituloAltura" class="hidden">Avaliação do volume atrial em obesos (apenas para consulta/referência)</h2>
   <table id="resultadoAltura" class="hidden"></table>
+
+  <div id="workflowOverlay" class="fullscreen-overlay hidden" role="dialog" aria-modal="true" aria-label="Workflow diastólico Assef">
+    <button type="button" class="fullscreen-overlay__close" aria-label="Fechar visualização da imagem">×</button>
+    <img src="assef_diastolic workflow.png" alt="Workflow diastólico Assef em tela cheia" class="fullscreen-overlay__img">
+  </div>
 
   <script>
     function getCssVar(name, el = document.documentElement) {
@@ -507,6 +555,9 @@
     const bsaMethodPanel  = document.getElementById('bsaMethodPanel');
     const bsaMethodOptions = bsaMethodPanel ? Array.from(bsaMethodPanel.querySelectorAll('[data-bsa-metodo]')) : [];
     const alertaEl        = document.getElementById('alerta');
+    const openWorkflowBtn = document.getElementById('openWorkflowBtn');
+    const workflowOverlay = document.getElementById('workflowOverlay');
+    const workflowCloseBtn = workflowOverlay ? workflowOverlay.querySelector('.fullscreen-overlay__close') : null;
     let alertaTimeoutId   = null;
 
     function showAlert(msg, cor = null, duracao = 2500) {
@@ -780,6 +831,41 @@
         applyTheme(next);
       });
     }
+
+    function openWorkflowOverlay() {
+      if (!workflowOverlay) return;
+      workflowOverlay.classList.remove('hidden');
+      if (workflowCloseBtn) {
+        workflowCloseBtn.focus();
+      }
+    }
+
+    function closeWorkflowOverlay() {
+      if (!workflowOverlay) return;
+      workflowOverlay.classList.add('hidden');
+      if (openWorkflowBtn) {
+        openWorkflowBtn.focus();
+      }
+    }
+
+    if (openWorkflowBtn) {
+      openWorkflowBtn.addEventListener('click', openWorkflowOverlay);
+    }
+    if (workflowOverlay) {
+      workflowOverlay.addEventListener('click', (event) => {
+        if (event.target === workflowOverlay) {
+          closeWorkflowOverlay();
+        }
+      });
+    }
+    if (workflowCloseBtn) {
+      workflowCloseBtn.addEventListener('click', closeWorkflowOverlay);
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && workflowOverlay && !workflowOverlay.classList.contains('hidden')) {
+        closeWorkflowOverlay();
+      }
+    });
   
     calcAlturaBtn.addEventListener('click', calcularIndexAltura);
     calcularBtn.addEventListener('click', calcular);
