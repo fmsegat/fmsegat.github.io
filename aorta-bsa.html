@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Aorta por BSA (Dubois)</title>
+  <link rel="icon" type="image/x-icon" href="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/favicon.png">
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#121a2b;
+      --card:#0d1526;
+      --muted:#9fb0c0;
+      --text:#e6edf3;
+      --accent:#69b3ff;
+      --warn:#f59e0b;
+      --danger:#ff6b6b;
+      --success:#34d399;
+      --border:#243557;
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      padding:32px 16px 48px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 12pt;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #12213c, transparent),
+        radial-gradient(900px 500px at 110% -10%, #1a2a48, transparent),
+        var(--bg);
+    }
+    a{ color:var(--text); text-decoration:none; }
+    a:hover{ color:var(--accent); }
+    .wrapper{
+      width:100%;
+      max-width:880px;
+      margin:0 auto;
+    }
+    .card{
+      background: color-mix(in srgb, var(--panel) 92%, #000 8%);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:20px;
+      box-shadow: var(--shadow);
+    }
+    h1{
+      margin:0 0 8px;
+      text-align:center;
+      letter-spacing:.2px;
+    }
+    .intro{ text-align:center; color:var(--muted); margin:0 0 18px; }
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+    }
+    label{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-weight:600;
+      color:var(--muted);
+    }
+    input, select{
+      padding:11px 12px;
+      font-size:13pt;
+      font-weight:bold;
+      color:var(--text);
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      outline:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    input:focus,
+    select:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(105,179,255,0.25);
+    }
+    input[type="number"]{ appearance:textfield; }
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top:16px;
+    }
+    button{
+      padding:12px 16px;
+      font-size:12pt;
+      font-weight:700;
+      border:0;
+      border-radius:14px;
+      color:var(--text);
+      background: #1f2c45;
+      cursor:pointer;
+      transition: transform .02s ease-in-out, filter .2s ease;
+    }
+    button:hover{ filter:brightness(1.05); }
+    button:focus-visible{
+      outline:2px solid rgba(105,179,255,0.5);
+      outline-offset:2px;
+    }
+    .ghost{ background: transparent; border:1px dashed var(--border); color:var(--muted); }
+    .result{
+      margin-top:18px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px 16px;
+      background: color-mix(in srgb, var(--card) 90%, #000 10%);
+    }
+    .result p{ margin:8px 0; }
+    .result h3{
+      margin:0 0 10px;
+      font-size:18px;
+    }
+    .result .section-text{
+      font-size:12pt;
+      line-height:1.45;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:10px;
+      font-weight:700;
+      font-size:11pt;
+      letter-spacing:.1px;
+    }
+    .ok{ background: color-mix(in srgb, var(--success) 18%, transparent); color:var(--success); }
+    .warn{ background: color-mix(in srgb, var(--warn) 18%, transparent); color:var(--warn); }
+    .error{
+      margin-top:12px;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+      background: color-mix(in srgb, var(--danger) 15%, transparent);
+      color:var(--danger);
+    }
+    .muted{ color:var(--muted); font-size:11pt; }
+    .small{ font-size:11pt; }
+    .tips-panel{
+      margin:16px auto 0;
+      padding:16px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background: color-mix(in srgb, var(--card) 90%, #000 10%);
+      box-shadow: var(--shadow);
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    .tips-panel h2{ margin:0; font-size:18px; }
+    .tips-list{
+      margin:0;
+      padding-left:18px;
+      color:var(--text);
+    }
+    .tips-list li{ margin:6px 0; }
+    .tips-figure{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background: color-mix(in srgb, var(--panel) 85%, #000 15%);
+      padding:10px;
+    }
+    .tips-figure img{
+      width:100%;
+      height:auto;
+      display:block;
+      border-radius:8px;
+      background:#fff;
+    }
+    .tips-figure figcaption{
+      margin-top:8px;
+      font-size:11pt;
+      color:var(--muted);
+    }
+    .extra-fields{ display:none; }
+    .extra-fields.visible{ display:block; }
+    @media(min-width:860px){
+      .tips-panel{ grid-template-columns:1.2fr 1fr; align-items:start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <h1>Quantificação de dilatação aórtica</h1>
+      <p class="intro">
+        Informe sexo, idade, peso, altura e o diâmetro medido (mm) em cada segmento da aorta.
+        Observe se os dados do seu paciente estão aproximados aos dados antropométricos de referência
+        disponíveis no estudo.
+      </p>
+
+      <form id="calcForm">
+        <div class="form-grid">
+          <label>Sexo
+            <select id="sexo" required>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+            </select>
+          </label>
+          <label>Idade (anos)
+            <input id="idade" type="number" min="1" max="120" inputmode="numeric" required>
+          </label>
+          <label>Peso (kg)
+            <input id="peso" type="number" min="1" step="0.1" inputmode="decimal" required>
+          </label>
+          <label>Altura (cm)
+            <input id="altura" type="number" min="30" step="0.5" inputmode="decimal" required>
+          </label>
+          <label>Aorta - Seios de Valsalva (mm)
+            <input id="diametroSeios" type="number" min="1" step="0.1" inputmode="decimal">
+          </label>
+          <label>Aorta - Ascendente Tubular (mm)
+            <input id="diametroAsc" type="number" min="1" step="0.1" inputmode="decimal">
+          </label>
+        </div>
+        <div class="actions" style="justify-content:flex-start; gap:8px; margin-top:10px;">
+          <button type="button" class="ghost" id="toggleExtras">Mostrar medidas adicionais</button>
+        </div>
+        <div class="form-grid extra-fields" id="extrasCampos">
+          <label>Aorta - Anular (mm)
+            <input id="diametroAnel" type="number" min="1" step="0.1" inputmode="decimal">
+          </label>
+          <label>Junção Sinotubular (mm)
+            <input id="diametroJuncao" type="number" min="1" step="0.1" inputmode="decimal">
+          </label>
+          <label>Arco Aórtico (mm)
+            <input id="diametroArco" type="number" min="1" step="0.1" inputmode="decimal">
+          </label>
+          <label>Aorta Descendente (mm)
+            <input id="diametroDesc" type="number" min="1" step="0.1" inputmode="decimal">
+          </label>
+        </div>
+        <div class="actions">
+          <button type="submit">Calcular</button>
+          <button type="button" class="ghost" id="limpar">Limpar</button>
+        </div>
+      </form>
+
+      <div id="erroDados" class="error" style="display:none"></div>
+      
+      <div id="resultado" class="result" style="display:none">
+        <h3>Quantificação pelo estudo de Campens et al (2014)</h3>
+        <p><strong>BSA (Dubois):</strong> <span id="bsaValor">-</span> m²</p>
+        <p><strong>Limite superior Seios de Valsalva:</strong> <span id="faixaSeios">-</span></p>
+        <p><strong>Limite superior Ascendente Tubular:</strong> <span id="faixaAsc">-</span></p>
+        <p><strong>Conclusão:</strong> <span id="avaliacao"></span></p>
+        <p class="muted section-text" id="linhaRef"></p>
+      </div>
+
+      <div id="resultadoMatear" class="result" style="display:none; margin-top:12px;">
+        <h3>Quantificação pelo estudo MATEAR (2025)</h3>
+        <div id="listaMatear" class="section-text"></div>
+      </div>
+    </div>
+
+    <div class="tips-panel">
+      <div>
+        <h2>Dicas para avaliação da aorta</h2>
+        <ol class="tips-list">
+          <li>Realizar uma medição precisa e adequada.</li>
+          <li>Considerar o tamanho corporal, o sexo e a idade do paciente.</li>
+          <li>Determinar se o paciente é uma subpopulação de risco.</li>
+        </ol>
+      </div>
+      <figure class="tips-figure">
+        <img src="figura6-aorta.jpg" loading="lazy">
+        <figcaption>obtido em escardio.org:<a href="https://www.escardio.org/Councils/Council-on-Cardiovascular-Genomics/Cardiovascular-Genomics-Insight/Volume-3/how-to-measure-the-aorta-in-the-setting-of-genetic-aortic-disease" target="_blank">
+           How to measure the aorta in the setting of genetic aortic disease
+
+        </a></figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('calcForm');
+    const resultado = document.getElementById('resultado');
+    const erroDados = document.getElementById('erroDados');
+    const bsaValorEl = document.getElementById('bsaValor');
+    const faixaSeiosEl = document.getElementById('faixaSeios');
+    const faixaAscEl = document.getElementById('faixaAsc');
+    const avaliacaoEl = document.getElementById('avaliacao');
+    const linhaRefEl = document.getElementById('linhaRef');
+    const resultadoMatear = document.getElementById('resultadoMatear');
+    const listaMatear = document.getElementById('listaMatear');
+    const extrasCampos = document.getElementById('extrasCampos');
+    const toggleExtrasBtn = document.getElementById('toggleExtras');
+
+    let dadosAorta = [];
+    let dadosCarregados = false;
+
+    const parseNumero = (valor) => parseFloat(String(valor || '').trim().replace(',', '.'));
+
+    const carregarDadosAorta = async () => {
+      try{
+        const resp = await fetch('aorta.csv');
+        if(!resp.ok) throw new Error('Não foi possível carregar o aorta.csv');
+        const texto = await resp.text();
+        const linhas = texto
+          .replace(/\r\n/g, '\n')
+          .split('\n')
+          .map((l) => l.trim())
+          .filter(Boolean);
+        dadosAorta = linhas
+          .map((linha) => {
+            const limpa = linha.replace(/^\uFEFF/, '');
+            const partes = limpa.split(';');
+            if(partes.length < 5) return null;
+            const sexo = partes[0].trim().toUpperCase();
+            const idade = parseInt(partes[1], 10);
+            const bsa = parseNumero(partes[2]);
+            const limiteSupSeios = parseNumero(partes[3]); // seios de Valsalva
+            const limiteSupAsc = parseNumero(partes[4]); // ascendente tubular
+            if(!sexo || Number.isNaN(idade) || Number.isNaN(bsa) || Number.isNaN(limiteSupSeios) || Number.isNaN(limiteSupAsc)){
+              return null;
+            }
+            return { sexo, idade, bsa, limiteSupSeios, limiteSupAsc };
+          })
+          .filter(Boolean);
+        if(!dadosAorta.length) throw new Error('Nenhuma linha válida encontrada em aorta.csv');
+        dadosCarregados = true;
+      }catch(err){
+        erroDados.style.display = 'block';
+        erroDados.textContent = err.message;
+        dadosCarregados = false;
+      }
+    };
+
+    const calcularBsaDubois = (pesoKg, alturaCm) => 0.007184 * Math.pow(alturaCm, 0.725) * Math.pow(pesoKg, 0.425);
+
+    // P97.5 do estudo MATEAR por segmento (cm) normalizado e absoluto
+    const matear = {
+      annulus: { F: { abs: 2.30, bsa: 1.38, height: 1.42 }, M: { abs: 2.60, bsa: 1.30, height: 1.45 } },
+      sinus: { F: { abs: 3.50, bsa: 2.11, height: 2.18 }, M: { abs: 3.89, bsa: 1.97, height: 2.20 } },
+      stj: { F: { abs: 3.10, bsa: 1.87, height: 1.93 }, M: { abs: 3.50, bsa: 1.84, height: 2.01 } },
+      ascending: { F: { abs: 3.40, bsa: 2.00, height: 2.09 }, M: { abs: 3.60, bsa: 1.86, height: 2.08 } },
+      arch: { F: { abs: 2.93, bsa: 1.75, height: 1.83 }, M: { abs: 3.20, bsa: 1.64, height: 1.84 } },
+      descending: { F: { abs: 2.60, bsa: 1.50, height: 1.62 }, M: { abs: 2.80, bsa: 1.40, height: 1.60 } },
+    };
+
+    const encontrarLinhaMaisProxima = ({ sexo, idade, bsa }) => {
+      if(!Number.isFinite(idade) || !Number.isFinite(bsa)) return null;
+      const pool = dadosAorta.filter((item) => item.sexo === sexo);
+      const candidatos = pool.length ? pool : dadosAorta;
+      if(!candidatos.length) return null;
+
+      // ordena por distância de idade e, em seguida, por distância de BSA
+      const melhorOrdenado = candidatos
+        .map((item) => ({
+          ...item,
+          distIdade: Math.abs(item.idade - idade),
+          distBsa: Math.abs(item.bsa - bsa),
+        }))
+        .sort((a, b) => {
+          if(a.distIdade !== b.distIdade) return a.distIdade - b.distIdade;
+          return a.distBsa - b.distBsa;
+        })[0];
+      return melhorOrdenado || null;
+    };
+
+    const formatarNumero = (valor, casas = 2) => valor.toFixed(casas).replace('.', ',');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      erroDados.style.display = 'none';
+      resultado.style.display = 'none';
+      resultadoMatear.style.display = 'none';
+
+      if(!dadosCarregados || !dadosAorta.length){
+        await carregarDadosAorta();
+        if(!dadosCarregados || !dadosAorta.length){
+          erroDados.style.display = 'block';
+          erroDados.textContent = 'aorta.csv ainda não foi carregado.';
+          return;
+        }
+      }
+
+      const sexo = document.getElementById('sexo').value;
+      const idade = parseInt(document.getElementById('idade').value, 10);
+      const peso = parseNumero(document.getElementById('peso').value);
+      const altura = parseNumero(document.getElementById('altura').value);
+      const diametroAnel = parseNumero(document.getElementById('diametroAnel').value);
+      const diametroSeios = parseNumero(document.getElementById('diametroSeios').value);
+      const diametroJuncao = parseNumero(document.getElementById('diametroJuncao').value);
+      const diametroAsc = parseNumero(document.getElementById('diametroAsc').value);
+      const diametroArco = parseNumero(document.getElementById('diametroArco').value);
+      const diametroDesc = parseNumero(document.getElementById('diametroDesc').value);
+
+      if([idade, peso, altura].some((n) => Number.isNaN(n))){
+        erroDados.style.display = 'block';
+        erroDados.textContent = 'Preencha todos os campos com valores numéricos válidos.';
+        return;
+      }
+
+      const temAnel = !Number.isNaN(diametroAnel);
+      const temSeios = !Number.isNaN(diametroSeios);
+      const temJuncao = !Number.isNaN(diametroJuncao);
+      const temAsc = !Number.isNaN(diametroAsc);
+      const temArco = !Number.isNaN(diametroArco);
+      const temDesc = !Number.isNaN(diametroDesc);
+
+      if(!temSeios && !temAsc){
+        erroDados.style.display = 'block';
+        erroDados.textContent = 'Informe pelo menos um diâmetro (Seios de Valsalva ou Ascendente Tubular).';
+        return;
+      }
+
+      const bsa = calcularBsaDubois(peso, altura);
+      bsaValorEl.textContent = formatarNumero(bsa, 1);
+
+      const linha = encontrarLinhaMaisProxima({ sexo, idade, bsa });
+      if(!linha){
+        erroDados.style.display = 'block';
+        erroDados.textContent = 'Não foi possível encontrar uma referência para os dados informados.';
+        return;
+      }
+
+      let conclusoes = [];
+
+      if(temAnel && !temSeios){
+        faixaSeiosEl.textContent = '-';
+      }
+      if(temSeios){
+        const dentro = diametroSeios <= linha.limiteSupSeios;
+        faixaSeiosEl.textContent = `${formatarNumero(linha.limiteSupSeios)} mm`;
+        conclusoes.push(dentro
+          ? `<span class="badge ok">Seios de Valsalva dentro do limite</span>`
+          : `<span class="badge warn">Seios de Valsalva acima do limite</span>`);
+      }else{
+        faixaSeiosEl.textContent = '-';
+      }
+
+      if(temAsc){
+        const dentro = diametroAsc <= linha.limiteSupAsc;
+        faixaAscEl.textContent = `${formatarNumero(linha.limiteSupAsc)} mm`;
+        conclusoes.push(dentro
+          ? `<span class="badge ok">Ascendente tubular dentro do limite</span>`
+          : `<span class="badge warn">Ascendente tubular acima do limite</span>`);
+      }else{
+        faixaAscEl.textContent = '-';
+      }
+
+      avaliacaoEl.innerHTML = conclusoes.join(' ');
+
+      linhaRefEl.textContent = `Dados antropométricos disponíveis: sexo ${linha.sexo}, idade ${linha.idade} anos, Superfície corpórea de referência ${formatarNumero(linha.bsa)} m².`;
+      resultado.style.display = 'block';
+
+      // Quantificação MATEAR (usa apenas segmentos preenchidos)
+      const entradasMatear = [
+        { chave: 'annulus', nome: 'Aorta anular', valorMm: diametroAnel, presente: temAnel },
+        { chave: 'sinus', nome: 'Aorta sinusal', valorMm: diametroSeios, presente: temSeios },
+        { chave: 'stj', nome: 'Junção sinotubular', valorMm: diametroJuncao, presente: temJuncao },
+        { chave: 'ascending', nome: 'Aorta ascendente', valorMm: diametroAsc, presente: temAsc },
+        { chave: 'arch', nome: 'Arco aórtico', valorMm: diametroArco, presente: temArco },
+        { chave: 'descending', nome: 'Aorta descendente', valorMm: diametroDesc, presente: temDesc },
+      ].filter((s) => s.presente && matear[s.chave]);
+
+      if(entradasMatear.length){
+        const entradasHtml = entradasMatear.map((seg) => {
+          const limites = matear[seg.chave][sexo];
+          const valorCm = seg.valorMm / 10;
+          const bsaNorm = valorCm / bsa;
+          const heightNorm = valorCm / (altura / 100);
+          const pill = (ok) => ok ? '<span class="badge ok">OK</span>' : '<span class="badge warn">Acima</span>';
+          const okAbs = valorCm <= limites.abs;
+          const okBsa = bsaNorm <= limites.bsa;
+          const okHeight = heightNorm <= limites.height;
+          return `
+            <div style="margin-bottom:10px; padding:10px; border:1px solid var(--border); border-radius:12px;">
+              <strong>${seg.nome}</strong><br>
+              Medida absoluta: ${valorCm.toFixed(2)} cm — limite P97.5: ${limites.abs.toFixed(2)} cm ${pill(okAbs)}<br>
+              Normalizado por superfície corpórea (Dubois): ${bsaNorm.toFixed(2)} cm/m² — limite: ${limites.bsa.toFixed(2)} ${pill(okBsa)}<br>
+              Normalizado por altura: ${heightNorm.toFixed(2)} cm/m — limite: ${limites.height.toFixed(2)} ${pill(okHeight)}
+            </div>
+          `;
+        }).join('');
+        listaMatear.innerHTML = entradasHtml;
+        resultadoMatear.style.display = 'block';
+      }else{
+        resultadoMatear.style.display = 'none';
+      }
+    });
+
+    document.getElementById('limpar').addEventListener('click', () => {
+      form.reset();
+      resultado.style.display = 'none';
+      erroDados.style.display = 'none';
+      resultadoMatear.style.display = 'none';
+      extrasCampos.classList.remove('visible');
+      toggleExtrasBtn.textContent = 'Mostrar campos adicionais';
+    });
+
+    carregarDadosAorta();
+
+    toggleExtrasBtn.addEventListener('click', () => {
+      const vis = extrasCampos.classList.toggle('visible');
+      toggleExtrasBtn.textContent = vis ? 'Ocultar medidas adicionais' : 'Mostrar medidas adicionais';
+    });
+  </script>
+</body>
+</html>
