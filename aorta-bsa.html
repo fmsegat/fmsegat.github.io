@@ -214,10 +214,10 @@
             <input id="altura" type="number" min="30" step="0.5" inputmode="decimal" required>
           </label>
           <label>Aorta - Seios de Valsalva (mm)
-            <input id="diametroSeios" type="number" min="1" step="0.1" inputmode="decimal">
+            <input id="diametroSeios" type="number" min="1" step="1" inputmode="numeric">
           </label>
           <label>Aorta - Ascendente Tubular (mm)
-            <input id="diametroAsc" type="number" min="1" step="0.1" inputmode="decimal">
+            <input id="diametroAsc" type="number" min="1" step="1" inputmode="numeric">
           </label>
         </div>
         <div class="actions" style="justify-content:flex-start; gap:8px; margin-top:10px;">
@@ -225,16 +225,16 @@
         </div>
         <div class="form-grid extra-fields" id="extrasCampos">
           <label>Aorta - Anular (mm)
-            <input id="diametroAnel" type="number" min="1" step="0.1" inputmode="decimal">
+            <input id="diametroAnel" type="number" min="1" step="1" inputmode="numeric">
           </label>
           <label>Junção Sinotubular (mm)
-            <input id="diametroJuncao" type="number" min="1" step="0.1" inputmode="decimal">
+            <input id="diametroJuncao" type="number" min="1" step="1" inputmode="numeric">
           </label>
           <label>Arco Aórtico (mm)
-            <input id="diametroArco" type="number" min="1" step="0.1" inputmode="decimal">
+            <input id="diametroArco" type="number" min="1" step="1" inputmode="numeric">
           </label>
           <label>Aorta Descendente (mm)
-            <input id="diametroDesc" type="number" min="1" step="0.1" inputmode="decimal">
+            <input id="diametroDesc" type="number" min="1" step="1" inputmode="numeric">
           </label>
         </div>
         <div class="actions">
@@ -246,7 +246,7 @@
       <div id="erroDados" class="error" style="display:none"></div>
       
       <div id="resultado" class="result" style="display:none">
-        <h3>Quantificação pelo estudo de Campens et al (2014)</h3>
+        <h3>Quantificação pelo estudo de <a href="https://www.ajconline.org/article/S0002-9149(14)01371-X/abstract" target="_blank" rel="noopener noreferrer">Campens et al (2014)</a></h3>
         <p><strong>BSA (Dubois):</strong> <span id="bsaValor">-</span> m²</p>
         <p><strong>Limite superior Seios de Valsalva:</strong> <span id="faixaSeios">-</span></p>
         <p><strong>Limite superior Ascendente Tubular:</strong> <span id="faixaAsc">-</span></p>
@@ -255,14 +255,14 @@
       </div>
 
       <div id="resultadoMatear" class="result" style="display:none; margin-top:12px;">
-        <h3>Quantificação pelo estudo MATEAR (2025)</h3>
+        <h3>Quantificação pelo estudo <a href="https://www.archivoscardiologia.com/frame_esp.php?id=786" target="_blank" rel="noopener noreferrer">MATEAR (2025)</a></h3>
         <div id="listaMatear" class="section-text"></div>
       </div>
     </div>
 
     <div class="tips-panel">
       <div>
-        <h2>Dicas para avaliação da aorta</h2>
+        <h2>Lembretes para avaliação da aorta</h2>
         <ol class="tips-list">
           <li>Realizar uma medição precisa e adequada.</li>
           <li>Considerar o tamanho corporal, o sexo e a idade do paciente.</li>
