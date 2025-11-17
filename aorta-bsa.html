@@ -166,6 +166,7 @@
       border-radius:12px;
       background: color-mix(in srgb, var(--panel) 85%, #000 15%);
       padding:10px;
+      position:relative;
     }
     .tips-figure img{
       width:100%;
@@ -173,11 +174,49 @@
       display:block;
       border-radius:8px;
       background:#fff;
+      cursor:zoom-in;
     }
     .tips-figure figcaption{
       margin-top:8px;
       font-size:11pt;
       color:var(--muted);
+    }
+    .lightbox{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.75);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      z-index:999;
+      overflow:auto;
+    }
+    .lightbox.open{ display:flex; }
+    .lightbox img{
+      max-width:none;
+      max-height:none;
+      width:auto;
+      height:auto;
+      transform:scale(2);
+      transform-origin:center;
+      border-radius:10px;
+      box-shadow:0 20px 50px rgba(0,0,0,0.45);
+      background:#0d1526;
+    }
+    .lightbox button{
+      position:absolute;
+      top:18px;
+      right:18px;
+      background:rgba(0,0,0,0.6);
+      border:1px solid rgba(255,255,255,0.15);
+      color:#fff;
+      font-size:22px;
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      cursor:pointer;
+      line-height:1;
     }
     .extra-fields{ display:none; }
     .extra-fields.visible{ display:block; }
@@ -270,13 +309,18 @@
         </ol>
       </div>
       <figure class="tips-figure">
-        <img src="figura6-aorta.jpg" loading="lazy">
+        <img src="figura6-aorta.jpg" alt="Figura 6 - medidas da aorta" loading="lazy">
         <figcaption>obtido em escardio.org:<a href="https://www.escardio.org/Councils/Council-on-Cardiovascular-Genomics/Cardiovascular-Genomics-Insight/Volume-3/how-to-measure-the-aorta-in-the-setting-of-genetic-aortic-disease" target="_blank">
            How to measure the aorta in the setting of genetic aortic disease
 
         </a></figcaption>
       </figure>
     </div>
+  </div>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button id="lightboxClose" aria-label="Fechar imagem">&times;</button>
+    <img id="lightboxImg" alt="">
   </div>
 
   <script>
@@ -292,6 +336,10 @@
     const listaMatear = document.getElementById('listaMatear');
     const extrasCampos = document.getElementById('extrasCampos');
     const toggleExtrasBtn = document.getElementById('toggleExtras');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const tipsFigureImg = document.querySelector('.tips-figure img');
 
     let dadosAorta = [];
     let dadosCarregados = false;
@@ -334,6 +382,22 @@
     };
 
     const calcularBsaDubois = (pesoKg, alturaCm) => 0.007184 * Math.pow(alturaCm, 0.725) * Math.pow(pesoKg, 0.425);
+
+    const abrirLightbox = () => {
+      if(!tipsFigureImg) return;
+      lightboxImg.src = tipsFigureImg.src;
+      lightboxImg.alt = tipsFigureImg.alt || 'Figura';
+      lightbox.classList.add('open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const fecharLightbox = () => {
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxImg.removeAttribute('src');
+      document.body.style.overflow = '';
+    };
 
     // P97.5 do estudo MATEAR por segmento (cm) normalizado e absoluto
     const matear = {
@@ -502,6 +566,19 @@
     toggleExtrasBtn.addEventListener('click', () => {
       const vis = extrasCampos.classList.toggle('visible');
       toggleExtrasBtn.textContent = vis ? 'Ocultar medidas adicionais' : 'Mostrar medidas adicionais';
+    });
+
+    if(tipsFigureImg){
+      tipsFigureImg.addEventListener('click', abrirLightbox);
+    }
+    lightboxClose.addEventListener('click', fecharLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if(event.target === lightbox) fecharLightbox();
+    });
+    document.addEventListener('keydown', (event) => {
+      if(event.key === 'Escape' && lightbox.classList.contains('open')){
+        fecharLightbox();
+      }
     });
   </script>
 </body>
