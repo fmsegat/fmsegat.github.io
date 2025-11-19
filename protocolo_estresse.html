@@ -53,6 +53,14 @@
       gap: 8px;
       margin-bottom: 8px;
     }
+    .row.row-header{
+      grid-template-columns: minmax(220px, 2fr) minmax(200px, 2fr) 140px 140px;
+    }
+    @media (max-width: 768px){
+      .row.row-header{
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
     label {
       display: block;
       font-size: 12px;
@@ -62,7 +70,8 @@
       letter-spacing: 0.01em;
       text-transform: uppercase;
     }
-    input {
+    input,
+    select {
       width: 100%;
       padding: 10px 12px;
       border-radius: 8px;
@@ -72,7 +81,8 @@
       color: var(--text);
       transition: border 0.2s, box-shadow 0.2s;
     }
-    input:focus {
+    input:focus,
+    select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
       outline: none;
@@ -242,7 +252,7 @@
       h1 { font-size: 16px; }
       h2 { font-size: 14px; margin-top: 6px; margin-bottom: 4px; }
       label { font-size: 10px; }
-      input { padding: 6px 8px; font-size: 12px; }
+      input, select { padding: 6px 8px; font-size: 12px; }
       th, td { padding: 3px 5px; }
       .grid-blank { min-height: 40px; height: 40px; }
       .mode-grid { grid-template-columns: 1fr; }
@@ -262,10 +272,20 @@
   </header>
   <main>
     <section class="card wide">
-      <div class="row">
+      <div class="row row-header">
         <div>
           <label for="name">Paciente</label>
           <input id="name" placeholder="Nome completo" autocomplete="off" />
+        </div>
+        <div>
+          <label for="executant">Medico executante</label>
+          <select id="executant">
+            <option value="" selected>Selecione</option>
+            <option>Dr. Daniel Barreiro</option>
+            <option>Dr. Fabiano Segat</option>
+            <option>Dr. Felipe Souza</option>
+            <option>Dra. Giulia Schmitz</option>
+          </select>
         </div>
         <div>
           <label for="age">Idade (anos)</label>
