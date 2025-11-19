@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protocolo – Ecocardiograma de Estresse Farmacológico</title>
+  <style>
+    :root {
+      --bg: #f7f9fb;
+      --card: #ffffff;
+      --text: #1f2d3d;
+      --muted: #5f6b7a;
+      --border: #d8e2ef;
+      --accent: #0d6efd;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0 0 48px;
+    }
+    header {
+      background: linear-gradient(135deg, #e9f1ff 0%, #ffffff 100%);
+      padding: 28px 18px 18px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    header p { margin: 0; color: var(--muted); }
+    main { max-width: 980px; margin: 0 auto; padding: 12px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      margin-bottom: 8px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fdfefe;
+      font-size: 15px;
+      color: var(--text);
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+      outline: none;
+    }
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+      margin: 10px 0 6px;
+    }
+    .mode-option {
+      position: relative;
+      display: block;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border 0.15s;
+    }
+    .mode-option input { display: none; }
+    .mode-body {
+      padding: 12px 14px;
+      min-height: 60px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+    .mode-title { font-weight: 700; font-size: 15px; }
+    .mode-sub { font-size: 13px; color: var(--muted); }
+    .mode-one { background: #e8f5e9; border-color: #9ccc65; }
+    .mode-two { background: #e3f2fd; border-color: #64b5f6; }
+    .mode-option:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+    .mode-option input:checked + .mode-body {
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 0 3px rgba(13,110,253,0.12);
+    }
+    .small-input {
+      width: 90px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    h2 {
+      margin: 8px 0 6px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(13, 110, 253, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(13, 110, 253, 0.15);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .value {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 4px 6px;
+      text-align: left;
+      font-size: 12px;
+    }
+    th { background: #f1f5fb; color: var(--text); font-size: 12px; }
+    .wide-pa th:nth-child(2),
+    .wide-pa th:nth-child(3),
+    .wide-pa td:nth-child(2),
+    .wide-pa td:nth-child(3){
+      min-width: 120px;
+    }
+    .dob-table{
+      table-layout: fixed;
+      width: 100%;
+    }
+    .dob-table th,
+    .dob-table td{
+      width:25%;
+    }
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .btn {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(13, 110, 253, 0.25);
+    }
+    .btn-primary:hover { filter: brightness(0.95); }
+    .logo-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      max-width:340px;
+      margin:0 0 8px;
+      padding:10px 14px;
+      background: #f2f6ff;
+      border:1px solid #d8e2ef;
+      border-radius:12px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+      transition: transform .02s ease-in-out, filter .2s ease;
+    }
+    .logo-link:hover{ filter:brightness(1.04); }
+    .logo-link:focus-visible{
+      outline:2px solid rgba(13,110,253,0.32);
+      outline-offset:2px;
+    }
+    .logo{
+      width:78%;
+      max-width:220px;
+      height:auto;
+    }
+    .box-title { display: flex; align-items: center; justify-content: space-between; }
+    .signature {
+      margin-top: 26px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .grid-blank {
+      height: 50px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 6px;
+      background: #fbfdff;
+    }
+    @media print {
+      @page { size: A4 portrait; margin: 6mm; }
+      body { background: #fff; padding: 0; margin: 5mm; zoom: 0.82; }
+      .btn-row, .no-print { display: none; }
+      header {
+        background: #fff;
+        border: 0;
+        padding: 0 0 6px;
+      }
+      main { padding: 0; max-width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+      .card { box-shadow: none; border: 1px solid #ccc; padding: 6px 8px 8px; margin-bottom: 0; page-break-inside: avoid; }
+      .wide { grid-column: span 2; }
+      table { font-size: 10px; }
+      h1 { font-size: 16px; }
+      h2 { font-size: 14px; margin-top: 6px; margin-bottom: 4px; }
+      label { font-size: 10px; }
+      input { padding: 6px 8px; font-size: 12px; }
+      th, td { padding: 3px 5px; }
+      .grid-blank { min-height: 40px; height: 40px; }
+      .mode-grid { grid-template-columns: 1fr; }
+      .mode-option { display: none; }
+      .mode-option.is-selected { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo-link" href="https://www.cardiodiagnostico.com.br/" target="_blank" rel="noopener noreferrer">
+      <img src="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/logo.png" alt="Cardiodiagnóstico" class="logo">
+    </a>
+    <h1>Protocolo – Ecocardiograma de Estresse Farmacológico</h1>
+    <p>Cálculo de infusão e impressão – Dipiridamol e Dobutamina.</p>
+    <div class="muted" id="header-date"></div>
+  </header>
+  <main>
+    <section class="card wide">
+      <div class="row">
+        <div>
+          <label for="name">Paciente</label>
+          <input id="name" placeholder="Nome completo" autocomplete="off" />
+        </div>
+        <div>
+          <label for="age">Idade (anos)</label>
+          <input id="age" type="number" inputmode="decimal" min="0" step="1" placeholder="Ex: 56" />
+        </div>
+        <div>
+          <label for="weight">Peso (kg)</label>
+          <input id="weight" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Ex: 70.5" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>FC máxima (220 - idade)</label>
+          <div class="value" id="fc-max">—</div>
+        </div>
+        <div>
+          <label>FC submáxima (85%)</label>
+          <div class="value" id="fc-submax">—</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="window.print()">Imprimir</button>
+      </div>
+    </section>
+
+    <section class="card" id="dip-card">
+      <div class="box-title">
+        <h2>Dipiridamol <span class="pill">0,84 mg/kg</span></h2>
+      </div>
+      <div class="mode-grid">
+        <label class="mode-option mode-one">
+          <input type="radio" name="dip-mode" value="single" checked />
+          <div class="mode-body">
+            <div class="mode-title">Dose única 0,84 mg/kg</div>
+            <div class="mode-sub">Infundir em 4 min (completar para 20 mL e 5 mL/min)</div>
+          </div>
+        </label>
+        <label class="mode-option mode-two">
+          <input type="radio" name="dip-mode" value="two-step" />
+          <div class="mode-body">
+            <div class="mode-title">2 fases (0,56 + 0,28 mg/kg)</div>
+            <div class="mode-sub">Fase 1: 4 min · Fase 2: 2 min</div>
+          </div>
+        </label>
+      </div>
+      <div class="row">
+        <div>
+          <label>Apresentação</label>
+          <div class="value">10 mg em 2 mL (5 mg/mL)</div>
+        </div>
+        <div>
+          <label>Dose total</label>
+          <div class="value" id="dip-dose">— mg</div>
+        </div>
+        <div>
+          <label>Nº de ampolas (10 mg)</label>
+          <div class="value" id="dip-amps">—</div>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Volume a aspirar</label>
+          <div class="value" id="dip-vol">— mL</div>
+          <div class="muted">Aspirar apenas o volume calculado</div>
+        </div>
+        <div>
+          <label>Diluição & infusão</label>
+          <div class="value" id="dip-note">Completar até 20 mL com SF 0,9% e infundir a 5 mL/min (4 min)</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Fase</th><th>Dose (mg/kg)</th><th>Mins</th><th>Volume (mL)</th></tr>
+        </thead>
+        <tbody id="dip-phases"></tbody>
+      </table>
+      <div class="muted" style="margin-top:6px;">Registrar PA/FC por fase conforme o protocolo selecionado.</div>
+      <table class="wide-pa">
+        <thead>
+          <tr><th>Momento</th><th>PA</th><th>FC</th><th>Observações</th></tr>
+        </thead>
+        <tbody id="dip-vitals"></tbody>
+      </table>
+      <div style="margin-top:10px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+        <div>
+          <label>Dose de atropina utilizada</label>
+          <input class="small-input" maxlength="4" inputmode="numeric" aria-label="Dose de atropina utilizada em mg" />
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <label>Aminofilina</label>
+          <div class="muted">240 mg – ampola de 10 mL disponível para reversão do dipiridamol.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="dob-card">
+      <div class="box-title">
+        <h2>Dobutamina <span class="pill">1 mg/mL</span></h2>
+      </div>
+      <div class="muted">Velocidade de infusão (mL/h) para solução padrão.</div>
+      <div class="row" style="margin-top:8px;">
+        <div>
+          <label>Apresentação</label>
+          <div class="value">250 mg por ampola de 20ml</div>
+        </div>
+        <div>
+          <label>Diluição</label>
+          <div class="value">Diluir até 250 mL com SF 0,9%</div>
+        </div>
+      </div>
+      <table class="dob-table">
+        <thead>
+          <tr><th>Etapa (µg/kg/min)</th><th>Infusão (mL/h)</th><th>PA</th><th>FC</th></tr>
+        </thead>
+        <tbody id="dob-rows"></tbody>
+      </table>
+      <div style="margin-top:10px;">
+        <label>Dose de atropina utilizada</label>
+        <input class="small-input" maxlength="4" inputmode="numeric" aria-label="Dose de atropina utilizada em mg" />
+      </div>
+      <div class="row" style="margin-top:6px;">
+        <div>
+          <label>Beta-bloqueador</label>
+          <input aria-label="Beta-bloqueador" />
+        </div>
+        <div>
+          <label>Dose</label>
+          <input aria-label="Dose do beta-bloqueador" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card wide">
+      <div class="row">
+        <div>
+          <label>Observações</label>
+          <div class="grid-blank" style="height:80px;"></div>
+        </div>
+        <div>
+          <label>Assinatura do profissional de enfermagem</label>
+          <div class="grid-blank" style="height:80px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:16px;">
+            ______________________________________
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const DIP_DOSE_PER_KG = 0.84; // mg/kg
+    const DIP_CONC_MG_ML = 5;     // 10 mg / 2 mL
+    const DOB_STEPS = [5, 10, 20, 30, 40, 50]; // µg/kg/min
+    const DIP_PROTOCOLS = {
+      "single": [{ label: "Infusão única", dose: 0.84, minutes: 4 }],
+      "two-step": [
+        { label: "Fase 1", dose: 0.56, minutes: 4 },
+        { label: "Fase 2", dose: 0.28, minutes: 2 },
+      ],
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function setHeaderDate(){
+      const el = $("header-date");
+      if(!el) return;
+      const now = new Date();
+      el.textContent = now.toLocaleDateString("pt-BR");
+    }
+
+    function format(num, decimals = 2) {
+      if (Number.isNaN(num)) return "—";
+      return Number(num).toFixed(decimals).replace(".", ",");
+    }
+
+    function markSelectedMode(mode) {
+      document.querySelectorAll(".mode-option").forEach(el => {
+        if ((el.querySelector('input[name="dip-mode"]') || {}).value === mode) {
+          el.classList.add("is-selected");
+        } else {
+          el.classList.remove("is-selected");
+        }
+      });
+    }
+
+    function compute() {
+      const age = parseFloat($("age").value.replace(",", ".")) || NaN;
+      const weight = parseFloat($("weight").value.replace(",", ".")) || NaN;
+
+      const fcMax = 220 - age;
+      const fcSub = fcMax * 0.85;
+      $("fc-max").textContent = Number.isFinite(fcMax) ? `${fcMax.toFixed(0)} bpm` : "—";
+      $("fc-submax").textContent = Number.isFinite(fcSub) ? `${Math.round(fcSub)} bpm` : "—";
+
+      // Dipiridamol
+      const doseMg = weight * DIP_DOSE_PER_KG;
+      const volMl = doseMg / DIP_CONC_MG_ML;
+      const amps = doseMg / 10;
+      $("dip-dose").textContent = Number.isFinite(doseMg) ? `${format(doseMg)} mg` : "— mg";
+      $("dip-amps").textContent = Number.isFinite(amps) ? format(amps, 2) : "—";
+      $("dip-vol").textContent = Number.isFinite(volMl) ? `${format(volMl, 1)} mL` : "— mL";
+
+      // Dipiridamol phases according to protocol
+      const mode = (document.querySelector('input[name="dip-mode"]:checked') || {}).value || "single";
+      markSelectedMode(mode);
+      const phases = DIP_PROTOCOLS[mode] || DIP_PROTOCOLS.single;
+      const phaseRows = phases.map(p => {
+        const mg = weight * p.dose;
+        const vol = mg / DIP_CONC_MG_ML;
+        const mgTxt = Number.isFinite(mg) ? format(mg) : "—";
+        const volTxt = Number.isFinite(vol) ? format(vol, 1) : "—";
+        return `<tr><td>${p.label}</td><td>${p.dose.toFixed(2)}</td><td>${p.minutes}</td><td>${volTxt}</td></tr>`;
+      }).join("");
+      $("dip-phases").innerHTML = phaseRows;
+
+      const note =
+        mode === "single"
+          ? "Completar até 20 mL com SF 0,9% e infundir a 5 mL/min (4 min)."
+          : "Fase 1: infundir em 4 min; Fase 2: infundir em 2 min. Pode-se diluir cada fase até 20 mL.";
+      $("dip-note").textContent = note;
+
+      // Dobutamina rows
+      const rows = DOB_STEPS.map((step) => {
+        const mlPerH = step * weight * 60 / 1000; // (µg/kg/min * kg * 60) / 1000 => mg/h == mL/h (1 mg/mL)
+        const mlTxt = Number.isFinite(mlPerH) ? Math.round(mlPerH).toString() : "—";
+        return `<tr><td>${step}</td><td>${mlTxt}</td><td></td><td></td></tr>`;
+      }).join("");
+      $("dob-rows").innerHTML = rows;
+
+      // Dipiridamol vitals table
+      const vitalsSingle = ["Basal", "Dipiridamol", "Atropina", "Aminofilina"];
+      const vitalsTwo = ["Basal", "Dipiridamol Fase 1 (0,56)", "Dipiridamol Fase 2 (0,28)", "Atropina", "Aminofilina"];
+      const vitals = mode === "two-step" ? vitalsTwo : vitalsSingle;
+      $("dip-vitals").innerHTML = vitals.map(v => `<tr><td>${v}</td><td></td><td></td><td></td></tr>`).join("");
+    }
+
+    ["age", "weight"].forEach(id => $(id).addEventListener("input", compute));
+    document.querySelectorAll('input[name="dip-mode"]').forEach(el => el.addEventListener("change", compute));
+    document.addEventListener("DOMContentLoaded", () => {
+      setHeaderDate();
+      compute();
+    });
+  </script>
+</body>
+</html>
