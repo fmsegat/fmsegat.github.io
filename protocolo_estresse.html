@@ -236,6 +236,43 @@
       padding: 6px;
       background: #fbfdff;
     }
+    .med-notes{
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .med-notes__title{
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .supplies-table{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .supplies-table th{
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .supplies-table th,
+    .supplies-table td{
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+    }
+    .supplies-table td.blank{
+      height: 26px;
+      background: #fff;
+    }
+    .supplies-table--tight td{
+      height: 22px;
+    }
     @media print {
       @page { size: A4 portrait; margin: 6mm; }
       body { background: #fff; padding: 0; margin: 5mm; zoom: 0.82; }
@@ -263,11 +300,7 @@
 </head>
 <body>
   <header>
-    <a class="logo-link" href="https://www.cardiodiagnostico.com.br/" target="_blank" rel="noopener noreferrer">
-      <img src="https://www.cardiodiagnostico.com.br/wp-content/themes/cardio1/img/logo.png" alt="Cardiodiagnóstico" class="logo">
-    </a>
-    <h1>Protocolo – Ecocardiograma de Estresse Farmacológico</h1>
-    <p>Cálculo de infusão e impressão – Dipiridamol e Dobutamina.</p>
+        <h1>Protocolo – Ecocardiograma de Estresse Farmacológico</h1>
     <div class="muted" id="header-date"></div>
   </header>
   <main>
@@ -421,8 +454,36 @@
     <section class="card wide">
       <div class="row">
         <div>
-          <label>Observações</label>
-          <div class="grid-blank" style="height:80px;"></div>
+          <label>Medicamentos e cateteres</label>
+          <div class="med-notes">
+            <div>
+              <div class="med-notes__title">Medicamentos (lote / validade)</div>
+              <table class="supplies-table">
+                <thead>
+                  <tr><th>Medicamento</th><th>Lote</th><th>Validade</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Dobutamina</td><td class="blank"></td><td class="blank"></td></tr>
+                  <tr><td>Dipiridamol</td><td class="blank"></td><td class="blank"></td></tr>
+                  <tr><td>Atropina</td><td class="blank"></td><td class="blank"></td></tr>
+                  <tr><td>Betabloq</td><td class="blank"></td><td class="blank"></td></tr>
+                  <tr><td>Aminofilina</td><td class="blank"></td><td class="blank"></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <div class="med-notes__title">Cateteres (calibre / quantidade)</div>
+              <table class="supplies-table supplies-table--tight">
+                <thead>
+                  <tr><th>Calibre</th><th>Quantidade</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="blank"></td><td class="blank"></td></tr>
+                  <tr><td class="blank"></td><td class="blank"></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
         <div>
           <label>Assinatura do profissional de enfermagem</label>
