@@ -61,6 +61,16 @@
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       }
     }
+    .row.row-supplies{
+      grid-template-columns: minmax(320px, 3fr) minmax(240px, 2fr);
+      align-items:flex-start;
+      gap:12px;
+    }
+    @media (max-width: 768px){
+      .row.row-supplies{
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+    }
     label {
       display: block;
       font-size: 12px;
@@ -242,6 +252,11 @@
       gap: 12px;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
+    .stacked-notes{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
     .med-notes__title{
       font-size: 12px;
       font-weight: 600;
@@ -272,6 +287,20 @@
     }
     .supplies-table--tight td{
       height: 22px;
+    }
+    .supplies-table--med th:nth-child(2),
+    .supplies-table--med td:nth-child(2){
+      width: 50%;
+      min-width: 200px;
+    }
+    .supplies-table--med th:nth-child(3),
+    .supplies-table--med td:nth-child(3){
+      width: 30%;
+      min-width: 140px;
+    }
+    .supplies-table--tight th:nth-child(2),
+    .supplies-table--tight td:nth-child(2){
+      width: 60px;
     }
     @media print {
       @page { size: A4 portrait; margin: 6mm; }
@@ -452,43 +481,40 @@
     </section>
 
     <section class="card wide">
-      <div class="row">
+      <div class="row row-supplies">
         <div>
-          <label>Medicamentos e cateteres</label>
-          <div class="med-notes">
-            <div>
-              <div class="med-notes__title">Medicamentos (lote / validade)</div>
-              <table class="supplies-table">
-                <thead>
-                  <tr><th>Medicamento</th><th>Lote</th><th>Validade</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>Dobutamina</td><td class="blank"></td><td class="blank"></td></tr>
-                  <tr><td>Dipiridamol</td><td class="blank"></td><td class="blank"></td></tr>
-                  <tr><td>Atropina</td><td class="blank"></td><td class="blank"></td></tr>
-                  <tr><td>Betabloq</td><td class="blank"></td><td class="blank"></td></tr>
-                  <tr><td>Aminofilina</td><td class="blank"></td><td class="blank"></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div>
-              <div class="med-notes__title">Cateteres (calibre / quantidade)</div>
-              <table class="supplies-table supplies-table--tight">
-                <thead>
-                  <tr><th>Calibre</th><th>Quantidade</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td class="blank"></td><td class="blank"></td></tr>
-                  <tr><td class="blank"></td><td class="blank"></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <label>Medicamentos (lote / validade)</label>
+          <table class="supplies-table supplies-table--med">
+            <thead>
+              <tr><th>Medicamento</th><th>Lote</th><th>Validade</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Dobutamina</td><td class="blank"></td><td class="blank"></td></tr>
+              <tr><td>Dipiridamol</td><td class="blank"></td><td class="blank"></td></tr>
+              <tr><td>Atropina</td><td class="blank"></td><td class="blank"></td></tr>
+              <tr><td>Betabloq</td><td class="blank"></td><td class="blank"></td></tr>
+              <tr><td>Aminofilina</td><td class="blank"></td><td class="blank"></td></tr>
+            </tbody>
+          </table>
         </div>
-        <div>
-          <label>Assinatura do profissional de enfermagem</label>
-          <div class="grid-blank" style="height:80px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:16px;">
-            ______________________________________
+        <div class="stacked-notes">
+          <div>
+            <label>Cateteres (calibre / quantidade)</label>
+            <table class="supplies-table supplies-table--tight">
+              <thead>
+                <tr><th>Calibre</th><th>Quantidade</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="blank"></td><td class="blank"></td></tr>
+                <tr><td class="blank"></td><td class="blank"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <label>Assinatura do profissional de enfermagem</label>
+            <div class="grid-blank" style="height:80px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:16px;">
+              ______________________________________
+            </div>
           </div>
         </div>
       </div>
