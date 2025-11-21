@@ -562,6 +562,19 @@
       });
     }
 
+    function handleExecutantChange() {
+      const executant = $("executant");
+      if (!executant) return;
+      const doctor = executant.value;
+      if (doctor === "Dr. Felipe Souza") {
+        const twoStep = document.querySelector('input[name="dip-mode"][value="two-step"]');
+        if (twoStep) {
+          twoStep.checked = true;
+        }
+      }
+      compute();
+    }
+
     function compute() {
       const age = parseFloat($("age").value.replace(",", ".")) || NaN;
       const weight = parseFloat($("weight").value.replace(",", ".")) || NaN;
@@ -615,6 +628,8 @@
 
     ["age", "weight"].forEach(id => $(id).addEventListener("input", compute));
     document.querySelectorAll('input[name="dip-mode"]').forEach(el => el.addEventListener("change", compute));
+    const executantField = $("executant");
+    if (executantField) executantField.addEventListener("change", handleExecutantChange);
     document.addEventListener("DOMContentLoaded", () => {
       setHeaderDate();
       compute();
