@@ -306,6 +306,8 @@
       @page { size: A4 portrait; margin: 6mm; }
       body { background: #fff; padding: 0; margin: 5mm; zoom: 0.82; }
       .btn-row, .no-print { display: none; }
+      :root { --text: #000; --muted: #000; }
+      body, header h1, h2, label, .value, .muted, table, th, td, input, select, a { color: #000 !important; }
       header {
         background: #fff;
         border: 0;
@@ -324,6 +326,8 @@
       .mode-grid { grid-template-columns: 1fr; }
       .mode-option { display: none; }
       .mode-option.is-selected { display: block; }
+      .row.row-supplies{ grid-template-columns: 1.15fr 1fr; }
+      .supplies-table.supplies-table--med{ width: 94%; }
     }
   </style>
 </head>
