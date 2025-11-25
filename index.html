@@ -307,6 +307,39 @@
       color: var(--accent);
       display:none;
     }
+    .aviso-clinico{
+      display:none;
+      margin:12px 0 4px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      box-shadow: var(--shadow);
+      line-height:1.5;
+    }
+    .aviso-clinico__titulo{
+      display:block;
+      font-weight:800;
+      margin-bottom:6px;
+      letter-spacing:0.1px;
+    }
+    .aviso-clinico__detalhes{
+      margin:0;
+      color: var(--text);
+      font-weight:600;
+    }
+    .aviso-clinico[data-estado="ok"]{
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border) 45%);
+      background: color-mix(in srgb, var(--accent) 16%, transparent);
+    }
+    .aviso-clinico[data-estado="cuidado"]{
+      border-color: color-mix(in srgb, var(--warn) 65%, var(--border) 35%);
+      background: color-mix(in srgb, var(--warn) 18%, transparent);
+    }
+    .aviso-clinico[data-estado="alto"]{
+      border-color: color-mix(in srgb, var(--danger) 65%, var(--border) 35%);
+      background: color-mix(in srgb, var(--danger) 18%, transparent);
+    }
 
     /* Table (card look) */
     table{
@@ -509,6 +542,7 @@
     </div>
 
     <div id="alerta"></div>
+    <div id="avisoClinico" class="aviso-clinico" aria-live="polite" aria-atomic="true"></div>
   </div>
 
   <div class="actions">
@@ -555,6 +589,7 @@
     const bsaMethodPanel  = document.getElementById('bsaMethodPanel');
     const bsaMethodOptions = bsaMethodPanel ? Array.from(bsaMethodPanel.querySelectorAll('[data-bsa-metodo]')) : [];
     const alertaEl        = document.getElementById('alerta');
+    const avisoClinicoEl  = document.getElementById('avisoClinico');
     const openWorkflowBtn = document.getElementById('openWorkflowBtn');
     const workflowOverlay = document.getElementById('workflowOverlay');
     const workflowCloseBtn = workflowOverlay ? workflowOverlay.querySelector('.fullscreen-overlay__close') : null;
@@ -580,6 +615,96 @@
           alertaEl.style.display = 'none';
         }, duracao);
       }
+    }
+
+    const REFERENCIAS_MEDIDAS = {
+      aorta:       { min: 20, max: 37, unidade: 'mm', label: 'Aorta' },
+      atrio:       { min: 27, max: 40, unidade: 'mm', label: 'Átrio esquerdo' },
+      ventriculo:  { min: 25, max: 41, unidade: 'mm', label: 'Ventrículo direito' },
+      ddve:        { min: 39, max: 59, unidade: 'mm', label: 'DDVE' },
+      dsve:        { min: 21, max: 40, unidade: 'mm', label: 'DSVE' },
+      septo:       { min: 6,  max: 10, unidade: 'mm', label: 'Septo' },
+      parede:      { min: 6,  max: 10, unidade: 'mm', label: 'Parede posterior' },
+      fc:          { min: 50, max: 100, unidade: 'bpm', label: 'Frequência cardíaca' }
+    };
+    const GRAU_PARA_NIVEL = { normal: 0, supranormal: 1, leve: 1, moderada: 2, severa: 2, indefinida: 0 };
+
+    function limparAvisoClinico() {
+      if (!avisoClinicoEl) return;
+      avisoClinicoEl.style.display = 'none';
+      avisoClinicoEl.textContent = '';
+      avisoClinicoEl.removeAttribute('data-estado');
+    }
+
+    function formatarNumero(valor) {
+      if (!Number.isFinite(valor)) return '';
+      const arredondado = Math.abs(valor) >= 100 ? valor.toFixed(0) : valor.toFixed(1);
+      return arredondado.replace('.', ',');
+    }
+
+    function classificarFuncaoSistolica(fePercent) {
+      if (!Number.isFinite(fePercent)) {
+        return { grau: 'indefinida', severidade: 0, texto: 'não calculada' };
+      }
+      const fe = Math.round(fePercent);
+      let grau = 'normal';
+      if (fe > 75) grau = 'supranormal';
+      else if (fe < 52 && fe >= 41) grau = 'leve';
+      else if (fe < 41 && fe >= 30) grau = 'moderada';
+      else if (fe < 30) grau = 'severa';
+
+      const severidade = GRAU_PARA_NIVEL[grau] || 0;
+      let texto = '';
+      if (grau === 'normal') texto = `normal (FE ${fe}%)`;
+      else if (grau === 'supranormal') texto = `supranormal (FE ${fe}%)`;
+      else texto = `${grau} redução (FE ${fe}%)`;
+      return { grau, severidade, texto };
+    }
+
+    function coletarAlertasMedidas(medidas = {}) {
+      const lista = [];
+      Object.entries(REFERENCIAS_MEDIDAS).forEach(([chave, ref]) => {
+        const valor = medidas[chave];
+        if (!Number.isFinite(valor) || valor <= 0) return;
+        if (valor < ref.min || valor > ref.max) {
+          const delta = valor < ref.min ? ref.min - valor : valor - ref.max;
+          const faixa = ref.max - ref.min;
+          const severidade = delta > (faixa * 0.2) ? 'alto' : 'cuidado';
+          const sinal = valor < ref.min ? `< ${ref.min}` : `> ${ref.max}`;
+          lista.push({
+            severidade,
+            texto: `${ref.label}: ${formatarNumero(valor)} ${ref.unidade} (${sinal})`
+          });
+        }
+      });
+      return lista;
+    }
+
+    function atualizarAvisoClinico({ fe, medidas, metodoFe }) {
+      if (!avisoClinicoEl) return;
+      const feInfo = classificarFuncaoSistolica(fe);
+      const alertas = coletarAlertasMedidas(medidas);
+      const alertaNivel = alertas.some(a => a.severidade === 'alto') ? 2 : (alertas.length ? 1 : 0);
+
+      const maiorNivel = Math.max(
+        feInfo.severidade,
+        alertaNivel
+      );
+      const estado = maiorNivel === 0 ? 'ok' : maiorNivel === 1 ? 'cuidado' : 'alto';
+      const titulo = estado === 'ok' ? 'Valores dentro dos limites usuais' : 'Atenção aos achados';
+      const metodoFeTxt = metodoFe ? ` - ${metodoFe}` : '';
+
+      const alertasTxt = alertas.length
+        ? alertas.map(a => a.texto).join(' · ')
+        : 'Demais medidas dentro dos intervalos habituais.';
+      avisoClinicoEl.innerHTML = `
+        <strong class="aviso-clinico__titulo">${titulo}</strong>
+        <div class="aviso-clinico__detalhes">
+          Função sistólica : ${feInfo.texto}${metodoFeTxt} · ${alertasTxt}
+        </div>
+      `;
+      avisoClinicoEl.dataset.estado = estado;
+      avisoClinicoEl.style.display = 'block';
     }
 
     function normalizarAlturaInput(valor) {
@@ -883,6 +1008,7 @@
   
     /* ---- cálculo por altura (para IMC > 30) + flags ---- */
     function calcularIndexAltura() {
+      limparAvisoClinico();
       const peso       = +document.getElementById('peso').value.replace(',', '.');
       const alturaRaw  = +document.getElementById('altura').value.replace(',', '.');
       const { cm: alturaCm, converted: alturaConvertida } = normalizarAlturaInput(alturaRaw);
@@ -979,6 +1105,7 @@
     function calcular() {
       // 1) se a tabela de obesos estiver aberta, limpa/oculta
       hideAlturaTable();
+      limparAvisoClinico();
   
       const aorta = +document.getElementById('aorta').value.replace(',', '.');
       const atrio = +document.getElementById('atrio').value.replace(',', '.');
@@ -1056,6 +1183,12 @@
   ["Altura", (Number.isInteger(alturaCm) ? alturaCm.toString() : alturaCm.toFixed(1)).replace('.', ','), "cm", "Volume do Átrio Esquerdo", vaeDisp, vae_tipo_display]
 ];
 
+      atualizarAvisoClinico({
+        fe,
+        metodoFe: metodoTexto.replace(/[()]/g, '').trim(),
+        medidas: { aorta, atrio, ventriculo, ddve, dsve, septo, parede, fc }
+      });
+
   
       tabela.innerHTML = '';
       dados.forEach(linha => {
@@ -1124,6 +1257,7 @@
       if (alertaEl) {
         alertaEl.style.display = "none";
       }
+      limparAvisoClinico();
     }
   
     // Avançar para próximo input ao pressionar Enter
