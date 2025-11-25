@@ -661,6 +661,23 @@
       return { grau, severidade, texto };
     }
 
+    function classificarVolumeAtrialEsquerdo(vaeIndex) {
+      if (!Number.isFinite(vaeIndex) || vaeIndex <= 0) {
+        return { grau: 'indefinida', severidade: 0, texto: '' };
+      }
+      const valor = formatarNumero(vaeIndex);
+      if (vaeIndex <= 34) {
+        return { grau: 'normal', severidade: 0, texto: `normal (${valor} ml/m²)` };
+      }
+      if (vaeIndex <= 41) {
+        return { grau: 'leve', severidade: 1, texto: `leve aumento (${valor} ml/m²)` };
+      }
+      if (vaeIndex <= 48) {
+        return { grau: 'moderada', severidade: 2, texto: `aumento moderado (${valor} ml/m²)` };
+      }
+      return { grau: 'severa', severidade: 2, texto: `aumento severo (${valor} ml/m²)` };
+    }
+
     function coletarAlertasMedidas(medidas = {}) {
       const lista = [];
       Object.entries(REFERENCIAS_MEDIDAS).forEach(([chave, ref]) => {
@@ -680,15 +697,17 @@
       return lista;
     }
 
-    function atualizarAvisoClinico({ fe, medidas, metodoFe }) {
+    function atualizarAvisoClinico({ fe, medidas, metodoFe, vaeIndex }) {
       if (!avisoClinicoEl) return;
       const feInfo = classificarFuncaoSistolica(fe);
+      const vaeInfo = classificarVolumeAtrialEsquerdo(vaeIndex);
       const alertas = coletarAlertasMedidas(medidas);
       const alertaNivel = alertas.some(a => a.severidade === 'alto') ? 2 : (alertas.length ? 1 : 0);
 
       const maiorNivel = Math.max(
         feInfo.severidade,
-        alertaNivel
+        alertaNivel,
+        vaeInfo.severidade
       );
 
       const estado = maiorNivel === 0 ? 'ok' : maiorNivel === 1 ? 'cuidado' : 'alto';
@@ -699,11 +718,16 @@
         ? alertas.map(a => a.texto).join(' · ')
         : '';
 
-      if (estado !== 'ok') {
+      const mensagens = [];
+      if (feInfo.texto) mensagens.push(`Função sistólica: ${feInfo.texto}${metodoFeTxt}`);
+      if (vaeInfo.texto) mensagens.push(`Volume AE: ${vaeInfo.texto}`);
+      if (alertasTxt) mensagens.push(alertasTxt);
+
+      if (estado !== 'ok' && mensagens.length) {
         avisoClinicoEl.innerHTML = `
           <strong class="aviso-clinico__titulo">${titulo}</strong>
           <div class="aviso-clinico__detalhes">
-            Função sistólica : ${feInfo.texto}${metodoFeTxt} · ${alertasTxt}
+            ${mensagens.join(' · ')}
           </div>
         `;
         avisoClinicoEl.dataset.estado = estado;
@@ -1173,6 +1197,12 @@
         vaeDisp = isFinite(val) ? val.toFixed(1) : '';
       }
       vaeDisp = (vaeDisp || '').toString().replace('.', ',');
+
+      const vaeRawVal = vaeInputRaw.trim();
+      const vaeNum = vaeRawVal ? +vaeRawVal : NaN;
+      const vaeIndex = Number.isFinite(vaeNum)
+        ? (vaeTipo === "ml" ? vaeNum / sc : vaeNum)
+        : NaN;
   
       const dados = [
   ["Aorta", aorta, "mm", `Fração de Ejeção ${metodoTexto}`, Math.round(fe).toString().replace('.', ','), "%"],
@@ -1190,7 +1220,8 @@
       atualizarAvisoClinico({
         fe,
         metodoFe: metodoTexto.replace(/[()]/g, '').trim(),
-        medidas: { aorta, atrio, ventriculo, ddve, dsve, septo, parede, fc }
+        medidas: { aorta, atrio, ventriculo, ddve, dsve, septo, parede, fc },
+        vaeIndex
       });
 
   
