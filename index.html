@@ -620,7 +620,7 @@
     const REFERENCIAS_MEDIDAS = {
       aorta:       { min: 20, max: 37, unidade: 'mm', label: 'Aorta' },
       atrio:       { min: 27, max: 40, unidade: 'mm', label: 'Átrio esquerdo' },
-      ventriculo:  { min: 25, max: 41, unidade: 'mm', label: 'Ventrículo direito' },
+      ventriculo:  { min: 20, max: 41, unidade: 'mm', label: 'Ventrículo direito' },
       ddve:        { min: 39, max: 59, unidade: 'mm', label: 'DDVE' },
       dsve:        { min: 21, max: 40, unidade: 'mm', label: 'DSVE' },
       septo:       { min: 6,  max: 10, unidade: 'mm', label: 'Septo' },
@@ -690,21 +690,25 @@
         feInfo.severidade,
         alertaNivel
       );
+
       const estado = maiorNivel === 0 ? 'ok' : maiorNivel === 1 ? 'cuidado' : 'alto';
       const titulo = estado === 'ok' ? 'Valores dentro dos limites usuais' : 'Atenção aos achados';
       const metodoFeTxt = metodoFe ? ` - ${metodoFe}` : '';
 
       const alertasTxt = alertas.length
         ? alertas.map(a => a.texto).join(' · ')
-        : 'Demais medidas dentro dos intervalos habituais.';
-      avisoClinicoEl.innerHTML = `
-        <strong class="aviso-clinico__titulo">${titulo}</strong>
-        <div class="aviso-clinico__detalhes">
-          Função sistólica : ${feInfo.texto}${metodoFeTxt} · ${alertasTxt}
-        </div>
-      `;
-      avisoClinicoEl.dataset.estado = estado;
-      avisoClinicoEl.style.display = 'block';
+        : '';
+
+      if (estado !== 'ok') {
+        avisoClinicoEl.innerHTML = `
+          <strong class="aviso-clinico__titulo">${titulo}</strong>
+          <div class="aviso-clinico__detalhes">
+            Função sistólica : ${feInfo.texto}${metodoFeTxt} · ${alertasTxt}
+          </div>
+        `;
+        avisoClinicoEl.dataset.estado = estado;
+        avisoClinicoEl.style.display = 'block';
+      }
     }
 
     function normalizarAlturaInput(valor) {
