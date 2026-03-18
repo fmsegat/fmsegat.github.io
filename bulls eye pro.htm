@@ -348,17 +348,17 @@ captura.style.padding="8px";
 document.querySelectorAll(".panel").forEach(panel=>{
     let bloco=document.createElement("div");
     bloco.className="panel";
+    let titulo=panel.querySelector("h4");
+    let cap=panel.querySelector("[id^='cap_']");
+
+    if(titulo) bloco.appendChild(titulo.cloneNode(true));
 
     if(incluirTextos){
-        let titulo=panel.querySelector("h4");
-        let cap=panel.querySelector("[id^='cap_']");
         let out=panel.querySelector(".output");
 
-        if(titulo) bloco.appendChild(titulo.cloneNode(true));
         if(cap) bloco.appendChild(cap.cloneNode(true));
         if(out) bloco.appendChild(out.cloneNode(true));
     }else{
-        let cap=panel.querySelector("[id^='cap_']");
         if(cap) bloco.appendChild(cap.cloneNode(true));
     }
 
