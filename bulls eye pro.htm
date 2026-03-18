@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Bull's Eye WMSI FINAL</title>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+body { font-family: Arial; text-align:center; }
+
+.container {
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    flex-wrap:wrap;
+}
+
+.panel { text-align:center; }
+
+svg { width:350px; height:350px; }
+
+.segment {
+    stroke:#333;
+    stroke-width:1;
+    cursor:pointer;
+}
+
+text {
+    font-size:11px;
+    pointer-events:none;
+}
+
+button {
+    margin:5px;
+    padding:6px 10px;
+}
+
+.output {
+    font-weight:bold;
+    max-width:300px;
+    margin:auto;
+}
+</style>
+</head>
+
+<body>
+
+<h3>Bull's Eye - WMSI</h3>
+
+<button onclick="toggleModo()">Alternar modo Eco Estresse</button>
+<button onclick="copiarAmbos()">Copiar diagramas</button>
+<button onclick="copiarComTextos()">Copiar diagramas com textos</button>
+<button onclick="resetar()">Resetar segmentos</button>
+
+<div id="container" class="container"></div>
+
+<script>
+
+// ===== CONFIG =====
+const states = [
+{n:"normal",score:1,c:"#4CAF50"},
+{n:"hipocinesia",score:2,c:"#FFC107"},
+{n:"acinesia",score:3,c:"#F44336"},
+{n:"discinesia",score:4,c:"#0D47A1"} // azul escuro
+];
+
+// ===== SEGMENTOS ASE CORRETOS =====
+const segmentos = [
+{parede:"anterior",nivel:"basal"},      //1
+{parede:"ântero-septal",nivel:"basal"}, //2
+{parede:"ínfero-septal",nivel:"basal"}, //3
+{parede:"inferior",nivel:"basal"},      //4
+{parede:"ínfero-lateral",nivel:"basal"},//5
+{parede:"ântero-lateral",nivel:"basal"},//6
+
+{parede:"anterior",nivel:"médio"},      //7
+{parede:"ântero-septal",nivel:"médio"},        //8
+{parede:"ínfero-septal",nivel:"médio"},        //9
+{parede:"inferior",nivel:"médio"},      //10
+{parede:"ínfero-lateral",nivel:"médio"},       //11
+{parede:"ântero-lateral",nivel:"médio"},       //12
+
+{parede:"anterior",nivel:"apical"},     //13
+{parede:"septal",nivel:"apical"},       //14
+{parede:"inferior",nivel:"apical"},     //15
+{parede:"lateral",nivel:"apical"},      //16
+
+{parede:"apical",nivel:"apical"}        //17
+];
+
+let stressMode = false;
+
+// ===== BUILD =====
+
+function criarPainel(titulo,id){
+    let div=document.createElement("div");
+    div.className="panel";
+    div.id=id;
+
+    div.innerHTML=`
+        <h4>${titulo}</h4>
+        <div id="cap_${id}">
+            <svg viewBox="0 0 400 400"></svg>
+        </div>
+        <br>
+        <p class="output" id="out_${id}"></p>
+        <button onclick="copiarTexto('${id}')">Copiar texto</button>
+    `;
+
+    document.getElementById("container").appendChild(div);
+
+    buildBullseye(div.querySelector("svg"), id);
+}
+
+function buildBullseye(svg, id){
+
+let state=new Array(17).fill(0);
+svg.state=state;
+
+function polar(r,a){return{x:200+r*Math.cos(a),y:200+r*Math.sin(a)};}
+
+function arc(r1,r2,a1,a2){
+let p1=polar(r1,a1),p2=polar(r2,a1),p3=polar(r2,a2),p4=polar(r1,a2);
+let large=(a2-a1)>Math.PI?1:0;
+return `M${p1.x} ${p1.y} L${p2.x} ${p2.y}
+A${r2} ${r2} 0 ${large} 1 ${p3.x} ${p3.y}
+L${p4.x} ${p4.y}
+A${r1} ${r1} 0 ${large} 0 ${p1.x} ${p1.y}Z`;
+}
+
+function ring(r1,r2,n,start){
+let step=2*Math.PI/n;
+
+for(let i=0;i<n;i++){
+// ajuste de angulo para iniciar no topo e centralizar
+let a1=i*step - Math.PI/2 - step/2;
+let a2=a1+step;
+// remapeia index para ordem anti-horaria
+let idx=start + ((i===0) ? 0 : n-i);
+
+let path=document.createElementNS("http://www.w3.org/2000/svg","path");
+path.setAttribute("d",arc(r1,r2,a1,a2));
+path.setAttribute("fill",states[0].c);
+path.setAttribute("class","segment");
+
+path.onclick=()=>{
+    state[idx]=(state[idx]+1)%4;
+    path.setAttribute("fill",states[state[idx]].c);
+    gerarLaudo(id);
+};
+
+svg.appendChild(path);
+
+// número
+let m=(a1+a2)/2;
+let r=(r1+r2)/2;
+let p=polar(r,m);
+
+let t=document.createElementNS("http://www.w3.org/2000/svg","text");
+t.setAttribute("x",p.x);
+t.setAttribute("y",p.y);
+t.setAttribute("text-anchor","middle");
+t.textContent=idx+1;
+
+svg.appendChild(t);
+}
+}
+
+ring(120,180,6,0);
+ring(60,120,6,6);
+ring(20,60,4,12);
+
+// apex
+let c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+c.setAttribute("cx",200);
+c.setAttribute("cy",200);
+c.setAttribute("r",20);
+c.setAttribute("fill",states[0].c);
+
+c.onclick=()=>{
+state[16]=(state[16]+1)%4;
+c.setAttribute("fill",states[state[16]].c);
+};
+
+svg.appendChild(c);
+
+// 17
+let t=document.createElementNS("http://www.w3.org/2000/svg","text");
+t.setAttribute("x",200);
+t.setAttribute("y",200);
+t.setAttribute("text-anchor","middle");
+t.textContent="17";
+svg.appendChild(t);
+}
+
+// ===== LAUDO =====
+
+function gerarLaudo(id){
+
+let svg=document.querySelector("#"+id+" svg");
+let state=svg.state;
+
+let grupos={hipocinesia:{},acinesia:{},discinesia:{}};
+let soma=0;
+
+for(let i=0;i<17;i++){
+let s=states[state[i]];
+soma+=s.score;
+
+if(s.n==="normal") continue;
+
+let seg=segmentos[i];
+
+if(!grupos[s.n][seg.parede]) grupos[s.n][seg.parede]=[];
+grupos[s.n][seg.parede].push(seg.nivel);
+}
+
+let wmsi=(soma/17).toFixed(2);
+
+function fmt(g){
+let txt=[];
+for(let p in g){
+let niv=[...new Set(g[p])];
+if(p==="apical"){
+txt.push("segmento apical");
+continue;
+}
+txt.push(`parede ${p} (${niv.join(" e ")})`);
+}
+return txt.join(", ");
+}
+
+let out="";
+
+if(Object.keys(grupos.hipocinesia).length)
+out+="Hipocinesia em "+fmt(grupos.hipocinesia)+".\n";
+
+if(Object.keys(grupos.acinesia).length)
+out+="Acinesia em "+fmt(grupos.acinesia)+".\n";
+
+if(Object.keys(grupos.discinesia).length)
+out+="Discinesia em "+fmt(grupos.discinesia)+".\n";
+
+if (wmsi == 1)
+    out+="Contratilidade segmentar normal.\n";
+out+="WMSI = "+wmsi+".";
+
+
+document.getElementById("out_"+id).innerText=out;
+}
+
+function copiarTexto(id){
+navigator.clipboard.writeText(document.getElementById("out_"+id).innerText);
+alert("Texto copiado");
+}
+
+// ===== RESET =====
+
+function resetar(){
+document.querySelectorAll("svg").forEach(svg=>{
+    let state=svg.state;
+    for(let i=0;i<17;i++) state[i]=0;
+
+    svg.querySelectorAll("path, circle").forEach(el=>{
+        el.setAttribute("fill",states[0].c);
+    });
+});
+document.querySelectorAll(".output").forEach(o=>o.innerText="");
+}
+
+// ===== CLIPBOARD =====
+
+function copiarParaClipboard(incluirTextos){
+let captura=document.createElement("div");
+captura.style.display="flex";
+captura.style.justifyContent="center";
+captura.style.gap="40px";
+captura.style.flexWrap="wrap";
+captura.style.background="#fff";
+captura.style.padding="8px";
+
+document.querySelectorAll(".panel").forEach(panel=>{
+    let bloco=document.createElement("div");
+    bloco.className="panel";
+
+    if(incluirTextos){
+        let titulo=panel.querySelector("h4");
+        let cap=panel.querySelector("[id^='cap_']");
+        let out=panel.querySelector(".output");
+
+        if(titulo) bloco.appendChild(titulo.cloneNode(true));
+        if(cap) bloco.appendChild(cap.cloneNode(true));
+        if(out) bloco.appendChild(out.cloneNode(true));
+    }else{
+        let cap=panel.querySelector("[id^='cap_']");
+        if(cap) bloco.appendChild(cap.cloneNode(true));
+    }
+
+    if(bloco.children.length) captura.appendChild(bloco);
+});
+
+captura.style.position="fixed";
+captura.style.left="-99999px";
+document.body.appendChild(captura);
+
+html2canvas(captura,{backgroundColor:"#ffffff"}).then(canvas=>{
+canvas.toBlob(blob=>{
+navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);
+alert(incluirTextos ? "Diagramas com textos copiados" : "Diagramas copiados");
+document.body.removeChild(captura);
+});
+});
+}
+
+function copiarAmbos(){
+copiarParaClipboard(false);
+}
+
+function copiarComTextos(){
+copiarParaClipboard(true);
+}
+
+// ===== MODO =====
+
+function toggleModo(){
+let c=document.getElementById("container");
+c.innerHTML="";
+
+if(!stressMode){
+criarPainel("Repouso","rep");
+criarPainel("Pico de Estresse","est");
+stressMode=true;
+}else{
+criarPainel("Repouso","single");
+stressMode=false;
+}
+document.querySelectorAll("svg").forEach(svg=>{
+    let id=svg.parentElement.id.replace("cap_","");
+    gerarLaudo(id);
+});
+}
+
+toggleModo();
+
+</script>
+
+</body>
+</html>
