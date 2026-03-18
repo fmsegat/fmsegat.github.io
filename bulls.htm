@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Bullseye ASE 17 segmentos</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body { font-family: Arial; text-align: center; }
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+svg {
+    width: 320px;
+    height: 320px;
+}
+
+.segment {
+    stroke: #222;
+    stroke-width: 1;
+    cursor: pointer;
+}
+
+.info {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+.legend span {
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 5px;
+    color: white;
+}
+
+.green { background: green; }
+.yellow { background: gold; color:black;}
+.red { background: red; }
+.blue { background: blue; }
+
+button {
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Mapa Bullseye - 17 Segmentos (ASE)</h2>
+
+<div id="capture">
+
+<div class="container">
+
+<div>
+<h3>Basal</h3>
+<svg id="bull1"></svg>
+<div class="info">WMSI: <span id="w1">1.00</span></div>
+</div>
+
+<div>
+<h3>Estresse</h3>
+<svg id="bull2"></svg>
+<div class="info">WMSI: <span id="w2">1.00</span></div>
+</div>
+
+</div>
+
+<h3>ΔWMSI: <span id="delta">0.00</span></h3>
+
+</div>
+
+<div class="legend">
+<span class="green">Normal</span>
+<span class="yellow">Hipocinético</span>
+<span class="red">Acinético</span>
+<span class="blue">Aneurismático</span>
+</div>
+
+<button onclick="exportPNG()">Exportar PNG</button>
+<button onclick="exportPDF()">Exportar PDF</button>
+
+<script>
+
+const segmentNames = [
+"1 Basal Anterior","2 Basal Anterosseptal","3 Basal Inferosseptal",
+"4 Basal Inferior","5 Basal Inferolateral","6 Basal Anterolateral",
+"7 Médio Anterior","8 Médio Anterosseptal","9 Médio Inferosseptal",
+"10 Médio Inferior","11 Médio Inferolateral","12 Médio Anterolateral",
+"13 Apical Anterior","14 Apical Septal","15 Apical Inferior",
+"16 Apical Lateral","17 Apex"
+];
+
+const colors = ["green","gold","red","blue"];
+const scores = [1,2,3,4];
+
+function createBull(svgId, wId) {
+
+    const svg = document.getElementById(svgId);
+    const cx=160, cy=160;
+    let segments=[];
+
+    function arc(r1,r2,a1,a2,i){
+        function p(r,a){
+            return {x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)};
+        }
+
+        let d=`
+        M ${p(r1,a1).x} ${p(r1,a1).y}
+        L ${p(r2,a1).x} ${p(r2,a1).y}
+        A ${r2} ${r2} 0 0 1 ${p(r2,a2).x} ${p(r2,a2).y}
+        L ${p(r1,a2).x} ${p(r1,a2).y}
+        A ${r1} ${r1} 0 0 0 ${p(r1,a1).x} ${p(r1,a1).y}
+        `;
+
+        let path=document.createElementNS("http://www.w3.org/2000/svg","path");
+        path.setAttribute("d",d);
+        path.setAttribute("fill","green");
+        path.setAttribute("class","segment");
+        path.dataset.state=0;
+        path.setAttribute("title",segmentNames[i]);
+
+        path.addEventListener("click",()=>{
+            let s=(+path.dataset.state+1)%4;
+            path.dataset.state=s;
+            path.setAttribute("fill",colors[s]);
+            update();
+        });
+
+        svg.appendChild(path);
+        segments.push(path);
+    }
+
+    let rings=[
+        {r1:0,r2:40,n:1},
+        {r1:40,r2:80,n:6},
+        {r1:80,r2:120,n:6},
+        {r1:120,r2:150,n:4}
+    ];
+
+    let idx=0;
+
+    rings.forEach(r=>{
+        let step=2*Math.PI/r.n;
+        for(let i=0;i<r.n;i++){
+            arc(r.r1,r.r2,i*step,(i+1)*step,idx++);
+        }
+    });
+
+    function update(){
+        let sum=0;
+        segments.forEach(s=> sum+=scores[s.dataset.state]);
+        let w=sum/segments.length;
+        document.getElementById(wId).innerText=w.toFixed(2);
+        calcDelta();
+    }
+
+    update();
+    return segments;
+}
+
+let seg1=createBull("bull1","w1");
+let seg2=createBull("bull2","w2");
+
+function calcDelta(){
+    let w1=parseFloat(document.getElementById("w1").innerText);
+    let w2=parseFloat(document.getElementById("w2").innerText);
+    document.getElementById("delta").innerText=(w2-w1).toFixed(2);
+}
+
+function exportPNG(){
+    html2canvas(document.getElementById("capture")).then(canvas=>{
+        let link=document.createElement("a");
+        link.download="bullseye.png";
+        link.href=canvas.toDataURL();
+        link.click();
+    });
+}
+
+async function exportPDF(){
+    const { jsPDF } = window.jspdf;
+
+    const canvas = await html2canvas(document.getElementById("capture"));
+    const img = canvas.toDataURL("image/png");
+
+    let pdf = new jsPDF();
+    pdf.addImage(img,'PNG',10,10,190,0);
+    pdf.save("bullseye.pdf");
+}
+
+</script>
+
+</body>
+</html>

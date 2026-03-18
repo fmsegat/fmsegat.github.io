@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Bull's Eye 17 Segmentos</title>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+}
+
+svg {
+    width: 400px;
+    height: 400px;
+    display: block;
+    margin: auto;
+}
+
+.segment {
+    stroke: #333;
+    stroke-width: 1;
+    cursor: pointer;
+}
+
+.legend {
+    margin-top: 15px;
+}
+
+.box {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    margin-right: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<h3>Bull's Eye - 17 Segmentos (WMSI)</h3>
+
+<div id="capture">
+<svg id="bullseye" viewBox="0 0 400 400"></svg>
+</div>
+
+<div class="legend">
+    <span><div class="box" style="background:#4CAF50"></div>Normal</span>
+    <span><div class="box" style="background:#FFC107"></div>Hipocinético</span>
+    <span><div class="box" style="background:#F44336"></div>Acinético</span>
+    <span><div class="box" style="background:#9C27B0"></div>Aneurismático</span>
+</div>
+
+<button onclick="exportImage()">Exportar imagem</button>
+
+<script>
+
+// GARANTE execução após carregar DOM
+window.onload = function() {
+
+const svg = document.getElementById("bullseye");
+
+const states = [
+    "#4CAF50",
+    "#FFC107",
+    "#F44336",
+    "#9C27B0"
+];
+
+let segmentState = new Array(17).fill(0);
+
+// Função para criar arco
+function arcPath(cx, cy, r1, r2, start, end) {
+
+    function polar(r, angle) {
+        return {
+            x: cx + r * Math.cos(angle),
+            y: cy + r * Math.sin(angle)
+        };
+    }
+
+    let p1 = polar(r1, start);
+    let p2 = polar(r2, start);
+    let p3 = polar(r2, end);
+    let p4 = polar(r1, end);
+
+    let large = (end - start) > Math.PI ? 1 : 0;
+
+    return `
+        M ${p1.x} ${p1.y}
+        L ${p2.x} ${p2.y}
+        A ${r2} ${r2} 0 ${large} 1 ${p3.x} ${p3.y}
+        L ${p4.x} ${p4.y}
+        A ${r1} ${r1} 0 ${large} 0 ${p1.x} ${p1.y}
+        Z
+    `;
+}
+
+// Criar segmentos
+function addSegment(r1, r2, n, offset, startIndex) {
+    let angleStep = 2 * Math.PI / n;
+
+    for (let i = 0; i < n; i++) {
+        let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+        let start = i * angleStep - Math.PI/2; // gira orientação
+        let end = start + angleStep;
+
+        path.setAttribute("d", arcPath(200, 200, r1, r2, start, end));
+        path.setAttribute("fill", states[0]);
+        path.setAttribute("class", "segment");
+
+        let idx = startIndex + i;
+
+        path.onclick = function() {
+            segmentState[idx] = (segmentState[idx] + 1) % 4;
+            path.setAttribute("fill", states[segmentState[idx]]);
+        };
+
+        svg.appendChild(path);
+    }
+}
+
+// Anéis
+addSegment(120, 180, 6, 0, 0);   // basal
+addSegment(60, 120, 6, 0, 6);    // médio
+addSegment(20, 60, 4, 0, 12);    // apical
+
+// Ápice
+let apex = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+apex.setAttribute("cx", 200);
+apex.setAttribute("cy", 200);
+apex.setAttribute("r", 20);
+apex.setAttribute("fill", states[0]);
+
+apex.onclick = function() {
+    segmentState[16] = (segmentState[16] + 1) % 4;
+    apex.setAttribute("fill", states[segmentState[16]]);
+};
+
+svg.appendChild(apex);
+
+};
+
+// Exportar
+function exportImage() {
+    html2canvas(document.getElementById("capture")).then(canvas => {
+        let link = document.createElement("a");
+        link.download = "bullseye.png";
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+</script>
+
+</body>
+</html>

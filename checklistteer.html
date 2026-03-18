@@ -1,0 +1,1371 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Checklist ETE Mitral – TEER (Borda-a-borda)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111a2e;
+      --card2:#0f1730;
+      --text:#eaf0ff;
+      --muted:#b7c2e3;
+      --line:rgba(234,240,255,.14);
+      --accent:#69a7ff;
+      --ok:#40d09a;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --tap: 54px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display","SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(105,167,255,.20), transparent 60%),
+                  radial-gradient(900px 500px at 110% 10%, rgba(64,208,154,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      padding: 18px 14px 90px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 10px 0 14px;
+      background: linear-gradient(to bottom, rgba(11,18,32,.92), rgba(11,18,32,.75), rgba(11,18,32,0));
+      backdrop-filter: blur(10px);
+    }
+    .wrap{max-width: 980px; margin:0 auto;}
+    .title-row{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+    }
+    h1{
+      margin: 4px 0 2px;
+      font-size: 20px;
+      letter-spacing: .2px;
+      line-height:1.2;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+      line-height:1.35;
+    }
+    .bar{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px;
+      background: rgba(17,26,46,.70);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+    .pill strong{font-size: 13px;}
+    .progress{
+      width: 190px; height: 10px; border-radius: 999px;
+      background: rgba(234,240,255,.08);
+      overflow:hidden;
+      border: 1px solid rgba(234,240,255,.10);
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), rgba(64,208,154,.95));
+      transition: width .25s ease;
+    }
+
+    .btn{
+      height: var(--tap);
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(17,26,46,.85);
+      color: var(--text);
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{transform: translateY(1px);}
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(105,167,255,.25), rgba(17,26,46,.85));
+      border-color: rgba(105,167,255,.45);
+    }
+    .btn.danger{
+      background: linear-gradient(180deg, rgba(255,107,107,.18), rgba(17,26,46,.85));
+      border-color: rgba(255,107,107,.35);
+    }
+    .btn.small{
+      height: 44px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (min-width: 900px){
+      .grid{grid-template-columns: 1fr 1fr;}
+    }
+    details.card{
+      background: linear-gradient(180deg, rgba(17,26,46,.92), rgba(15,23,48,.86));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    details.card[open]{border-color: rgba(105,167,255,.30);}
+    summary{
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 14px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    summary::-webkit-details-marker{display:none;}
+    .sum-left{
+      display:flex; flex-direction:column; gap:4px;
+    }
+    .sum-title{
+      font-weight: 800;
+      letter-spacing:.2px;
+      font-size: 15px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .badge{
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(234,240,255,.14);
+      color: var(--muted);
+      background: rgba(234,240,255,.05);
+      font-weight: 800;
+    }
+    .sum-note{
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+    .chev{
+      width: 40px; height: 40px;
+      display:grid; place-items:center;
+      border-radius: 12px;
+      border: 1px solid rgba(234,240,255,.12);
+      background: rgba(234,240,255,.04);
+      font-size: 18px;
+    }
+    .card-body{
+      padding: 0 14px 14px;
+      border-top: 1px solid rgba(234,240,255,.08);
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    @media (min-width: 680px){
+      .row.two{grid-template-columns: 1fr 1fr;}
+      .row.three{grid-template-columns: 1fr 1fr 1fr;}
+    }
+
+    .field{
+      background: rgba(11,18,32,.55);
+      border: 1px solid rgba(234,240,255,.10);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .field label{
+      display:block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing:.25px;
+      margin-bottom: 8px;
+    }
+    input[type="text"], input[type="number"], select, textarea{
+      width:100%;
+      border-radius: 12px;
+      border: 1px solid rgba(234,240,255,.12);
+      background: rgba(17,26,46,.70);
+      color: var(--text);
+      font-size: 16px;
+      padding: 12px 12px;
+      outline:none;
+    }
+    textarea{min-height: 92px; resize: vertical;}
+    input::placeholder, textarea::placeholder{color: rgba(183,194,227,.65);}
+    .help{
+      font-size: 12px;
+      color: rgba(183,194,227,.82);
+      margin-top: 8px;
+      line-height:1.35;
+    }
+
+    .check{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(234,240,255,.10);
+      background: rgba(11,18,32,.45);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .check input{
+      width: 22px; height: 22px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+    .check .txt{
+      display:flex; flex-direction:column; gap:3px;
+    }
+    .check .txt strong{font-size: 14px; line-height:1.2;}
+    .check .txt span{font-size: 12px; color: var(--muted); line-height:1.25;}
+
+    .chips{
+      display:flex; flex-wrap:wrap; gap:10px; margin-top: 10px;
+    }
+    .chip{
+      border-radius: 999px;
+      border: 1px solid rgba(234,240,255,.12);
+      background: rgba(17,26,46,.55);
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+    }
+    .chip.active{
+      border-color: rgba(105,167,255,.55);
+      box-shadow: 0 8px 18px rgba(105,167,255,.15);
+    }
+
+    .hint{
+      border-left: 3px solid rgba(105,167,255,.65);
+      background: rgba(105,167,255,.08);
+      padding: 10px 12px;
+      border-radius: 14px;
+      margin-top: 12px;
+      color: rgba(234,240,255,.92);
+      font-size: 13px;
+      line-height:1.4;
+    }
+
+    .footer-actions{
+      position: fixed;
+      left: 0; right:0; bottom: 0;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(11,18,32,.95), rgba(11,18,32,.65), rgba(11,18,32,0));
+      backdrop-filter: blur(10px);
+      z-index: 30;
+    }
+    .footer-actions .wrap{
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;
+    }
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(84px + env(safe-area-inset-bottom));
+      background: rgba(17,26,46,.92);
+      border: 1px solid rgba(234,240,255,.14);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 50;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .danger-text{color: var(--bad); font-weight: 900;}
+    .warn-text{color: var(--warn); font-weight: 900;}
+    .ok-text{color: var(--ok); font-weight: 900;}
+
+    @media print{
+      header, .footer-actions, .toast {display:none !important;}
+      body{background:#fff;color:#000;padding:0;}
+      details.card{box-shadow:none;border:1px solid #ccc; break-inside: avoid;}
+      .field, .check{background:#fff;}
+      input, select, textarea{background:#fff;color:#000;border:1px solid #999;}
+      .badge{border:1px solid #999;color:#000;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="title-row">
+        <div>
+          <h1>Checklist ETE Mitral – Planejamento TEER (borda-a-borda)</h1>
+          <p class="subtitle">Interativo (iPad/offline). Salva automaticamente no aparelho. Exporta resumo para laudo / equipe.</p>
+        </div>
+
+        <div class="pill" aria-label="Progresso">
+          <div>
+            <strong id="progressText">0%</strong><span class="subtitle" style="margin-left:8px;">completo</span>
+          </div>
+          <div class="progress" aria-hidden="true"><div id="progressBar"></div></div>
+        </div>
+      </div>
+
+      <div class="bar">
+        <button class="btn primary" id="btnExpand">Abrir tudo</button>
+        <button class="btn" id="btnCollapse">Fechar tudo</button>
+        <button class="btn" id="btnCopy">Copiar resumo</button>
+        <button class="btn" id="btnExport">Exportar JSON</button>
+        <label class="btn small" style="cursor:pointer;">
+          Importar JSON
+          <input id="fileImport" type="file" accept="application/json" style="display:none;">
+        </label>
+        <button class="btn danger" id="btnReset">Zerar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- Identificação -->
+    <details class="card" open data-section>
+      <summary>
+        <div class="sum-left">
+          <div class="sum-title">Identificação <span class="badge">Cabeçalho</span></div>
+          <div class="sum-note">Dados do exame para exportação e rastreabilidade.</div>
+        </div>
+        <div class="chev">⌄</div>
+      </summary>
+      <div class="card-body">
+        <div class="row three">
+          <div class="field">
+            <label>Paciente</label>
+            <input type="text" data-key="paciente" placeholder="Nome / iniciais" />
+          </div>
+          <div class="field">
+            <label>Data</label>
+            <input type="text" data-key="data" placeholder="dd/mm/aaaa" />
+          </div>
+          <div class="field">
+            <label>Examinador</label>
+            <input type="text" data-key="examinador" placeholder="Nome" />
+          </div>
+        </div>
+        <div class="row two">
+          <div class="field">
+            <label>Dispositivo / estratégia</label>
+            <select data-key="dispositivo">
+              <option value="">Selecionar</option>
+              <option>MitraClip (TEER)</option>
+              <option>PASCAL (TEER)</option>
+              <option>Outro / indefinido</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tipo de MR (hipótese)</label>
+            <select data-key="tipo_mr">
+              <option value="">Selecionar</option>
+              <option>Degenerativa (prolapso/flail)</option>
+              <option>Funcional (secundária)</option>
+              <option>Mista</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <div class="grid">
+
+      <!-- 1. Preparação -->
+      <details class="card" data-section>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">1) Preparação / Otimização <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Checklist de qualidade antes das aquisições críticas (2D/3D/color).</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row">
+            <div class="check"><input type="checkbox" data-check data-key="prep_ecg"><div class="txt"><strong>ECG sincronizado</strong><span>Fundamental para medições e 3D.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="prep_ganho"><div class="txt"><strong>Ganho / compressão / foco otimizados</strong><span>Evitar superestimação de espessura/calcificação.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="prep_fps"><div class="txt"><strong>Frame rate adequado</strong><span>2D ≥ 25–30 fps; 3D ≥ 15–20 fps (ideal).</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="prep_zoom"><div class="txt"><strong>Zoom anatômico disponível</strong><span>Para gap/width e grasping.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="prep_3d"><div class="txt"><strong>Condições para 3D (sem stitch artifact)</strong><span>Apneia/estabilidade ajudam full-volume.</span></div></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 2. Anatomia / Segmentos -->
+      <details class="card" data-section open>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">2) Anatomia Mitral & Segmentos <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Carpentier + mecanismo + topografia do jato.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+
+          <div class="hint">
+            Dica prática: documente <strong>pelo menos dois planos</strong> para cada medida crítica (gap, leaflet length, flail).
+          </div>
+
+          <div class="row two">
+            <div class="field">
+              <label>Jato principal (localização)</label>
+              <select data-key="jato_local">
+                <option value="">Selecionar</option>
+                <option>Central (A2-P2)</option>
+                <option>Comissural anterolateral</option>
+                <option>Comissural posteromedial</option>
+                <option>Multissegmentar / múltiplos jatos</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Mecanismo (Carpentier)</label>
+              <select data-key="mecanismo">
+                <option value="">Selecionar</option>
+                <option>Prolapso</option>
+                <option>Flail</option>
+                <option>Restrição (funcional)</option>
+                <option>Restrição (reumática)</option>
+                <option>Misto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Segmento(s) envolvidos (marque)</label>
+              <div class="chips" id="segments">
+                <!-- chips injected -->
+              </div>
+              <div class="help">Toque para ativar/desativar segmentos: A1–A3, P1–P3, comissuras (AL/PM).</div>
+            </div>
+          </div>
+
+          <div class="row two">
+            <div class="field">
+              <label>Folhetos – espessura / mobilidade</label>
+              <select data-key="mobilidade">
+                <option value="">Selecionar</option>
+                <option>Boa para grasp</option>
+                <option>Limitada</option>
+                <option>Muito restrita</option>
+              </select>
+              <div class="help">Limitações importantes: retração, calcificação, tethering importante.</div>
+            </div>
+
+            <div class="field">
+              <label>Calcificação (local)</label>
+              <select data-key="calcificacao">
+                <option value="">Selecionar</option>
+                <option>Ausente</option>
+                <option>Focal</option>
+                <option>Extensa (anel/folheto/comissuras)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="check"><input type="checkbox" data-check data-key="fenestracoes"><div class="txt"><strong>Fenestrações / múltiplos orifícios</strong><span>Importante para estratégia e expectativa de resultado.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="cordas_rotas"><div class="txt"><strong>Rotura de cordas (suspeita/confirmada)</strong><span>Documentar segmento e extensão.</span></div></div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- 3. Anel mitral (3D) -->
+      <details class="card" data-section>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">3) Anel mitral (preferir 3D) <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Dimensões e calcificação anular – impacto em navegação e estenose residual.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row three">
+            <div class="field">
+              <label>Diâmetro ântero-posterior (mm)</label>
+              <input type="number" step="0.1" data-key="anel_ap_mm" placeholder="ex: 35" />
+            </div>
+            <div class="field">
+              <label>Diâmetro comissural (mm)</label>
+              <input type="number" step="0.1" data-key="anel_comm_mm" placeholder="ex: 40" />
+            </div>
+            <div class="field">
+              <label>Área anular 3D (cm²)</label>
+              <input type="number" step="0.1" data-key="anel_area_cm2" placeholder="ex: 12.5" />
+            </div>
+          </div>
+
+          <div class="row two">
+            <div class="check"><input type="checkbox" data-check data-key="anel_protese"><div class="txt"><strong>Presença de anel protético / cirurgia prévia</strong><span>Registrar tipo e material se possível.</span></div></div>
+            <div class="field">
+              <label>Observações do anel</label>
+              <input type="text" data-key="anel_obs" placeholder="ex: calcificação posterior extensa; deformidade" />
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 4. Quantificação MR -->
+      <details class="card" data-section open>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">4) Quantificação da MR <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Registrar ≥2 métodos. Incluir 3D color se disponível.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row three">
+            <div class="field">
+              <label>VC (mm)</label>
+              <input type="number" step="0.1" data-key="vc_mm" placeholder="ex: 7" />
+            </div>
+            <div class="field">
+              <label>PISA – EROA (mm²)</label>
+              <input type="number" step="0.1" data-key="eroa_mm2" placeholder="ex: 45" />
+            </div>
+            <div class="field">
+              <label>Volume regurgitante (mL)</label>
+              <input type="number" step="1" data-key="vr_ml" placeholder="ex: 60" />
+            </div>
+          </div>
+
+          <div class="row two">
+            <div class="field">
+              <label>3D color – área VC (mm²)</label>
+              <input type="number" step="0.1" data-key="vc3d_mm2" placeholder="ex: 35" />
+              <div class="help">Se múltiplos jatos, documentar cada um ou somatório (conforme protocolo local).</div>
+            </div>
+            <div class="field">
+              <label>Veias pulmonares</label>
+              <select data-key="vp">
+                <option value="">Selecionar</option>
+                <option>Sem reversão sistólica</option>
+                <option>Reversão sistólica presente (≥1 VP)</option>
+                <option>Não avaliado / limitado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Descrição do jato / observações</label>
+              <textarea data-key="mr_obs" placeholder="ex: jato excêntrico aderido à parede; múltiplos jatos; aliasing difícil; etc."></textarea>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 5. Medidas TEER (degenerativa) -->
+      <details class="card" data-section>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">5) Medidas TEER – Degenerativa <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Gap/width/flail + comprimento de folheto útil para grasp.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row three">
+            <div class="field">
+              <label>Gap (mm)</label>
+              <input type="number" step="0.1" data-key="deg_gap_mm" placeholder="ex: 4" />
+            </div>
+            <div class="field">
+              <label>Flail width (mm)</label>
+              <input type="number" step="0.1" data-key="deg_flail_width_mm" placeholder="ex: 12" />
+            </div>
+            <div class="field">
+              <label>Flail height (mm)</label>
+              <input type="number" step="0.1" data-key="deg_flail_height_mm" placeholder="ex: 8" />
+            </div>
+          </div>
+
+          <div class="row two">
+            <div class="field">
+              <label>Comprimento do folheto posterior (mm)</label>
+              <input type="number" step="0.1" data-key="deg_lp_mm" placeholder="ex: 10" />
+              <div class="help">Geralmente desejar ≥ 7–10 mm (depende do caso/dispositivo).</div>
+            </div>
+            <div class="field">
+              <label>Coaptação residual (descrição)</label>
+              <input type="text" data-key="deg_coapt" placeholder="ex: coaptação parcial; prolapso amplo; etc." />
+            </div>
+          </div>
+
+          <div class="hint" id="degHint"></div>
+        </div>
+      </details>
+
+      <!-- 6. Medidas TEER (funcional) -->
+      <details class="card" data-section>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">6) Medidas TEER – Funcional <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Tethering/tenting + profundidade de coaptação.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row three">
+            <div class="field">
+              <label>Tethering height / profundidade (mm)</label>
+              <input type="number" step="0.1" data-key="fun_tether_mm" placeholder="ex: 10" />
+            </div>
+            <div class="field">
+              <label>Área de tenting (cm²)</label>
+              <input type="number" step="0.1" data-key="fun_tenting_cm2" placeholder="ex: 2.2" />
+            </div>
+            <div class="field">
+              <label>Ângulo do folheto (°) (opcional)</label>
+              <input type="number" step="1" data-key="fun_angle_deg" placeholder="ex: 45" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Observações funcionais</label>
+              <textarea data-key="fun_obs" placeholder="ex: tethering assimétrico; maior restrição posterior; jet central; etc."></textarea>
+            </div>
+          </div>
+
+          <div class="hint" id="funHint"></div>
+        </div>
+      </details>
+
+      <!-- 7. Gradiente/Área mitral -->
+      <details class="card" data-section open>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">7) Gradiente & Área mitral (risco de estenose) <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Registrar gradiente médio + FC e área basal.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row three">
+            <div class="field">
+              <label>Gradiente médio (mmHg)</label>
+              <input type="number" step="0.1" data-key="mg_mmHg" placeholder="ex: 3.5" />
+            </div>
+            <div class="field">
+              <label>Frequência cardíaca (bpm)</label>
+              <input type="number" step="1" data-key="fc_bpm" placeholder="ex: 78" />
+            </div>
+            <div class="field">
+              <label>Área valvar basal (cm²)</label>
+              <input type="number" step="0.1" data-key="mva_cm2" placeholder="ex: 5.0" />
+            </div>
+          </div>
+
+          <div class="row two">
+            <div class="check"><input type="checkbox" data-check data-key="planimetria_ok"><div class="txt"><strong>Planimetria realizada (se possível)</strong><span>Registrar se limitada por janela/artefatos.</span></div></div>
+            <div class="field">
+              <label>Observações (gradiente/área)</label>
+              <input type="text" data-key="mva_obs" placeholder="ex: gradiente sobe com FC; área pequena; risco de MS pós-TEER" />
+            </div>
+          </div>
+
+          <div class="hint" id="stenosisHint"></div>
+        </div>
+      </details>
+
+      <!-- 8. 3D En-face -->
+      <details class="card" data-section>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">8) 3D En-face (obrigatório) <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Salvar dataset 3D e orientar corretamente (visão do cirurgião).</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row">
+            <div class="check"><input type="checkbox" data-check data-key="3d_full"><div class="txt"><strong>Full-volume 3D mitral salvo</strong><span>Sem stitch artifact, com boa resolução.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="3d_enface_ae"><div class="txt"><strong>En-face pelo AE (“visão do cirurgião”)</strong><span>Identificar A1–A3, P1–P3, comissuras.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="3d_enface_ve"><div class="txt"><strong>En-face pelo VE</strong><span>Útil para avaliar grasp e subvalvar.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="3d_color"><div class="txt"><strong>3D color do(s) jato(s)</strong><span>VC área/orifício(s) e múltiplos jatos.</span></div></div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Notas 3D</label>
+              <textarea data-key="3d_obs" placeholder="ex: melhor vista em 0–60° com zoom; jato principal A2-P2; etc."></textarea>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 9. Transeptal -->
+      <details class="card" data-section open>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">9) Transeptal / Navegação <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Altura e localização ideais da punção; trombos/IAS.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row three">
+            <div class="field">
+              <label>Altura da punção (cm acima do plano mitral)</label>
+              <input type="number" step="0.1" data-key="ts_altura_cm" placeholder="ex: 4.5" />
+            </div>
+            <div class="field">
+              <label>Localização ideal</label>
+              <select data-key="ts_local">
+                <option value="">Selecionar</option>
+                <option>Posterior-superior</option>
+                <option>Posterior</option>
+                <option>Superior</option>
+                <option>Outro (descrever)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Septo interatrial (observação)</label>
+              <input type="text" data-key="ts_septo_obs" placeholder="ex: espesso; aneurismático; patch; etc." />
+            </div>
+          </div>
+
+          <div class="row two">
+            <div class="check"><input type="checkbox" data-check data-key="pfo"><div class="txt"><strong>PFO/CIA presente</strong><span>Documentar tamanho e fluxo.</span></div></div>
+            <div class="check"><input type="checkbox" data-check data-key="trombo_aae"><div class="txt"><strong>Trombo em AE/AAE</strong><span class="danger-text">Se presente, muda conduta.</span></div></div>
+          </div>
+
+          <div class="hint" id="tsHint"></div>
+        </div>
+      </details>
+
+      <!-- 10. Estruturas associadas -->
+      <details class="card" data-section>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">10) Estruturas associadas <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">VE/VD, TR, PSAP, aorta, veias pulmonares.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row three">
+            <div class="field">
+              <label>FEVE (%)</label>
+              <input type="number" step="1" data-key="feve_pct" placeholder="ex: 35" />
+            </div>
+            <div class="field">
+              <label>VD (função)</label>
+              <select data-key="vd_func">
+                <option value="">Selecionar</option>
+                <option>Normal</option>
+                <option>Disfunção leve</option>
+                <option>Disfunção moderada</option>
+                <option>Disfunção importante</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>PSAP estimada (mmHg) (opcional)</label>
+              <input type="number" step="1" data-key="psap" placeholder="ex: 55" />
+            </div>
+          </div>
+
+          <div class="row two">
+            <div class="field">
+              <label>TR</label>
+              <select data-key="tr">
+                <option value="">Selecionar</option>
+                <option>Ausente/leve</option>
+                <option>Moderada</option>
+                <option>Importante</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Aorta torácica / placas</label>
+              <select data-key="aorta">
+                <option value="">Selecionar</option>
+                <option>Sem placas relevantes</option>
+                <option>Placas moderadas</option>
+                <option>Ateroma complexo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Observações adicionais</label>
+              <textarea data-key="assoc_obs" placeholder="ex: acinesia inferior; VD moderado; TR importante; etc."></textarea>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- 11. Conclusão estruturada -->
+      <details class="card" data-section open>
+        <summary>
+          <div class="sum-left">
+            <div class="sum-title">11) Conclusão (para laudo / Heart Team) <span class="badge" data-count-badge></span></div>
+            <div class="sum-note">Resumo curto, objetivo e acionável para planejamento.</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="card-body">
+          <div class="row">
+            <div class="field">
+              <label>Impressão final</label>
+              <textarea data-key="impressao" placeholder="ex: MR importante por flail P2; anatomia favorável para TEER; gradiente basal 3 mmHg FC 75; planejar punção posterior-superior ~4,5 cm; sem trombo em AAE."></textarea>
+              <div class="help">Toque em “Copiar resumo” para colar direto no laudo / mensagem ao intervencionista.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </main>
+
+  <div class="toast" id="toast">Copiado!</div>
+
+  <div class="footer-actions">
+    <div class="wrap">
+      <button class="btn primary" id="btnQuickCopy">Copiar resumo</button>
+      <button class="btn" id="btnPrint">Imprimir / PDF</button>
+      <button class="btn" id="btnOpenDeg">Abrir Degenerativa</button>
+      <button class="btn" id="btnOpenFun">Abrir Funcional</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const STORAGE_KEY = "ete_teer_checklist_v1";
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const toast = $("#toast");
+
+  // Segment chips
+  const segList = ["A1","A2","A3","P1","P2","P3","Comissura AL","Comissura PM"];
+  const segWrap = $("#segments");
+  const state = load() || { segments: [] };
+
+  function makeChip(label){
+    const btn = document.createElement("button");
+    btn.type="button";
+    btn.className="chip";
+    btn.textContent = label;
+    btn.setAttribute("aria-pressed","false");
+    btn.addEventListener("click", () => {
+      const idx = state.segments.indexOf(label);
+      if(idx >= 0) state.segments.splice(idx,1);
+      else state.segments.push(label);
+      save();
+      renderChips();
+      updateProgress();
+    });
+    return btn;
+  }
+  segList.forEach(s => segWrap.appendChild(makeChip(s)));
+
+  function renderChips(){
+    $$(".chip", segWrap).forEach(ch => {
+      const on = state.segments.includes(ch.textContent);
+      ch.classList.toggle("active", on);
+      ch.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+
+  // Bind inputs to state
+  function bind(){
+    // Text/number/select/textarea
+    $$("[data-key]").forEach(el => {
+      const key = el.getAttribute("data-key");
+      if(el.type === "checkbox") return;
+
+      if(state[key] !== undefined && state[key] !== null){
+        el.value = state[key];
+      }
+
+      el.addEventListener("input", () => {
+        state[key] = el.value;
+        save();
+        updateHints();
+        updateProgress();
+      });
+      el.addEventListener("change", () => {
+        state[key] = el.value;
+        save();
+        updateHints();
+        updateProgress();
+      });
+    });
+
+    // checkboxes (data-check)
+    $$("[data-check][data-key]").forEach(cb => {
+      const key = cb.getAttribute("data-key");
+      cb.checked = !!state[key];
+      cb.addEventListener("change", () => {
+        state[key] = cb.checked;
+        save();
+        updateHints();
+        updateProgress();
+      });
+      // enlarge tap by letting parent toggle too
+      const parent = cb.closest(".check");
+      if(parent){
+        parent.addEventListener("click", (e) => {
+          if(e.target === cb) return;
+          cb.checked = !cb.checked;
+          cb.dispatchEvent(new Event("change", {bubbles:true}));
+        });
+      }
+    });
+
+    // default date
+    const dateEl = $$('[data-key="data"]')[0];
+    if(dateEl && !dateEl.value){
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2,"0");
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const yyyy = d.getFullYear();
+      dateEl.value = `${dd}/${mm}/${yyyy}`;
+      state["data"] = dateEl.value;
+      save();
+    }
+  }
+
+  function save(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ /* ignore */ }
+  }
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+
+  // Progress calculation:
+  // - Count checkboxes
+  // - Count required-ish fields: paciente, tipo_mr, mecanismo, jato_local, mg_mmHg, fc_bpm, mva_cm2, ts_altura_cm, ts_local, 3d_full, 3d_enface_ae
+  // - Count segments selection as 1 item when >=1
+  const requiredFields = [
+    "paciente","tipo_mr","mecanismo","jato_local",
+    "mg_mmHg","fc_bpm","mva_cm2",
+    "ts_altura_cm","ts_local",
+    "3d_full","3d_enface_ae"
+  ];
+
+  function updateProgress(){
+    const checks = $$("[data-check][data-key]");
+    const totalChecks = checks.length;
+    const doneChecks = checks.filter(cb => cb.checked).length;
+
+    const totalReq = requiredFields.length + 1; // +segments bucket
+    let doneReq = 0;
+
+    requiredFields.forEach(k => {
+      const v = state[k];
+      if(typeof v === "boolean") { if(v) doneReq++; }
+      else if(v !== undefined && v !== null && String(v).trim() !== "") doneReq++;
+    });
+
+    if(Array.isArray(state.segments) && state.segments.length > 0) doneReq++;
+
+    const total = totalChecks + totalReq;
+    const done = doneChecks + doneReq;
+
+    const pct = total === 0 ? 0 : Math.round((done/total)*100);
+    $("#progressText").textContent = `${pct}%`;
+    $("#progressBar").style.width = `${pct}%`;
+
+    // per-section badges
+    $$("details.card[data-section]").forEach(section => {
+      const badge = $("[data-count-badge]", section);
+      if(!badge) return;
+      const keys = [];
+
+      // gather checkboxes in section
+      $$("[data-check][data-key]", section).forEach(cb => keys.push(cb.getAttribute("data-key")));
+
+      // gather fields in section
+      $$("input[data-key], select[data-key], textarea[data-key]", section).forEach(el => {
+        if(el.type !== "checkbox") keys.push(el.getAttribute("data-key"));
+      });
+
+      // unique
+      const uniq = Array.from(new Set(keys));
+      const tot = uniq.length + (section.contains($("#segments")) ? 1 : 0);
+      let doneLocal = 0;
+      uniq.forEach(k => {
+        const v = state[k];
+        if(typeof v === "boolean"){ if(v) doneLocal++; }
+        else if(v !== undefined && v !== null && String(v).trim() !== "") doneLocal++;
+      });
+      if(section.contains($("#segments")) && state.segments?.length) doneLocal++;
+
+      badge.textContent = `${doneLocal}/${tot}`;
+    });
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"), 1400);
+  }
+
+  function safeNum(key){
+    const v = state[key];
+    const n = Number(v);
+    return isFinite(n) ? n : null;
+  }
+
+  function updateHints(){
+    // Degenerativa hint
+    const gap = safeNum("deg_gap_mm");
+    const w = safeNum("deg_flail_width_mm");
+    const h = safeNum("deg_flail_height_mm");
+    const lp = safeNum("deg_lp_mm");
+    const degHint = $("#degHint");
+    let t = "Sugestão: documente gap/width/height em ≥2 planos + 3D en-face com orientação correta.";
+    if(gap !== null || w !== null || h !== null || lp !== null){
+      const items = [];
+      if(gap !== null) items.push(`Gap: <strong>${gap} mm</strong>`);
+      if(w !== null) items.push(`Flail width: <strong>${w} mm</strong>`);
+      if(h !== null) items.push(`Flail height: <strong>${h} mm</strong>`);
+      if(lp !== null) items.push(`LP: <strong>${lp} mm</strong>`);
+      t = items.join(" • ");
+    }
+    degHint.innerHTML = t;
+
+    // Funcional hint
+    const th = safeNum("fun_tether_mm");
+    const ta = safeNum("fun_tenting_cm2");
+    const ang = safeNum("fun_angle_deg");
+    const funHint = $("#funHint");
+    let tf = "Sugestão: tethering/tenting assimétricos podem orientar posição do(s) clip(s) e estratégia (central vs comissural).";
+    if(th !== null || ta !== null || ang !== null){
+      const items = [];
+      if(th !== null) items.push(`Tethering height: <strong>${th} mm</strong>`);
+      if(ta !== null) items.push(`Tenting area: <strong>${ta} cm²</strong>`);
+      if(ang !== null) items.push(`Ângulo: <strong>${ang}°</strong>`);
+      tf = items.join(" • ");
+    }
+    funHint.innerHTML = tf;
+
+    // Stenosis hint
+    const mg = safeNum("mg_mmHg");
+    const fc = safeNum("fc_bpm");
+    const mva = safeNum("mva_cm2");
+    const st = $("#stenosisHint");
+    if(mg === null && fc === null && mva === null){
+      st.innerHTML = "Registre gradiente médio + FC + área basal para estimar risco de estenose pós-TEER.";
+    } else {
+      let label = [];
+      if(mg !== null) label.push(`MG: <strong>${mg} mmHg</strong>`);
+      if(fc !== null) label.push(`FC: <strong>${fc} bpm</strong>`);
+      if(mva !== null) label.push(`Área: <strong>${mva} cm²</strong>`);
+      let risk = "";
+      if(mg !== null){
+        if(mg >= 5) risk = ` • <span class="danger-text">Atenção: gradiente basal elevado</span>`;
+        else if(mg >= 4) risk = ` • <span class="warn-text">Cautela: gradiente basal limítrofe</span>`;
+        else risk = ` • <span class="ok-text">Basal favorável</span>`;
+      }
+      st.innerHTML = label.join(" • ") + risk;
+    }
+
+    // TS hint
+    const ts = safeNum("ts_altura_cm");
+    const tsl = state["ts_local"];
+    const tsHint = $("#tsHint");
+    if(ts === null && !tsl){
+      tsHint.innerHTML = "Planeje altura/localização da punção (p.ex. posterior-superior) conforme alvo (central vs comissural) e anatomia.";
+    } else {
+      let s = [];
+      if(ts !== null) s.push(`Altura: <strong>${ts} cm</strong>`);
+      if(tsl) s.push(`Local: <strong>${escapeHtml(tsl)}</strong>`);
+      tsHint.innerHTML = s.join(" • ");
+    }
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (m)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  }
+
+  function buildSummaryText(){
+    const lines = [];
+    const p = (k, label) => {
+      const v = state[k];
+      if(v === undefined || v === null || String(v).trim() === "") return;
+      lines.push(`${label}: ${v}`);
+    };
+    const b = (k, label) => {
+      if(state[k]) lines.push(`• ${label}`);
+    };
+
+    lines.push("ETE Mitral – Planejamento TEER (Checklist)");
+    lines.push("—");
+
+    p("paciente","Paciente");
+    p("data","Data");
+    p("examinador","Examinador");
+    p("dispositivo","Dispositivo");
+    p("tipo_mr","Tipo de MR");
+    lines.push("");
+
+    p("mecanismo","Mecanismo");
+    p("jato_local","Jato principal");
+    if(state.segments?.length) lines.push(`Segmentos: ${state.segments.join(", ")}`);
+    p("mobilidade","Mobilidade");
+    p("calcificacao","Calcificação");
+    if(state.fenestracoes) lines.push("• Fenestrações / múltiplos orifícios: sim");
+    if(state.cordas_rotas) lines.push("• Rotura de cordas: sim");
+    lines.push("");
+
+    lines.push("Quantificação MR");
+    p("vc_mm","VC (mm)");
+    p("eroa_mm2","EROA (mm²)");
+    p("vr_ml","Vol reg (mL)");
+    p("vc3d_mm2","VC área 3D (mm²)");
+    p("vp","Veias pulmonares");
+    if(state.mr_obs) lines.push(`Obs MR: ${state.mr_obs}`);
+    lines.push("");
+
+    lines.push("Anel (3D se disponível)");
+    p("anel_ap_mm","AP (mm)");
+    p("anel_comm_mm","Comissural (mm)");
+    p("anel_area_cm2","Área anular (cm²)");
+    b("anel_protese","Anel protético/cirurgia prévia");
+    p("anel_obs","Obs anel");
+    lines.push("");
+
+    lines.push("Medidas TEER");
+    if(state.tipo_mr && state.tipo_mr.toLowerCase().includes("degener")){
+      p("deg_gap_mm","Gap (mm)");
+      p("deg_flail_width_mm","Flail width (mm)");
+      p("deg_flail_height_mm","Flail height (mm)");
+      p("deg_lp_mm","Folheto posterior (mm)");
+      p("deg_coapt","Coaptação residual");
+    } else if(state.tipo_mr && state.tipo_mr.toLowerCase().includes("funcion")){
+      p("fun_tether_mm","Tethering height (mm)");
+      p("fun_tenting_cm2","Tenting area (cm²)");
+      p("fun_angle_deg","Ângulo (°)");
+      p("fun_obs","Obs funcional");
+    } else {
+      // include both if mixed/unknown
+      p("deg_gap_mm","Gap (mm)");
+      p("deg_flail_width_mm","Flail width (mm)");
+      p("deg_flail_height_mm","Flail height (mm)");
+      p("deg_lp_mm","Folheto posterior (mm)");
+      p("fun_tether_mm","Tethering height (mm)");
+      p("fun_tenting_cm2","Tenting area (cm²)");
+      p("fun_angle_deg","Ângulo (°)");
+    }
+    lines.push("");
+
+    lines.push("Gradiente / Área");
+    p("mg_mmHg","Gradiente médio (mmHg)");
+    p("fc_bpm","FC (bpm)");
+    p("mva_cm2","Área mitral (cm²)");
+    b("planimetria_ok","Planimetria realizada");
+    p("mva_obs","Obs gradiente/área");
+    lines.push("");
+
+    lines.push("3D");
+    b("3d_full","Full-volume 3D salvo");
+    b("3d_enface_ae","En-face AE (visão cirurgião)");
+    b("3d_enface_ve","En-face VE");
+    b("3d_color","3D color do(s) jato(s)");
+    p("3d_obs","Obs 3D");
+    lines.push("");
+
+    lines.push("Transeptal / segurança");
+    p("ts_altura_cm","Altura punção (cm)");
+    p("ts_local","Local punção");
+    p("ts_septo_obs","Septo");
+    b("pfo","PFO/CIA presente");
+    if(state.trombo_aae) lines.push("• Trombo AE/AAE: SIM (atenção)");
+    lines.push("");
+
+    lines.push("Estruturas associadas");
+    p("feve_pct","FEVE (%)");
+    p("vd_func","VD");
+    p("psap","PSAP (mmHg)");
+    p("tr","TR");
+    p("aorta","Aorta");
+    p("assoc_obs","Obs assoc.");
+    lines.push("");
+
+    if(state.impressao){
+      lines.push("Impressão final");
+      lines.push(state.impressao);
+      lines.push("");
+    }
+
+    return lines.join("\n");
+  }
+
+  async function copySummary(){
+    const text = buildSummaryText();
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast("Resumo copiado");
+    }catch(e){
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      showToast("Resumo copiado");
+    }
+  }
+
+  function exportJSON(){
+    const payload = JSON.stringify(state, null, 2);
+    const blob = new Blob([payload], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const safeName = (state.paciente ? String(state.paciente).trim().replace(/\s+/g,"_") : "paciente");
+    a.href = url;
+    a.download = `ETE_TEER_${safeName}_${(state.data||"data").replaceAll("/","-")}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("JSON exportado");
+  }
+
+  function importJSON(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const obj = JSON.parse(reader.result);
+        // basic merge
+        Object.keys(obj).forEach(k => state[k] = obj[k]);
+        save();
+        hydrateUI();
+        showToast("JSON importado");
+      }catch(e){
+        showToast("Falha ao importar");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function resetAll(){
+    if(!confirm("Zerar tudo? Isso apaga os dados salvos neste iPad.")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    Object.keys(state).forEach(k => delete state[k]);
+    state.segments = [];
+    hydrateUI(true);
+    showToast("Zerado");
+  }
+
+  function hydrateUI(clear=false){
+    // fields
+    $$("[data-key]").forEach(el => {
+      const key = el.getAttribute("data-key");
+      if(el.type === "checkbox") return;
+      if(clear){
+        el.value = (key==="data") ? (el.value||"") : "";
+      } else if(state[key] !== undefined && state[key] !== null){
+        el.value = state[key];
+      } else {
+        el.value = "";
+      }
+    });
+
+    // checkboxes
+    $$("[data-check][data-key]").forEach(cb => {
+      const key = cb.getAttribute("data-key");
+      cb.checked = !!state[key];
+    });
+
+    // chips
+    renderChips();
+
+    // refresh hints & progress
+    updateHints();
+    updateProgress();
+  }
+
+  // Expand/collapse
+  function setAll(open){
+    $$("details.card[data-section]").forEach(d => d.open = open);
+  }
+
+  // Open specific sections (deg/fun)
+  function openSectionByTitle(keyword){
+    const cards = $$("details.card[data-section]");
+    for(const d of cards){
+      const title = $("summary .sum-title", d)?.innerText || "";
+      if(title.toLowerCase().includes(keyword)){
+        d.open = true;
+        d.scrollIntoView({behavior:"smooth", block:"start"});
+        return;
+      }
+    }
+  }
+
+  // Wire buttons
+  $("#btnCopy").addEventListener("click", copySummary);
+  $("#btnQuickCopy").addEventListener("click", copySummary);
+  $("#btnExport").addEventListener("click", exportJSON);
+  $("#btnReset").addEventListener("click", resetAll);
+  $("#btnExpand").addEventListener("click", ()=>setAll(true));
+  $("#btnCollapse").addEventListener("click", ()=>setAll(false));
+  $("#btnPrint").addEventListener("click", ()=>window.print());
+  $("#btnOpenDeg").addEventListener("click", ()=>openSectionByTitle("degenerativa"));
+  $("#btnOpenFun").addEventListener("click", ()=>openSectionByTitle("funcional"));
+
+  $("#fileImport").addEventListener("change", (e)=>{
+    const file = e.target.files?.[0];
+    if(file) importJSON(file);
+    e.target.value = "";
+  });
+
+  // Init
+  bind();
+  renderChips();
+  hydrateUI(false);
+
+  // also update when toggling details (cosmetic)
+  $$("details.card").forEach(d=>{
+    d.addEventListener("toggle", ()=> updateProgress());
+  });
+
+})();
+</script>
+</body>
+</html>
