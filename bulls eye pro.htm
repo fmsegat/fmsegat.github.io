@@ -7,16 +7,53 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-body { font-family: Arial; text-align:center; }
+body {
+    font-family: Arial;
+    text-align:center;
+    margin:0;
+    padding:28px 20px 36px;
+    background:#f5f7fa;
+    color:#1f2937;
+}
+
+.page-header {
+    max-width:1100px;
+    margin:0 auto 22px;
+}
+
+.page-title {
+    margin:0 0 18px;
+    font-size:28px;
+    font-weight:700;
+    line-height:1.2;
+}
+
+.toolbar {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    max-width:980px;
+    margin:0 auto;
+}
 
 .container {
     display:flex;
     justify-content:center;
     gap:40px;
     flex-wrap:wrap;
+    max-width:1100px;
+    margin:0 auto;
 }
 
-.panel { text-align:center; }
+.panel {
+    text-align:center;
+    background:#fff;
+    border-radius:18px;
+    padding:18px 18px 16px;
+    box-shadow:0 10px 24px rgba(15, 23, 42, 0.08);
+}
 
 svg { width:350px; height:350px; }
 
@@ -32,8 +69,21 @@ text {
 }
 
 button {
-    margin:5px;
-    padding:6px 10px;
+    margin:0;
+    padding:10px 16px;
+    border:1px solid #d0d7e2;
+    border-radius:999px;
+    background:#fff;
+    color:#1f2937;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background:#eef2f7;
+    border-color:#b8c2d1;
+    transform:translateY(-1px);
 }
 
 .output {
@@ -46,12 +96,16 @@ button {
 
 <body>
 
-<h3>Bull's Eye - WMSI</h3>
-
-<button onclick="toggleModo()">Alternar modo Eco Estresse</button>
-<button onclick="copiarAmbos()">Copiar diagramas</button>
-<button onclick="copiarComTextos()">Copiar diagramas com textos</button>
-<button onclick="resetar()">Resetar segmentos</button>
+<div class="page-header">
+    <h3 class="page-title">Contratilidade segmentar do ventrículo esquerdo</h3>
+    <div class="toolbar">
+        <button onclick="toggleModo()">Alternar modo Eco Estresse</button>
+        <button id="btnModelo" onclick="toggleModeloSegmentos()">Usar modelo 16 segmentos</button>
+        <button onclick="copiarAmbos()">Copiar diagramas</button>
+        <button onclick="copiarComTextos()">Copiar diagramas com textos</button>
+        <button onclick="resetar()">Resetar segmentos</button>
+    </div>
+</div>
 
 <div id="container" class="container"></div>
 
@@ -62,7 +116,8 @@ const states = [
 {n:"normal",score:1,c:"#4CAF50"},
 {n:"hipocinesia",score:2,c:"#FFC107"},
 {n:"acinesia",score:3,c:"#F44336"},
-{n:"discinesia",score:4,c:"#0D47A1"} // azul escuro
+{n:"discinesia",score:4,c:"#0D47A1"}, // azul escuro
+{n:"aneurismático",score:5,c:"#9E9E9E"} // cinza
 ];
 
 // ===== SEGMENTOS ASE CORRETOS =====
@@ -90,6 +145,7 @@ const segmentos = [
 ];
 
 let stressMode = false;
+let usar17Segmentos = true;
 
 // ===== BUILD =====
 
@@ -145,7 +201,7 @@ path.setAttribute("fill",states[0].c);
 path.setAttribute("class","segment");
 
 path.onclick=()=>{
-    state[idx]=(state[idx]+1)%4;
+    state[idx]=(state[idx]+1)%states.length;
     path.setAttribute("fill",states[state[idx]].c);
     gerarLaudo(id);
 };
@@ -171,6 +227,7 @@ ring(120,180,6,0);
 ring(60,120,6,6);
 ring(20,60,4,12);
 
+if(usar17Segmentos){
 // apex
 let c=document.createElementNS("http://www.w3.org/2000/svg","circle");
 c.setAttribute("cx",200);
@@ -179,8 +236,9 @@ c.setAttribute("r",20);
 c.setAttribute("fill",states[0].c);
 
 c.onclick=()=>{
-state[16]=(state[16]+1)%4;
+state[16]=(state[16]+1)%states.length;
 c.setAttribute("fill",states[state[16]].c);
+gerarLaudo(id);
 };
 
 svg.appendChild(c);
@@ -193,6 +251,7 @@ t.setAttribute("text-anchor","middle");
 t.textContent="17";
 svg.appendChild(t);
 }
+}
 
 // ===== LAUDO =====
 
@@ -200,11 +259,12 @@ function gerarLaudo(id){
 
 let svg=document.querySelector("#"+id+" svg");
 let state=svg.state;
+let totalSegmentos=usar17Segmentos ? 17 : 16;
 
-let grupos={hipocinesia:{},acinesia:{},discinesia:{}};
+let grupos={hipocinesia:{},acinesia:{},discinesia:{},aneurismático:{}};
 let soma=0;
 
-for(let i=0;i<17;i++){
+for(let i=0;i<totalSegmentos;i++){
 let s=states[state[i]];
 soma+=s.score;
 
@@ -216,7 +276,7 @@ if(!grupos[s.n][seg.parede]) grupos[s.n][seg.parede]=[];
 grupos[s.n][seg.parede].push(seg.nivel);
 }
 
-let wmsi=(soma/17).toFixed(2);
+let wmsi=(soma/totalSegmentos).toFixed(2);
 
 function fmt(g){
 let txt=[];
@@ -242,6 +302,9 @@ out+="Acinesia em "+fmt(grupos.acinesia)+".\n";
 if(Object.keys(grupos.discinesia).length)
 out+="Discinesia em "+fmt(grupos.discinesia)+".\n";
 
+if(Object.keys(grupos["aneurismático"]).length)
+out+="Aneurismático em "+fmt(grupos["aneurismático"])+".\n";
+
 if (wmsi == 1)
     out+="Contratilidade segmentar normal.\n";
 out+="WMSI = "+wmsi+".";
@@ -260,13 +323,15 @@ alert("Texto copiado");
 function resetar(){
 document.querySelectorAll("svg").forEach(svg=>{
     let state=svg.state;
-    for(let i=0;i<17;i++) state[i]=0;
+    for(let i=0;i<state.length;i++) state[i]=0;
 
     svg.querySelectorAll("path, circle").forEach(el=>{
         el.setAttribute("fill",states[0].c);
     });
+
+    let id=svg.parentElement.id.replace("cap_","");
+    gerarLaudo(id);
 });
-document.querySelectorAll(".output").forEach(o=>o.innerText="");
 }
 
 // ===== CLIPBOARD =====
@@ -323,25 +388,41 @@ copiarParaClipboard(true);
 
 // ===== MODO =====
 
-function toggleModo(){
+function atualizarBotaoModelo(){
+let botao=document.getElementById("btnModelo");
+if(botao) botao.innerText=usar17Segmentos ? "Usar modelo 16 segmentos" : "Usar modelo 17 segmentos";
+}
+
+function renderPaines(){
 let c=document.getElementById("container");
 c.innerHTML="";
 
-if(!stressMode){
+if(stressMode){
 criarPainel("Repouso","rep");
 criarPainel("Pico de Estresse","est");
-stressMode=true;
 }else{
 criarPainel("Repouso","single");
-stressMode=false;
 }
+
+atualizarBotaoModelo();
+
 document.querySelectorAll("svg").forEach(svg=>{
     let id=svg.parentElement.id.replace("cap_","");
     gerarLaudo(id);
 });
 }
 
-toggleModo();
+function toggleModo(){
+stressMode=!stressMode;
+renderPaines();
+}
+
+function toggleModeloSegmentos(){
+usar17Segmentos=!usar17Segmentos;
+renderPaines();
+}
+
+renderPaines();
 
 </script>
 
