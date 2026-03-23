@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Segmentos Cardíacos</title>
+<style>
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    color: #1f2937;
+}
+
+.app {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+}
+
+.header p {
+    margin: 0;
+    color: #475569;
+}
+
+.action-btn {
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #0f172a;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+
+.workspace {
+    display: grid;
+    grid-template-columns: minmax(320px, 660px) minmax(260px, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.visuals {
+    display: grid;
+    gap: 24px;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.figure-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 629 / 285;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.bullseye-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 0 0;
+}
+
+.bullseye-svg {
+    width: 350px;
+    height: 350px;
+}
+
+.bullseye-segment {
+    stroke: #333;
+    stroke-width: 1;
+}
+
+.bullseye-label {
+    font-size: 11px;
+    text-anchor: middle;
+    pointer-events: none;
+    fill: #111827;
+}
+
+.figure-wrap img,
+.figure-wrap svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.figure-wrap img {
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+.segment {
+    fill: rgba(76, 175, 80, 0.15);
+    stroke: rgba(15, 23, 42, 0.75);
+    stroke-width: 1.4;
+    cursor: pointer;
+    transition: fill 0.15s ease, stroke-width 0.15s ease, opacity 0.15s ease;
+}
+
+.segment:hover {
+    stroke-width: 2.2;
+}
+
+.segment-label {
+    font-size: 13px;
+    font-weight: 700;
+    fill: #0f172a;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.panel-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+
+.hint {
+    margin: 12px 0 0;
+    font-size: 13px;
+    color: #475569;
+}
+
+.summary {
+    display: grid;
+    gap: 14px;
+}
+
+.summary-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    background: #f8fafc;
+}
+
+.summary-box h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.summary-box p,
+.summary-box li {
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.summary-box ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.report {
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+.legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.25);
+}
+
+.toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.segment-menu {
+    position: fixed;
+    z-index: 30;
+    min-width: 220px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+    padding: 8px;
+}
+
+.segment-menu.hidden {
+    display: none;
+}
+
+.segment-menu-title {
+    margin: 4px 8px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.menu-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.menu-option:hover {
+    background: #f1f5f9;
+}
+
+@media (max-width: 920px) {
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Seleção de Contratilidade Segmentar</h1>
+        <p>Clique em um segmento do desenho para escolher o grau de contratilidade.</p>
+    </div>
+
+    <div class="workspace">
+        <div class="visuals">
+            <div class="card">
+                <h2 class="panel-title">Mapa clicável</h2>
+                <div class="figure-wrap">
+                    <img src="heart segments ASE.svg" alt="Mapa de segmentos cardíacos">
+                    <svg viewBox="0 0 629 285" aria-label="Segmentos cardíacos clicáveis">
+                        <path id="segmento_12" class="segment" d="m 157.89079,79.714344 18.71108,-4.613692 15.37898,60.234308 -19.99267,4.87001 z"></path>
+                        <path id="segmento_16" class="segment" d="m 158.14711,79.97066 -10.50897,-23.324776 -5.38264,-7.689486 -7.68949,-1.281581 -1.28158,-9.740017 22.0432,-1.281581 20.5053,37.934801 z"></path>
+                        <path id="segmento_17" class="segment" d="m 154.815,35.115322 -7.17686,-6.920538 -7.68948,-3.588427 -13.07213,2.306846 -13.32845,6.151589 -4.61369,3.588427 z"></path>
+                        <path id="segmento_14" class="segment" d="m 107.90913,36.396903 -5.63896,6.664222 -2.563161,16.91687 2.306841,4.357376 -3.332106,14.097392 -0.768949,5.895273 19.223715,1.025265 4.35738,-19.223717 5.12632,-11.790546 7.68949,-6.920538 -0.76895,-10.252648 z"></path>
+                        <path id="segmento_9" class="segment" d="M 96.631214,84.840668 117.90546,84.328036 110.21597,135.8476 90.223309,134.3097 Z"></path>
+                        <path id="segmento_3" class="segment" d="m 89.45436,134.3097 21.53056,1.28158 -9.22738,54.33904 -3.075796,2.30684 -5.126324,-3.07579 -7.433171,-25.88794 3.588427,-10.25265 z"></path>
+                        <path id="segmento_6" class="segment" d="m 171.125,140.25 2.125,12.875 1.25,9.375 1.625,8 1.875,6.375 2.25,4.875 2,3.75 7,5.125 4,-4.75 3,-9.75 0.25,-9.75 -0.625,-8.25 -1.25,-8.625 v -8 l -1.5,-4.375 z"></path>
+
+                        <text class="segment-label" x="174" y="108">12</text>
+                        <text class="segment-label" x="151" y="55">16</text>
+                        <text class="segment-label" x="133" y="31">17</text>
+                        <text class="segment-label" x="117" y="59">14</text>
+                        <text class="segment-label" x="104" y="113">9</text>
+                        <text class="segment-label" x="94" y="164">3</text>
+                        <text class="segment-label" x="186" y="164">6</text>
+                    </svg>
+                </div>
+                <p class="hint">Segmentos disponíveis neste desenho: 3, 6, 9, 12, 14, 16 e 17.</p>
+            </div>
+
+            <div class="card">
+                <h2 class="panel-title">Bullseye</h2>
+                <div class="bullseye-wrap">
+                    <svg id="bullseyeSvg" class="bullseye-svg" viewBox="0 0 400 400" aria-label="Bullseye segmentar"></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary">
+            <div class="card summary-box">
+                <h2>Legenda</h2>
+                <div id="legend"></div>
+            </div>
+
+            <div class="card summary-box">
+                <h2>Segmentos Selecionados</h2>
+                <ul id="selectedList"></ul>
+            </div>
+
+            <div class="card summary-box">
+                <h2>Laudo</h2>
+                <p id="report" class="report"></p>
+            </div>
+
+            <div class="card summary-box">
+                <h2>Ações</h2>
+                <div class="toolbar">
+                    <button class="action-btn" id="resetBtn" type="button">Resetar</button>
+                    <button class="action-btn" id="copyBtn" type="button">Copiar laudo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="segmentMenu" class="segment-menu hidden">
+    <div id="segmentMenuTitle" class="segment-menu-title">Contratilidade</div>
+    <div id="segmentMenuOptions"></div>
+</div>
+
+<script>
+const states = [
+    { name: "normal", color: "#4CAF50", score: 1 },
+    { name: "hipocinesia", color: "#FFC107", score: 2 },
+    { name: "acinesia", color: "#F44336", score: 3 },
+    { name: "discinesia", color: "#0D47A1", score: 4 },
+    { name: "aneurismático", color: "#9E9E9E", score: 5 }
+];
+
+const segments = [
+    { id: "segmento_3", number: 3, label: "ínfero-septal basal" },
+    { id: "segmento_6", number: 6, label: "ântero-lateral basal" },
+    { id: "segmento_9", number: 9, label: "ínfero-septal médio" },
+    { id: "segmento_12", number: 12, label: "ântero-lateral médio" },
+    { id: "segmento_14", number: 14, label: "septal apical" },
+    { id: "segmento_16", number: 16, label: "lateral apical" },
+    { id: "segmento_17", number: 17, label: "apical cap" }
+];
+
+const segmentState = new Array(17).fill(0);
+const clickableSegments = Object.fromEntries(segments.map(segment => [segment.id, segment.number - 1]));
+const legend = document.getElementById("legend");
+const selectedList = document.getElementById("selectedList");
+const report = document.getElementById("report");
+const segmentMenu = document.getElementById("segmentMenu");
+const segmentMenuTitle = document.getElementById("segmentMenuTitle");
+const segmentMenuOptions = document.getElementById("segmentMenuOptions");
+const bullseyeSvg = document.getElementById("bullseyeSvg");
+const bullseyeElements = [];
+let currentSegmentId = null;
+
+function buildBullseye(svg) {
+    function polar(r, a) {
+        return { x: 200 + r * Math.cos(a), y: 200 + r * Math.sin(a) };
+    }
+
+    function arc(r1, r2, a1, a2) {
+        const p1 = polar(r1, a1);
+        const p2 = polar(r2, a1);
+        const p3 = polar(r2, a2);
+        const p4 = polar(r1, a2);
+        const large = (a2 - a1) > Math.PI ? 1 : 0;
+        return `M${p1.x} ${p1.y} L${p2.x} ${p2.y}
+A${r2} ${r2} 0 ${large} 1 ${p3.x} ${p3.y}
+L${p4.x} ${p4.y}
+A${r1} ${r1} 0 ${large} 0 ${p1.x} ${p1.y}Z`;
+    }
+
+    function ring(r1, r2, n, start) {
+        const step = 2 * Math.PI / n;
+
+        for (let i = 0; i < n; i++) {
+            const a1 = i * step - Math.PI / 2 - step / 2;
+            const a2 = a1 + step;
+            const idx = start + (i === 0 ? 0 : n - i);
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", arc(r1, r2, a1, a2));
+            path.setAttribute("class", "bullseye-segment");
+            svg.appendChild(path);
+            bullseyeElements[idx] = path;
+
+            const m = (a1 + a2) / 2;
+            const r = (r1 + r2) / 2;
+            const p = polar(r, m);
+
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", p.x);
+            text.setAttribute("y", p.y);
+            text.setAttribute("class", "bullseye-label");
+            text.textContent = idx + 1;
+            svg.appendChild(text);
+        }
+    }
+
+    ring(120, 180, 6, 0);
+    ring(60, 120, 6, 6);
+    ring(20, 60, 4, 12);
+
+    const apex = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    apex.setAttribute("cx", 200);
+    apex.setAttribute("cy", 200);
+    apex.setAttribute("r", 20);
+    apex.setAttribute("class", "bullseye-segment");
+    svg.appendChild(apex);
+    bullseyeElements[16] = apex;
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", 200);
+    text.setAttribute("y", 200);
+    text.setAttribute("class", "bullseye-label");
+    text.textContent = "17";
+    svg.appendChild(text);
+}
+
+function renderLegend() {
+    legend.innerHTML = "";
+    states.forEach(state => {
+        const row = document.createElement("div");
+        row.className = "legend-row";
+        row.innerHTML = `<span class="legend-swatch" style="background:${state.color}"></span><span>${state.name}</span>`;
+        legend.appendChild(row);
+    });
+}
+
+function applySegmentStyles() {
+    segments.forEach(segment => {
+        const element = document.getElementById(segment.id);
+        const state = states[segmentState[segment.number - 1]];
+        element.style.fill = state.color;
+        element.style.fillOpacity = "0.65";
+    });
+
+    bullseyeElements.forEach((element, index) => {
+        if (!element) {
+            return;
+        }
+        element.setAttribute("fill", states[segmentState[index]].color);
+    });
+}
+
+function updateSummary() {
+    selectedList.innerHTML = "";
+
+    const changedSegments = segments.filter(segment => segmentState[segment.number - 1] !== 0);
+    if (!changedSegments.length) {
+        selectedList.innerHTML = "<li>Nenhum segmento alterado.</li>";
+    } else {
+        changedSegments
+            .sort((a, b) => a.number - b.number)
+            .forEach(segment => {
+                const item = document.createElement("li");
+                item.textContent = `Segmento ${segment.number}: ${segment.label} - ${states[segmentState[segment.number - 1]].name}`;
+                selectedList.appendChild(item);
+            });
+    }
+
+    const grouped = {};
+    let scoreSum = 0;
+    segmentState.forEach((stateIndex, index) => {
+        const state = states[stateIndex];
+        scoreSum += state.score;
+
+        if (stateIndex !== 0) {
+            if (!grouped[state.name]) {
+                grouped[state.name] = [];
+            }
+            grouped[state.name].push(index + 1);
+        }
+    });
+
+    const reportLines = [];
+    ["hipocinesia", "acinesia", "discinesia", "aneurismático"].forEach(name => {
+        if (grouped[name]?.length) {
+            reportLines.push(`${capitalize(name)} nos segmentos ${grouped[name].join(", ")}.`);
+        }
+    });
+
+    const wmsi = (scoreSum / 17).toFixed(2);
+
+    if (!reportLines.length) {
+        reportLines.push("Contratilidade segmentar normal.");
+    }
+
+    reportLines.push(`WMSI = ${wmsi}.`);
+    report.textContent = reportLines.join("\n");
+}
+
+function capitalize(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function openSegmentMenu(segment, event) {
+    currentSegmentId = segment.id;
+    segmentMenuTitle.textContent = `Segmento ${segment.number}: ${segment.label}`;
+    segmentMenuOptions.innerHTML = "";
+
+    states.forEach((state, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "menu-option";
+        button.innerHTML = `<span class="legend-swatch" style="background:${state.color}"></span><span>${capitalize(state.name)}</span>`;
+        button.addEventListener("click", () => {
+            segmentState[clickableSegments[currentSegmentId]] = index;
+            applySegmentStyles();
+            updateSummary();
+            closeSegmentMenu();
+        });
+        segmentMenuOptions.appendChild(button);
+    });
+
+    segmentMenu.style.left = `${Math.min(event.clientX + 12, window.innerWidth - 240)}px`;
+    segmentMenu.style.top = `${Math.min(event.clientY + 12, window.innerHeight - 260)}px`;
+    segmentMenu.classList.remove("hidden");
+}
+
+function closeSegmentMenu() {
+    segmentMenu.classList.add("hidden");
+    currentSegmentId = null;
+}
+
+segments.forEach(segment => {
+    const element = document.getElementById(segment.id);
+    element.addEventListener("click", event => {
+        event.stopPropagation();
+        openSegmentMenu(segment, event);
+    });
+
+    element.addEventListener("contextmenu", event => {
+        event.preventDefault();
+        segmentState[segment.number - 1] = 0;
+        applySegmentStyles();
+        updateSummary();
+    });
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+    segmentState.fill(0);
+    applySegmentStyles();
+    updateSummary();
+    closeSegmentMenu();
+});
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+    try {
+        await navigator.clipboard.writeText(report.textContent);
+        alert("Laudo copiado.");
+    } catch (error) {
+        alert("Não foi possível copiar o laudo.");
+    }
+});
+
+document.addEventListener("click", event => {
+    if (!segmentMenu.contains(event.target)) {
+        closeSegmentMenu();
+    }
+});
+
+window.addEventListener("resize", closeSegmentMenu);
+window.addEventListener("scroll", closeSegmentMenu, true);
+
+buildBullseye(bullseyeSvg);
+renderLegend();
+applySegmentStyles();
+updateSummary();
+</script>
+</body>
+</html>
