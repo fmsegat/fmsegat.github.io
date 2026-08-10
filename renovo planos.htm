@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Seleção de Contratilidade Segmentar</title>
+
+<style>
+:root {
+    --bg: #eef2f7;
+    --card: rgba(255, 255, 255, 0.9);
+    --border: #dbe4ef;
+    --text: #1f2d3d;
+    --muted: #64748b;
+    --shadow: 0 16px 38px rgba(15, 23, 42, 0.10);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 14px 18px 24px;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 24%),
+        linear-gradient(180deg, #f6f8fb 0%, #edf2f7 100%);
+    color: var(--text);
+}
+
+.page {
+    max-width: 1220px;
+    margin: 0 auto;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 18px 0 22px;
+}
+
+button {
+    margin: 0;
+    padding: 10px 16px;
+    border: 1px solid #d4dde9;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+button:hover {
+    background: #f8fbff;
+    border-color: #c0cfdf;
+    transform: translateY(-1px);
+}
+
+.container {
+    display: grid;
+    gap: 18px;
+}
+
+.panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+}
+
+.map-card {
+    padding: 12px 16px 14px;
+}
+
+.map-card h2,
+.sidebar-card h3 {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.map-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.map-subtitle {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.diagram-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.9));
+}
+
+.ventricular-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.sidebar {
+    display: grid;
+    gap: 16px;
+}
+
+.sidebar-card {
+    padding: 14px 16px 16px;
+}
+
+.legend-list,
+.selection-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    color: #334155;
+}
+
+.legend-swatch {
+    width: 15px;
+    height: 15px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    flex: 0 0 auto;
+}
+
+.selection-list li,
+.laudo {
+    color: #375377;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.selection-list li + li {
+    margin-top: 6px;
+}
+
+.empty {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.segment {
+    stroke: #5f646a;
+    stroke-width: 1.6;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.segment:hover {
+    filter: brightness(1.03);
+}
+
+.segment.disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.guide-path {
+    fill: none;
+    stroke: #68707a;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.88;
+    pointer-events: none;
+}
+
+.segment-number {
+    pointer-events: none;
+    fill: #17212b;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.label-chip {
+    cursor: pointer;
+}
+
+.label-chip circle {
+    fill: rgba(255, 255, 255, 0.9);
+    stroke: #66758b;
+    stroke-width: 1;
+}
+
+.label-chip text {
+    pointer-events: none;
+    fill: #17212b;
+    font-size: 10px;
+    font-weight: 700;
+    dominant-baseline: middle;
+    text-anchor: middle;
+}
+
+.views-title {
+    font-size: 12px;
+    font-weight: 700;
+    fill: #4b5563;
+}
+
+.state-menu {
+    position: fixed;
+    z-index: 1000;
+    min-width: 225px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18);
+}
+
+.state-menu.hidden {
+    display: none;
+}
+
+.state-menu-title {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.state-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+    border-radius: 10px;
+    padding: 9px 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    transform: none;
+    box-shadow: none;
+}
+
+.state-option:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    transform: none;
+}
+
+.state-option.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.state-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    flex: 0 0 auto;
+}
+
+@media (max-width: 980px) {
+    .panel {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+<div class="page">
+    <div class="page-header">
+        <h1>Seleção de Contratilidade Segmentar</h1>
+        <p>Clique em um segmento do desenho para escolher o grau de contratilidade.</p>
+    </div>
+
+    <div class="toolbar">
+        <button onclick="toggleModo()">Alternar modo Eco Estresse</button>
+        <button id="btnModelo" onclick="toggleModeloSegmentos()">Usar modelo 16 segmentos</button>
+        <button onclick="resetar()">Resetar</button>
+    </div>
+
+    <div id="container" class="container"></div>
+    <div id="stateMenu" class="state-menu hidden"></div>
+</div>
+
+<script>
+const states = [
+    {n:"normal", score:1, c:"#58c66a"},
+    {n:"hipocinesia", score:2, c:"#ffcb3c"},
+    {n:"acinesia", score:3, c:"#ef5a4d"},
+    {n:"discinesia", score:4, c:"#355fb9"},
+    {n:"aneurismático", score:5, c:"#c7c7c7"}
+];
+
+const segmentos = [
+    {parede:"anterior", nivel:"basal"},
+    {parede:"ântero-septal", nivel:"basal"},
+    {parede:"ínfero-septal", nivel:"basal"},
+    {parede:"inferior", nivel:"basal"},
+    {parede:"ínfero-lateral", nivel:"basal"},
+    {parede:"ântero-lateral", nivel:"basal"},
+    {parede:"anterior", nivel:"médio"},
+    {parede:"ântero-septal", nivel:"médio"},
+    {parede:"ínfero-septal", nivel:"médio"},
+    {parede:"inferior", nivel:"médio"},
+    {parede:"ínfero-lateral", nivel:"médio"},
+    {parede:"ântero-lateral", nivel:"médio"},
+    {parede:"anterior", nivel:"apical"},
+    {parede:"septal", nivel:"apical"},
+    {parede:"inferior", nivel:"apical"},
+    {parede:"lateral", nivel:"apical"},
+    {parede:"apical cap", nivel:"apical"}
+];
+
+const ventricularPaths = [
+    {id:"path4", d:"m 213.87248,109.76461 6.0178,-4.09211 6.37886,-2.28676 6.73993,-1.20356 5.89744,1.20356 3.85139,3.49032 1.44428,1.9257 -14.202,1.44427 -11.91524,0.60178 z"},
+    {id:"path5", d:"m 204.48472,143.58462 1.80534,-13.35951 0.24071,-9.02669 1.44427,-5.89744 3.36997,-3.12926 18.17374,-0.96284 0.84249,6.98064 -4.21245,2.88854 -2.76819,6.0178 -1.56463,6.49922 -2.64783,9.38776 -0.48142,1.56463 z"},
+    {id:"path6", d:"m 203.1608,144.42711 16.00734,0.12036 -5.65673,35.505 -15.16484,-0.12036 0.60178,-12.03559 z"},
+    {id:"path7", d:"m 198.22261,180.57779 15.7677,0.12514 -2.00225,20.39791 -1.62682,12.51405 -2.50281,6.63245 c 0,0 -2.12739,1.62683 -3.3788,1.62683 -1.2514,0 -3.12851,-0.37542 -3.12851,-0.37542 l -1.75197,-8.13414 -2.00225,-9.63582 0.25028,-12.26377 z"},
+    {id:"path8", d:"m 230.50886,110.37395 14.51631,-1.12626 15.142,28.28176 -13.39004,3.87935 -5.00562,-12.88947 -5.13076,-6.63245 -2.87823,-3.25365 -2.75309,-1.00113 z"},
+    {id:"path9", d:"m 245.43794,180.54 0.83875,-17.92819 1.04843,-20.23474 13.21024,-3.45982 5.13732,15.41195 2.83077,10.06494 3.35498,16.2507 -4.40341,1.36296 -4.50826,1.36297 -6.39544,0.52421 -2.72592,-14.15383 -5.55669,10.37948 z"},
+    {id:"path10", d:"m 257.18038,184.94341 15.20227,-3.14529 2.30655,13.1054 1.25811,10.48432 -0.41937,6.29059 -5.24216,8.91167 -6.50028,-6.39543 -3.14529,-7.7584 -1.88718,-9.54073 z"},
+    {id:"path11", d:"m 322.07016,219.74866 -4.07962,-5.40275 -0.55131,-9.7029 0.22052,-15.76722 0.33079,-12.56966 12.56966,3.41806 -0.22052,10.47473 0.11026,10.91576 0.33078,5.40275 -2.42572,6.3951 -2.64625,4.30014 z"},
+    {id:"path12", d:"m 317.65975,175.20352 3.30781,-12.67992 3.30781,-10.69525 3.96937,-9.81316 4.07963,-10.03368 11.13628,4.41041 -6.28483,12.01836 -0.66156,6.17458 0.88208,4.41041 2.97702,8.26952 2.31547,6.50535 1.6539,7.60796 -0.44104,3.19754 -2.64624,0.22052 -3.52833,-2.42572 -3.74885,-3.63859 z"},
+    {id:"path13", d:"m 333.20645,131.20969 4.52067,-8.26952 3.63859,-5.84379 3.19754,-4.07963 14.88514,-1.10261 0.66156,4.30015 -4.74119,2.09495 -4.07963,4.52067 -3.96937,5.07197 -3.74885,7.27718 z"},
+    {id:"path14", d:"m 360.88177,111.14232 11.24654,-0.77182 5.62328,0.66156 9.92342,15.10566 6.17457,12.90044 -10.91576,3.08729 -5.18223,-8.82082 -4.96171,-7.27717 -4.85146,-6.3951 -3.08728,-2.86676 -2.97703,-0.44105 z"},
+    {id:"path15", d:"m 384.03642,144.99222 10.69524,-3.52833 4.85145,12.34915 2.86677,8.37977 2.86677,12.56967 0.77182,6.06432 -12.56967,1.98468 -2.2052,-12.79019 -2.64625,-9.37212 -2.97703,-9.26186 z"},
+    {id:"path16", d:"m 396.82661,222.72569 3.08728,-1.76417 2.97703,-5.40275 1.98469,-5.95405 1.87442,-6.3951 0.5513,-13.45175 -0.5513,-5.73353 -12.23889,1.32313 0.22052,11.3568 -0.44104,8.049 -0.66156,6.83613 -0.22052,3.85911 0.44104,3.41807 2.20521,3.63859 z"},
+    {id:"path17", d:"m 458.8492,200.41092 0.69287,-12.29834 1.73216,-13.68406 3.2911,-12.29834 10.73939,3.29111 -2.59824,11.43225 -2.77145,9.7001 -3.11789,10.91261 -0.86608,5.19648 -3.11789,2.07859 z"},
+    {id:"path18", d:"m 477.38332,131.29773 10.21974,3.81076 -5.3697,13.16441 -5.19648,10.91261 -2.77145,7.44829 -10.21975,-5.02327 5.71613,-14.37692 3.63754,-8.48759 z"},
+    {id:"path19", d:"m 478.4929,131.39323 5.02597,-7.48767 5.12854,-5.84654 5.94911,-5.43625 14.56505,-0.718 v 1.43599 l -1.43599,0.82057 -3.89769,1.12828 -4.10283,3.58998 -2.66684,3.07712 -3.28227,4.30798 -2.66684,4.10283 -2.76941,4.00026 z"},
+    {id:"path20", d:"m 511.00785,112.21248 12.3085,-0.92314 6.25682,7.28253 3.48741,6.87225 2.05141,8.82109 0.51286,6.46196 -9.94937,2.4617 -1.33342,-9.1288 -1.53857,-7.07739 -3.17969,-7.28253 -2.56427,-3.79512 z"},
+    {id:"path21", d:"m 528.34232,174.57554 9.64166,-2.56427 -1.74371,-30.15582 -10.76993,2.97455 z"},
+    {id:"path22", d:"m 536.73781,207.8437 1.27826,-1.5339 1.08651,-1.72564 0.89478,-1.91738 0.70303,-10.80123 -2.36476,-15.65858 -0.83087,-1.98129 -8.56428,1.85347 1.40608,9.6508 1.21434,7.47777 1.46998,6.64691 1.34217,5.24083 1.08651,1.98129 z"},
+    {id:"path23", d:"m 349.09857,110.26106 2.33552,-3.31889 6.63779,-2.58136 h 6.26903 l 6.02318,0.98337 3.44181,2.95013 z"},
+    {id:"path24", d:"m 499.92391,109.8923 7.37532,-2.82721 4.05643,-0.73753 7.2524,2.2126 -6.76071,1.59798 z"},
+    {id:"path25", d:"m 185.14181,327.33586 11.74227,-5.14729 12.06397,-3.37792 h 12.22483 l 7.56009,1.76939 0.48256,4.82559 -4.02132,8.68606 -10.13374,-1.76938 -9.49033,1.93023 -9.65118,5.62986 z"},
+    {id:"path26", d:"m 171.30845,365.77973 0.32171,-11.25971 3.0562,-10.77715 7.07753,-12.22483 2.73451,-3.05621 9.81203,12.38569 -6.59497,7.56009 -2.25195,5.62985 v 8.36436 l -0.16085,2.41279 z"},
+    {id:"path27", d:"m 170.98674,366.42314 0.48256,8.20351 3.53877,9.00776 4.98644,8.36436 8.52521,7.39924 8.52521,-9.97289 -5.79071,-7.39924 -4.34303,-5.469 -1.28682,-5.79071 -0.64342,-4.66473 z"},
+    {id:"path28", d:"m 189.00228,400.52398 7.23838,5.469 11.25972,3.37791 11.42056,0.80427 8.04265,-0.32171 -1.93024,-15.28103 -8.68606,0.80426 -7.56009,-1.28682 -5.469,-1.93024 -5.1473,-3.0562 z"},
+    {id:"path29", d:"m 225.35506,393.76815 2.57365,15.28104 4.02132,-0.80427 7.8818,-4.50388 11.42056,-10.77715 5.1473,-7.23839 3.53876,-8.84691 -15.12018,-4.82559 -4.02132,8.52521 -6.11242,6.59497 z"},
+    {id:"path30", d:"m 226.48103,334.89595 5.469,-14.47677 13.67251,6.43412 8.68606,9.65118 5.1473,12.54654 1.93023,11.42056 -1.44768,14.47677 -15.28103,-3.53876 2.57365,-9.81204 -1.60853,-9.49032 -5.95156,-8.20351 -5.30815,-4.50388 z"},
+    {id:"path31", d:"m 389.90768,337.4696 3.86047,-12.86824 -12.54653,-1.76938 -8.68606,1.28682 -7.8818,1.76939 -9.65118,4.66473 7.56009,9.32948 v 0.96512 l 12.86824,-6.11242 5.95156,0.48256 z"},
+    {id:"path32", d:"m 351.30296,331.35719 -2.57365,6.59497 -3.37791,8.52521 -2.57365,8.68606 -0.80426,9.49033 1.44767,0.48256 9.16862,-1.12597 0.80427,-11.74227 3.37791,-4.82559 4.50389,-4.66474 -3.69962,-6.11241 z"},
+    {id:"path33", d:"m 340.84752,366.74485 1.93023,10.938 4.18218,7.39924 7.72094,9.00777 4.34303,3.21706 7.23839,-10.938 -6.59497,-8.20351 -4.02133,-6.59497 -2.7345,-7.39924 z"},
+    {id:"path34", d:"m 392.15962,404.38445 -0.64341,-15.60274 -4.18218,-0.32171 0.64342,-6.11241 -4.02133,-2.89535 -4.66474,0.3217 -3.86047,1.76939 -1.76938,8.36435 -4.82559,-1.44768 -2.7345,-1.76938 -5.46901,12.54654 8.52521,3.86047 8.84692,0.96512 z"},
+    {id:"path35", d:"m 421.43487,374.62665 -15.28104,-4.82559 -3.37791,6.75582 -3.53876,5.30815 -5.46901,4.66474 -3.0562,2.09109 0.3217,14.79847 10.29459,-3.21706 8.68607,-6.27326 5.95156,-7.39924 3.37791,-7.39924 z"},
+    {id:"path36", d:"m 395.37668,324.1188 -4.02132,12.38568 6.91668,4.98645 7.88179,9.65118 -2.09108,1.60853 -2.73451,-0.96512 -2.57364,3.05621 -3.21706,6.75582 0.96511,2.09109 3.69962,1.76938 5.95156,0.96512 1.28683,2.89536 14.15506,3.86047 0.32171,-10.6163 -0.96512,-11.09886 -3.37791,-9.49032 -4.50389,-7.39924 -7.23838,-4.50389 z"},
+    {id:"path37", d:"m 544.96998,340.68666 -7.23839,-6.75582 -10.77715,-4.02133 -12.06397,-0.16085 -11.09886,2.09109 -10.13374,6.43412 7.07753,8.68606 7.39924,-5.1473 7.72094,-2.41279 10.77715,2.09109 7.72095,4.98644 z"},
+    {id:"path38", d:"m 492.04934,341.81263 -3.53877,5.46901 -0.64341,9.32947 -0.48256,9.49033 1.93024,9.49032 3.53876,6.91668 4.82559,4.02133 5.30815,-5.95156 -6.27326,-6.91668 -1.12598,-9.65118 -0.48255,-8.04265 -0.16086,-2.89536 4.02133,-4.66473 z"},
+    {id:"path39", d:"m 505.07843,381.86503 -6.11241,7.39924 8.36435,3.53877 15.60275,1.28682 8.5252,-2.7345 8.20351,-4.18218 -7.07753,-7.56009 -7.07754,4.02132 -7.39923,0.96512 -4.34304,0.16086 -5.14729,-1.76939 z"},
+    {id:"path40", d:"m 541.91377,387.01233 5.1473,-8.52521 4.66473,-8.36436 0.48256,-9.81203 -1.93023,-8.52521 -3.86048,-8.84692 -9.16862,5.1473 3.37792,7.23839 0.3217,7.88179 -1.60853,7.39924 -5.14729,7.8818 z"}
+];
+
+const ventricularGuidePath = {
+    d: "m 403,1030.3254 v -4.3413 l 1.23378,-0.3916 c 1.79001,-0.5682 2.22555,0.2476 2.62022,4.9075 l 0.3529,4.1667 H 405.10345 403 Z m 7,3.3413 c 0,-0.55 -0.43229,-1 -0.96066,-1 -1.77525,0 -1.76748,-1.2691 0.0243,-3.9767 l 1.78017,-2.69 h 1.24474 1.24474 v 1.2403 c 0,0.6821 0.19078,2.6321 0.42395,4.3333 l 0.42395,3.0931 H 412.09062 410 Z m 0.66667,-2 c 0,-0.1834 -0.15,-0.3334 -0.33334,-0.3334 -0.18333,0 -0.33333,0.15 -0.33333,0.3334 0,0.1833 0.15,0.3333 0.33333,0.3333 0.18334,0 0.33334,-0.15 0.33334,-0.3333 z m -0.33334,-2.3334 c 0.22662,-0.3666 0.26203,-0.6666 0.0787,-0.6666 -0.18333,0 -0.51874,0.3 -0.74535,0.6666 -0.22662,0.3667 -0.26203,0.6667 -0.0787,0.6667 0.18333,0 0.51874,-0.3 0.74535,-0.6667 z m 89.80799,-49.55234 0.29675,-1.55237 -1.55237,0.29676 -1.55237,0.29675 v -0.82601 -0.82602 L 496.5,977.80171 c -0.45833,0.34739 -2.25141,0.67734 -3.98462,0.7332 l -3.15129,0.10157 -0.71898,-1.34342 c -0.79652,-1.48831 -0.32725,-3.715 1.13449,-5.38321 l 0.95522,-1.09014 8.60319,-0.0698 8.6032,-0.0698 0.57947,1.03545 0.57947,1.03546 0.86489,-1.04213 c 0.47569,-0.57317 1.89031,-1.04212 3.1436,-1.04212 h 2.27871 l -0.15628,2.64851 c -0.086,1.45668 0.0519,2.85668 0.30633,3.11111 0.44873,0.44873 0.73833,-2.22506 0.49746,-4.59296 l -0.11867,-1.16666 h 3.2419 c 1.78305,0 3.56805,0.32614 3.96666,0.72475 l 0.72476,0.72476 0.44792,-0.72476 c 0.5528,-0.89445 3.47974,-0.95798 4.01791,-0.0872 0.60672,0.98169 2.20048,0.0894 2.10387,-1.17788 L 530.33333,969 l 2.5,-0.20691 2.5,-0.20691 v 2.14357 2.14357 l 1.27438,-1.1533 1.27438,-1.15329 1.82505,0.21663 c 3.02724,0.35934 3.77201,3.28754 1.66317,6.53903 l -0.64148,0.98906 -6.36442,0.089 -6.36441,0.0891 v -0.65974 -0.65974 l -0.83333,0.6789 c -0.45834,0.3734 -2.40834,0.67551 -4.33334,0.67138 l -3.5,-0.008 -0.0267,-1.75641 -0.0267,-1.75641 -0.9488,1.74592 -0.9488,1.74592 -4.43593,0.0275 -4.43593,0.0275 -0.34011,-1.30057 -0.3401,-1.30057 -0.95294,1.36051 c -0.52412,0.74829 -1.56402,1.36052 -2.31089,1.36052 h -1.35794 L 502.85983,980 l -0.34867,1.33333 h -1.3333 -1.3333 z",
+    transform: "translate(-200.43466,12.625805)"
+};
+
+const viewConfigs = [
+    {
+        title: "4 câmaras",
+        sourceX: 455,
+        sourceWidth: 104,
+        targetDx: -292,
+        labels: [
+            {id:"path24", segment:17},
+            {id:"path19", segment:14},
+            {id:"path18", segment:9},
+            {id:"path17", segment:3},
+            {id:"path20", segment:16},
+            {id:"path21", segment:12},
+            {id:"path22", segment:6}
+        ]
+    },
+    {
+        title: "2 câmaras",
+        sourceX: 175,
+        sourceWidth: 108,
+        targetDx: 146,
+        labels: [
+            {id:"path4", segment:17},
+            {id:"path5", segment:13},
+            {id:"path6", segment:7},
+            {id:"path7", segment:1},
+            {id:"path8", segment:15},
+            {id:"path9", segment:10},
+            {id:"path10", segment:4}
+        ]
+    },
+    {
+        title: "3 câmaras",
+        sourceX: 308,
+        sourceWidth: 112,
+        targetDx: 146,
+        labels: [
+            {id:"path23", segment:17},
+            {id:"path13", segment:14},
+            {id:"path12", segment:8},
+            {id:"path11", segment:2},
+            {id:"path14", segment:16},
+            {id:"path15", segment:11},
+            {id:"path16", segment:5}
+        ]
+    }
+];
+
+const ventricularSegments = Object.fromEntries(
+    viewConfigs.flatMap((view) => view.labels.map(({id, segment}) => [id, segment]))
+);
+
+let stressMode = false;
+let usar17Segmentos = true;
+const panelStore = new Map();
+const svgNS = "http://www.w3.org/2000/svg";
+const stateMenu = document.getElementById("stateMenu");
+
+function segmentEnabled(segIndex){
+    return usar17Segmentos || segIndex !== 16;
+}
+
+function getPanelData(id){
+    return panelStore.get(id);
+}
+
+function createPanelData(id){
+    const data = {
+        id,
+        state: new Array(17).fill(0),
+        shapes: Array.from({length: 17}, () => []),
+        selectedBox: null,
+        laudoBox: null
+    };
+    panelStore.set(id, data);
+    return data;
+}
+
+function createSvgElement(tag, attrs = {}){
+    const el = document.createElementNS(svgNS, tag);
+    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+    return el;
+}
+
+function bindSegmentClick(el, panelId, segIndex){
+    el.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if(!segmentEnabled(segIndex)) return;
+        openStateMenu(panelId, segIndex, event.clientX, event.clientY);
+    });
+}
+
+function addShapeTarget(panelId, segIndex, el){
+    getPanelData(panelId).shapes[segIndex].push(el);
+    bindSegmentClick(el, panelId, segIndex);
+}
+
+function createNumberLabel(svg, x, y, segmentNumber, panelId, segIndex){
+    const radius = Number(svg.dataset.labelSize || 9);
+    const group = createSvgElement("g", {
+        class: "label-chip",
+        transform: `translate(${x} ${y})`
+    });
+    const circle = createSvgElement("circle", {r: radius});
+    const text = createSvgElement("text", {x: 0, y: 1});
+    text.textContent = segmentNumber;
+    bindSegmentClick(group, panelId, segIndex);
+    group.appendChild(circle);
+    group.appendChild(text);
+    svg.appendChild(group);
+}
+
+function syncSegmentVisual(panelId, segIndex){
+    const data = getPanelData(panelId);
+    const enabled = segmentEnabled(segIndex);
+    const color = enabled ? states[data.state[segIndex]].c : "#e5e7eb";
+
+    data.shapes[segIndex].forEach((shape) => {
+        shape.setAttribute("fill", color);
+        shape.classList.toggle("disabled", !enabled);
+    });
+}
+
+function setSegmentState(panelId, segIndex, stateIndex){
+    const data = getPanelData(panelId);
+    data.state[segIndex] = stateIndex;
+    syncSegmentVisual(panelId, segIndex);
+    updateSelectionList(panelId);
+    gerarLaudo(panelId);
+}
+
+function updateSelectionList(panelId){
+    const data = getPanelData(panelId);
+    const list = data.selectedBox;
+    if(!list) return;
+
+    const items = [];
+    const total = usar17Segmentos ? 17 : 16;
+
+    for(let i = 0; i < total; i++){
+        if(data.state[i] === 0) continue;
+        const seg = segmentos[i];
+        const state = states[data.state[i]];
+        items.push(`Segmento ${i + 1}: ${seg.parede} ${seg.nivel} - ${state.n}`);
+    }
+
+    if(!items.length){
+        list.innerHTML = `<p class="empty">Nenhum segmento alterado.</p>`;
+        return;
+    }
+
+    list.innerHTML = `<ul class="selection-list">${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+}
+
+function buildLegend(){
+    return states.map((state) => `
+        <div class="legend-item">
+            <span class="legend-swatch" style="background:${state.c}"></span>
+            <span>${state.n}</span>
+        </div>
+    `).join("");
+}
+
+function addViewsCaptions(svg){
+    [
+        {x: 230, y: 95, text: "4 câmaras"},
+        {x: 377, y: 95, text: "2 câmaras"},
+        {x: 523, y: 95, text: "3 câmaras"}
+    ].forEach(({x, y, text}) => {
+        const label = createSvgElement("text", {
+            x,
+            y,
+            class: "views-title",
+            "text-anchor": "middle"
+        });
+        label.textContent = text;
+        svg.appendChild(label);
+    });
+}
+
+function buildVentricularViews(container, panelId){
+    const svg = createSvgElement("svg", {
+        viewBox: "145 82 430 190",
+        class: "ventricular-svg"
+    });
+    const defs = createSvgElement("defs");
+    viewConfigs.forEach((view, index) => {
+        const clipPath = createSvgElement("clipPath", {
+            id: `${panelId}_clip_top_${index}`,
+            clipPathUnits: "userSpaceOnUse"
+        });
+        clipPath.appendChild(createSvgElement("rect", {
+            x: view.sourceX,
+            y: 88,
+            width: view.sourceWidth,
+            height: 180
+        }));
+        defs.appendChild(clipPath);
+    });
+    svg.appendChild(defs);
+
+    viewConfigs.forEach((view, index) => {
+        const guide = createSvgElement("path", {
+            d: ventricularGuidePath.d,
+            transform: `${ventricularGuidePath.transform} translate(${view.targetDx} 0)`,
+            "clip-path": `url(#${panelId}_clip_top_${index})`,
+            class: "guide-path"
+        });
+        svg.appendChild(guide);
+
+        view.labels.forEach(({id, segment}) => {
+            const sourcePath = ventricularPaths.find((item) => item.id === id);
+            const path = createSvgElement("path", {
+                d: sourcePath.d,
+                id: `${panelId}_${id}`,
+                class: "segment",
+                fill: states[0].c,
+                transform: `translate(${view.targetDx} 0)`
+            });
+            addShapeTarget(panelId, segment - 1, path);
+            svg.appendChild(path);
+        });
+    });
+
+    addViewsCaptions(svg);
+    container.appendChild(svg);
+
+    viewConfigs.forEach((view) => {
+        view.labels.forEach(({id, segment}) => {
+            const segIndex = segment - 1;
+            const sourcePath = ventricularPaths.find((item) => item.id === id);
+            const temp = createSvgElement("path", {d: sourcePath.d});
+            svg.appendChild(temp);
+            const box = temp.getBBox();
+            svg.removeChild(temp);
+            const radius = Math.max(6.5, Math.min(9, Math.min(box.width, box.height) * 0.28));
+            svg.dataset.labelSize = radius.toFixed(2);
+            createNumberLabel(
+                svg,
+                box.x + box.width / 2 + view.targetDx,
+                box.y + box.height / 2,
+                segment,
+                panelId,
+                segIndex
+            );
+        });
+    });
+
+    for(let i = 0; i < 17; i++) syncSegmentVisual(panelId, i);
+}
+
+function gerarLaudo(id){
+    const data = getPanelData(id);
+    const total = usar17Segmentos ? 17 : 16;
+    const grupos = {hipocinesia: [], acinesia: [], discinesia: [], aneurismático: []};
+    let soma = 0;
+
+    for(let i = 0; i < total; i++){
+        const state = states[data.state[i]];
+        soma += state.score;
+        if(state.n === "normal") continue;
+        grupos[state.n].push(i + 1);
+    }
+
+    const linhas = [];
+    if(grupos.hipocinesia.length) linhas.push(`Hipocinesia nos segmentos ${grupos.hipocinesia.join(", ")}.`);
+    if(grupos.acinesia.length) linhas.push(`Acinesia nos segmentos ${grupos.acinesia.join(", ")}.`);
+    if(grupos.discinesia.length) linhas.push(`Discinesia nos segmentos ${grupos.discinesia.join(", ")}.`);
+    if(grupos["aneurismático"].length) linhas.push(`Aneurismático nos segmentos ${grupos["aneurismático"].join(", ")}.`);
+    linhas.push(`WMSI parcial = ${(soma / total).toFixed(2)}.`);
+
+    data.laudoBox.innerHTML = `<div class="laudo">${linhas.join("<br>")}</div>`;
+}
+
+function criarPainel(titulo, id){
+    const data = createPanelData(id);
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.id = id;
+    panel.innerHTML = `
+        <div class="card map-card">
+            <div class="map-title-row">
+                <h2>${stressMode ? titulo : "Mapa clicável"}</h2>
+            </div>
+            <p class="map-subtitle">Clique em um segmento para escolher o grau de contratilidade.</p>
+            <div class="diagram-wrap">
+                <div class="views-wrap"></div>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="card sidebar-card">
+                <h3>Legenda</h3>
+                ${buildLegend()}
+            </div>
+            <div class="card sidebar-card">
+                <h3>Segmentos Selecionados</h3>
+                <div id="sel_${id}"><p class="empty">Nenhum segmento alterado.</p></div>
+            </div>
+            <div class="card sidebar-card">
+                <h3>Laudo</h3>
+                <div id="out_${id}"></div>
+            </div>
+            <div class="card sidebar-card">
+                <h3>Ações</h3>
+                <div class="actions">
+                    <button onclick="resetarPainel('${id}')">Resetar</button>
+                    <button onclick="copiarTexto('${id}')">Copiar laudo</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById("container").appendChild(panel);
+    data.selectedBox = panel.querySelector(`#sel_${id}`);
+    data.laudoBox = panel.querySelector(`#out_${id}`);
+    buildVentricularViews(panel.querySelector(".views-wrap"), id);
+    updateSelectionList(id);
+    gerarLaudo(id);
+}
+
+function openStateMenu(panelId, segIndex, x, y){
+    const currentState = getPanelData(panelId).state[segIndex];
+    stateMenu.innerHTML = `
+        <p class="state-menu-title">Segmento ${segIndex + 1}</p>
+        ${states.map((state, index) => `
+            <button class="state-option ${index === currentState ? "active" : ""}" data-panel="${panelId}" data-segment="${segIndex}" data-state="${index}">
+                <span class="state-swatch" style="background:${state.c}"></span>
+                <span>${state.n}</span>
+            </button>
+        `).join("")}
+    `;
+    stateMenu.classList.remove("hidden");
+    stateMenu.style.left = `${Math.max(14, Math.min(x, window.innerWidth - 240))}px`;
+    stateMenu.style.top = `${Math.max(14, Math.min(y, window.innerHeight - 320))}px`;
+}
+
+function closeStateMenu(){
+    stateMenu.classList.add("hidden");
+}
+
+stateMenu.addEventListener("click", (event) => {
+    const button = event.target.closest(".state-option");
+    if(!button) return;
+    setSegmentState(button.dataset.panel, Number(button.dataset.segment), Number(button.dataset.state));
+    closeStateMenu();
+});
+
+document.addEventListener("click", (event) => {
+    if(!stateMenu.contains(event.target)) closeStateMenu();
+});
+
+function copiarTexto(id){
+    navigator.clipboard.writeText(getPanelData(id).laudoBox.innerText);
+}
+
+function resetarPainel(id){
+    const data = getPanelData(id);
+    data.state.fill(0);
+    for(let i = 0; i < 17; i++) syncSegmentVisual(id, i);
+    updateSelectionList(id);
+    gerarLaudo(id);
+}
+
+function resetar(){
+    panelStore.forEach((_, id) => resetarPainel(id));
+}
+
+function atualizarBotaoModelo(){
+    document.getElementById("btnModelo").innerText = usar17Segmentos ? "Usar modelo 16 segmentos" : "Usar modelo 17 segmentos";
+}
+
+function renderPaineis(){
+    panelStore.clear();
+    document.getElementById("container").innerHTML = "";
+    if(stressMode){
+        criarPainel("Repouso", "rep");
+        criarPainel("Pico de Estresse", "est");
+    }else{
+        criarPainel("Repouso", "single");
+    }
+    atualizarBotaoModelo();
+}
+
+function toggleModo(){
+    stressMode = !stressMode;
+    renderPaineis();
+}
+
+function toggleModeloSegmentos(){
+    usar17Segmentos = !usar17Segmentos;
+    renderPaineis();
+}
+
+renderPaineis();
+</script>
+</body>
+</html>

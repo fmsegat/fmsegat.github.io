@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Bull's Eye WMSI FINAL</title>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 28px 20px 36px;
+    background: #f5f7fa;
+    color: #1f2937;
+}
+
+.page-header {
+    max-width: 1300px;
+    margin: 0 auto 22px;
+}
+
+.page-title {
+    margin: 0 0 18px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    max-width: 1680px;
+    margin: 0 auto;
+}
+
+.panel {
+    text-align: center;
+    background: #fff;
+    border-radius: 18px;
+    padding: 20px 20px 18px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    width: min(100%, 760px);
+}
+
+.panel h4 {
+    margin: 0 0 14px;
+    font-size: 20px;
+}
+
+.panel-visuals {
+    display: grid;
+    gap: 18px;
+}
+
+.diagram-block {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 14px;
+}
+
+.diagram-caption {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.bullseye-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.bullseye-svg {
+    width: 330px;
+    height: 330px;
+}
+
+.ventricular-svg {
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+}
+
+.segment {
+    stroke: #334155;
+    stroke-width: 1.8;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+
+.segment:hover {
+    filter: brightness(1.04);
+}
+
+.segment.disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.ventricular-segment {
+    stroke-width: 2.2;
+}
+
+.segment-number {
+    font-size: 11px;
+    font-weight: 700;
+    fill: #0f172a;
+    pointer-events: none;
+}
+
+.bullseye-number {
+    pointer-events: none;
+}
+
+.label-chip {
+    cursor: pointer;
+}
+
+.label-chip circle {
+    fill: rgba(255, 255, 255, 0.88);
+    stroke: #64748b;
+    stroke-width: 1;
+}
+
+.label-chip text {
+    font-size: 10px;
+    font-weight: 700;
+    fill: #0f172a;
+    dominant-baseline: middle;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.views-title {
+    font-size: 13px;
+    font-weight: 700;
+    fill: #334155;
+}
+
+.output {
+    font-weight: 700;
+    max-width: 500px;
+    margin: 14px auto 10px;
+    white-space: pre-line;
+}
+
+button {
+    margin: 0;
+    padding: 10px 16px;
+    border: 1px solid #d0d7e2;
+    border-radius: 999px;
+    background: #fff;
+    color: #1f2937;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background: #eef2f7;
+    border-color: #b8c2d1;
+    transform: translateY(-1px);
+}
+
+.state-menu {
+    position: fixed;
+    z-index: 1000;
+    min-width: 220px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18);
+}
+
+.state-menu.hidden {
+    display: none;
+}
+
+.state-menu-title {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.state-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+    border-radius: 10px;
+    padding: 9px 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    transform: none;
+}
+
+.state-option:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    transform: none;
+}
+
+.state-option.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.state-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    flex: 0 0 auto;
+}
+
+@media (max-width: 720px) {
+    .panel {
+        padding: 16px 14px;
+    }
+
+    .bullseye-svg {
+        width: 290px;
+        height: 290px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="page-header">
+    <h3 class="page-title">Contratilidade segmentar do ventrículo esquerdo</h3>
+    <div class="toolbar">
+        <button onclick="toggleModo()">Alternar modo Eco Estresse</button>
+        <button id="btnModelo" onclick="toggleModeloSegmentos()">Usar modelo 16 segmentos</button>
+        <button onclick="copiarAmbos()">Copiar diagramas</button>
+        <button onclick="copiarComTextos()">Copiar diagramas com textos</button>
+        <button onclick="resetar()">Resetar segmentos</button>
+    </div>
+</div>
+
+<div id="container" class="container"></div>
+<div id="stateMenu" class="state-menu hidden"></div>
+
+<script>
+const states = [
+    {n:"normal",score:1,c:"#4CAF50"},
+    {n:"hipocinesia",score:2,c:"#FFC107"},
+    {n:"acinesia",score:3,c:"#F44336"},
+    {n:"discinesia",score:4,c:"#0D47A1"},
+    {n:"aneurismático",score:5,c:"#9E9E9E"}
+];
+
+const segmentos = [
+    {parede:"anterior",nivel:"basal"},
+    {parede:"ântero-septal",nivel:"basal"},
+    {parede:"ínfero-septal",nivel:"basal"},
+    {parede:"inferior",nivel:"basal"},
+    {parede:"ínfero-lateral",nivel:"basal"},
+    {parede:"ântero-lateral",nivel:"basal"},
+
+    {parede:"anterior",nivel:"médio"},
+    {parede:"ântero-septal",nivel:"médio"},
+    {parede:"ínfero-septal",nivel:"médio"},
+    {parede:"inferior",nivel:"médio"},
+    {parede:"ínfero-lateral",nivel:"médio"},
+    {parede:"ântero-lateral",nivel:"médio"},
+
+    {parede:"anterior",nivel:"apical"},
+    {parede:"septal",nivel:"apical"},
+    {parede:"inferior",nivel:"apical"},
+    {parede:"lateral",nivel:"apical"},
+
+    {parede:"apical",nivel:"apical"}
+];
+
+const ventricularPaths = [
+    {id:"path4", d:"m 213.87248,109.76461 6.0178,-4.09211 6.37886,-2.28676 6.73993,-1.20356 5.89744,1.20356 3.85139,3.49032 1.44428,1.9257 -14.202,1.44427 -11.91524,0.60178 z"},
+    {id:"path5", d:"m 204.48472,143.58462 1.80534,-13.35951 0.24071,-9.02669 1.44427,-5.89744 3.36997,-3.12926 18.17374,-0.96284 0.84249,6.98064 -4.21245,2.88854 -2.76819,6.0178 -1.56463,6.49922 -2.64783,9.38776 -0.48142,1.56463 z"},
+    {id:"path6", d:"m 203.1608,144.42711 16.00734,0.12036 -5.65673,35.505 -15.16484,-0.12036 0.60178,-12.03559 z"},
+    {id:"path7", d:"m 198.22261,180.57779 15.7677,0.12514 -2.00225,20.39791 -1.62682,12.51405 -2.50281,6.63245 c 0,0 -2.12739,1.62683 -3.3788,1.62683 -1.2514,0 -3.12851,-0.37542 -3.12851,-0.37542 l -1.75197,-8.13414 -2.00225,-9.63582 0.25028,-12.26377 z"},
+    {id:"path8", d:"m 230.50886,110.37395 14.51631,-1.12626 15.142,28.28176 -13.39004,3.87935 -5.00562,-12.88947 -5.13076,-6.63245 -2.87823,-3.25365 -2.75309,-1.00113 z"},
+    {id:"path9", d:"m 245.43794,180.54 0.83875,-17.92819 1.04843,-20.23474 13.21024,-3.45982 5.13732,15.41195 2.83077,10.06494 3.35498,16.2507 -4.40341,1.36296 -4.50826,1.36297 -6.39544,0.52421 -2.72592,-14.15383 -5.55669,10.37948 z"},
+    {id:"path10", d:"m 257.18038,184.94341 15.20227,-3.14529 2.30655,13.1054 1.25811,10.48432 -0.41937,6.29059 -5.24216,8.91167 -6.50028,-6.39543 -3.14529,-7.7584 -1.88718,-9.54073 z"},
+    {id:"path11", d:"m 322.07016,219.74866 -4.07962,-5.40275 -0.55131,-9.7029 0.22052,-15.76722 0.33079,-12.56966 12.56966,3.41806 -0.22052,10.47473 0.11026,10.91576 0.33078,5.40275 -2.42572,6.3951 -2.64625,4.30014 z"},
+    {id:"path12", d:"m 317.65975,175.20352 3.30781,-12.67992 3.30781,-10.69525 3.96937,-9.81316 4.07963,-10.03368 11.13628,4.41041 -6.28483,12.01836 -0.66156,6.17458 0.88208,4.41041 2.97702,8.26952 2.31547,6.50535 1.6539,7.60796 -0.44104,3.19754 -2.64624,0.22052 -3.52833,-2.42572 -3.74885,-3.63859 z"},
+    {id:"path13", d:"m 333.20645,131.20969 4.52067,-8.26952 3.63859,-5.84379 3.19754,-4.07963 14.88514,-1.10261 0.66156,4.30015 -4.74119,2.09495 -4.07963,4.52067 -3.96937,5.07197 -3.74885,7.27718 z"},
+    {id:"path14", d:"m 360.88177,111.14232 11.24654,-0.77182 5.62328,0.66156 9.92342,15.10566 6.17457,12.90044 -10.91576,3.08729 -5.18223,-8.82082 -4.96171,-7.27717 -4.85146,-6.3951 -3.08728,-2.86676 -2.97703,-0.44105 z"},
+    {id:"path15", d:"m 384.03642,144.99222 10.69524,-3.52833 4.85145,12.34915 2.86677,8.37977 2.86677,12.56967 0.77182,6.06432 -12.56967,1.98468 -2.2052,-12.79019 -2.64625,-9.37212 -2.97703,-9.26186 z"},
+    {id:"path16", d:"m 396.82661,222.72569 3.08728,-1.76417 2.97703,-5.40275 1.98469,-5.95405 1.87442,-6.3951 0.5513,-13.45175 -0.5513,-5.73353 -12.23889,1.32313 0.22052,11.3568 -0.44104,8.049 -0.66156,6.83613 -0.22052,3.85911 0.44104,3.41807 2.20521,3.63859 z"},
+    {id:"path17", d:"m 458.8492,200.41092 0.69287,-12.29834 1.73216,-13.68406 3.2911,-12.29834 10.73939,3.29111 -2.59824,11.43225 -2.77145,9.7001 -3.11789,10.91261 -0.86608,5.19648 -3.11789,2.07859 z"},
+    {id:"path18", d:"m 477.38332,131.29773 10.21974,3.81076 -5.3697,13.16441 -5.19648,10.91261 -2.77145,7.44829 -10.21975,-5.02327 5.71613,-14.37692 3.63754,-8.48759 z"},
+    {id:"path19", d:"m 478.4929,131.39323 5.02597,-7.48767 5.12854,-5.84654 5.94911,-5.43625 14.56505,-0.718 v 1.43599 l -1.43599,0.82057 -3.89769,1.12828 -4.10283,3.58998 -2.66684,3.07712 -3.28227,4.30798 -2.66684,4.10283 -2.76941,4.00026 z"},
+    {id:"path20", d:"m 511.00785,112.21248 12.3085,-0.92314 6.25682,7.28253 3.48741,6.87225 2.05141,8.82109 0.51286,6.46196 -9.94937,2.4617 -1.33342,-9.1288 -1.53857,-7.07739 -3.17969,-7.28253 -2.56427,-3.79512 z"},
+    {id:"path21", d:"m 528.34232,174.57554 9.64166,-2.56427 -1.74371,-30.15582 -10.76993,2.97455 z"},
+    {id:"path22", d:"m 536.73781,207.8437 1.27826,-1.5339 1.08651,-1.72564 0.89478,-1.91738 0.70303,-10.80123 -2.36476,-15.65858 -0.83087,-1.98129 -8.56428,1.85347 1.40608,9.6508 1.21434,7.47777 1.46998,6.64691 1.34217,5.24083 1.08651,1.98129 z"},
+    {id:"path23", d:"m 349.09857,110.26106 2.33552,-3.31889 6.63779,-2.58136 h 6.26903 l 6.02318,0.98337 3.44181,2.95013 z"},
+    {id:"path24", d:"m 499.92391,109.8923 7.37532,-2.82721 4.05643,-0.73753 7.2524,2.2126 -6.76071,1.59798 z"},
+    {id:"path25", d:"m 185.14181,327.33586 11.74227,-5.14729 12.06397,-3.37792 h 12.22483 l 7.56009,1.76939 0.48256,4.82559 -4.02132,8.68606 -10.13374,-1.76938 -9.49033,1.93023 -9.65118,5.62986 z"},
+    {id:"path26", d:"m 171.30845,365.77973 0.32171,-11.25971 3.0562,-10.77715 7.07753,-12.22483 2.73451,-3.05621 9.81203,12.38569 -6.59497,7.56009 -2.25195,5.62985 v 8.36436 l -0.16085,2.41279 z"},
+    {id:"path27", d:"m 170.98674,366.42314 0.48256,8.20351 3.53877,9.00776 4.98644,8.36436 8.52521,7.39924 8.52521,-9.97289 -5.79071,-7.39924 -4.34303,-5.469 -1.28682,-5.79071 -0.64342,-4.66473 z"},
+    {id:"path28", d:"m 189.00228,400.52398 7.23838,5.469 11.25972,3.37791 11.42056,0.80427 8.04265,-0.32171 -1.93024,-15.28103 -8.68606,0.80426 -7.56009,-1.28682 -5.469,-1.93024 -5.1473,-3.0562 z"},
+    {id:"path29", d:"m 225.35506,393.76815 2.57365,15.28104 4.02132,-0.80427 7.8818,-4.50388 11.42056,-10.77715 5.1473,-7.23839 3.53876,-8.84691 -15.12018,-4.82559 -4.02132,8.52521 -6.11242,6.59497 z"},
+    {id:"path30", d:"m 226.48103,334.89595 5.469,-14.47677 13.67251,6.43412 8.68606,9.65118 5.1473,12.54654 1.93023,11.42056 -1.44768,14.47677 -15.28103,-3.53876 2.57365,-9.81204 -1.60853,-9.49032 -5.95156,-8.20351 -5.30815,-4.50388 z"},
+    {id:"path31", d:"m 389.90768,337.4696 3.86047,-12.86824 -12.54653,-1.76938 -8.68606,1.28682 -7.8818,1.76939 -9.65118,4.66473 7.56009,9.32948 v 0.96512 l 12.86824,-6.11242 5.95156,0.48256 z"},
+    {id:"path32", d:"m 351.30296,331.35719 -2.57365,6.59497 -3.37791,8.52521 -2.57365,8.68606 -0.80426,9.49033 1.44767,0.48256 9.16862,-1.12597 0.80427,-11.74227 3.37791,-4.82559 4.50389,-4.66474 -3.69962,-6.11241 z"},
+    {id:"path33", d:"m 340.84752,366.74485 1.93023,10.938 4.18218,7.39924 7.72094,9.00777 4.34303,3.21706 7.23839,-10.938 -6.59497,-8.20351 -4.02133,-6.59497 -2.7345,-7.39924 z"},
+    {id:"path34", d:"m 392.15962,404.38445 -0.64341,-15.60274 -4.18218,-0.32171 0.64342,-6.11241 -4.02133,-2.89535 -4.66474,0.3217 -3.86047,1.76939 -1.76938,8.36435 -4.82559,-1.44768 -2.7345,-1.76938 -5.46901,12.54654 8.52521,3.86047 8.84692,0.96512 z"},
+    {id:"path35", d:"m 421.43487,374.62665 -15.28104,-4.82559 -3.37791,6.75582 -3.53876,5.30815 -5.46901,4.66474 -3.0562,2.09109 0.3217,14.79847 10.29459,-3.21706 8.68607,-6.27326 5.95156,-7.39924 3.37791,-7.39924 z"},
+    {id:"path36", d:"m 395.37668,324.1188 -4.02132,12.38568 6.91668,4.98645 7.88179,9.65118 -2.09108,1.60853 -2.73451,-0.96512 -2.57364,3.05621 -3.21706,6.75582 0.96511,2.09109 3.69962,1.76938 5.95156,0.96512 1.28683,2.89536 14.15506,3.86047 0.32171,-10.6163 -0.96512,-11.09886 -3.37791,-9.49032 -4.50389,-7.39924 -7.23838,-4.50389 z"},
+    {id:"path37", d:"m 544.96998,340.68666 -7.23839,-6.75582 -10.77715,-4.02133 -12.06397,-0.16085 -11.09886,2.09109 -10.13374,6.43412 7.07753,8.68606 7.39924,-5.1473 7.72094,-2.41279 10.77715,2.09109 7.72095,4.98644 z"},
+    {id:"path38", d:"m 492.04934,341.81263 -3.53877,5.46901 -0.64341,9.32947 -0.48256,9.49033 1.93024,9.49032 3.53876,6.91668 4.82559,4.02133 5.30815,-5.95156 -6.27326,-6.91668 -1.12598,-9.65118 -0.48255,-8.04265 -0.16086,-2.89536 4.02133,-4.66473 z"},
+    {id:"path39", d:"m 505.07843,381.86503 -6.11241,7.39924 8.36435,3.53877 15.60275,1.28682 8.5252,-2.7345 8.20351,-4.18218 -7.07753,-7.56009 -7.07754,4.02132 -7.39923,0.96512 -4.34304,0.16086 -5.14729,-1.76939 z"},
+    {id:"path40", d:"m 541.91377,387.01233 5.1473,-8.52521 4.66473,-8.36436 0.48256,-9.81203 -1.93023,-8.52521 -3.86048,-8.84692 -9.16862,5.1473 3.37792,7.23839 0.3217,7.88179 -1.60853,7.39924 -5.14729,7.8818 z"}
+];
+
+const ventricularGuidePath = {
+    d: "m 403,1030.3254 v -4.3413 l 1.23378,-0.3916 c 1.79001,-0.5682 2.22555,0.2476 2.62022,4.9075 l 0.3529,4.1667 H 405.10345 403 Z m 7,3.3413 c 0,-0.55 -0.43229,-1 -0.96066,-1 -1.77525,0 -1.76748,-1.2691 0.0243,-3.9767 l 1.78017,-2.69 h 1.24474 1.24474 v 1.2403 c 0,0.6821 0.19078,2.6321 0.42395,4.3333 l 0.42395,3.0931 H 412.09062 410 Z m 0.66667,-2 c 0,-0.1834 -0.15,-0.3334 -0.33334,-0.3334 -0.18333,0 -0.33333,0.15 -0.33333,0.3334 0,0.1833 0.15,0.3333 0.33333,0.3333 0.18334,0 0.33334,-0.15 0.33334,-0.3333 z m -0.33334,-2.3334 c 0.22662,-0.3666 0.26203,-0.6666 0.0787,-0.6666 -0.18333,0 -0.51874,0.3 -0.74535,0.6666 -0.22662,0.3667 -0.26203,0.6667 -0.0787,0.6667 0.18333,0 0.51874,-0.3 0.74535,-0.6667 z m 89.80799,-49.55234 0.29675,-1.55237 -1.55237,0.29676 -1.55237,0.29675 v -0.82601 -0.82602 L 496.5,977.80171 c -0.45833,0.34739 -2.25141,0.67734 -3.98462,0.7332 l -3.15129,0.10157 -0.71898,-1.34342 c -0.79652,-1.48831 -0.32725,-3.715 1.13449,-5.38321 l 0.95522,-1.09014 8.60319,-0.0698 8.6032,-0.0698 0.57947,1.03545 0.57947,1.03546 0.86489,-1.04213 c 0.47569,-0.57317 1.89031,-1.04212 3.1436,-1.04212 h 2.27871 l -0.15628,2.64851 c -0.086,1.45668 0.0519,2.85668 0.30633,3.11111 0.44873,0.44873 0.73833,-2.22506 0.49746,-4.59296 l -0.11867,-1.16666 h 3.2419 c 1.78305,0 3.56805,0.32614 3.96666,0.72475 l 0.72476,0.72476 0.44792,-0.72476 c 0.5528,-0.89445 3.47974,-0.95798 4.01791,-0.0872 0.60672,0.98169 2.20048,0.0894 2.10387,-1.17788 L 530.33333,969 l 2.5,-0.20691 2.5,-0.20691 v 2.14357 2.14357 l 1.27438,-1.1533 1.27438,-1.15329 1.82505,0.21663 c 3.02724,0.35934 3.77201,3.28754 1.66317,6.53903 l -0.64148,0.98906 -6.36442,0.089 -6.36441,0.0891 v -0.65974 -0.65974 l -0.83333,0.6789 c -0.45834,0.3734 -2.40834,0.67551 -4.33334,0.67138 l -3.5,-0.008 -0.0267,-1.75641 -0.0267,-1.75641 -0.9488,1.74592 -0.9488,1.74592 -4.43593,0.0275 -4.43593,0.0275 -0.34011,-1.30057 -0.3401,-1.30057 -0.95294,1.36051 c -0.52412,0.74829 -1.56402,1.36052 -2.31089,1.36052 h -1.35794 L 502.85983,980 l -0.34867,1.33333 h -1.3333 -1.3333 z",
+    transform: "translate(-200.43466,12.625805)"
+};
+
+const ventricularSegments = {
+    path4: 17, path5: 13, path6: 7, path7: 1, path8: 15, path9: 10, path10: 4,
+    path23: 17, path13: 14, path12: 8, path11: 2, path14: 16, path15: 11, path16: 5,
+    path24: 17, path19: 14, path18: 9, path17: 3, path20: 16, path21: 12, path22: 6,
+    path25: 1, path26: 2, path27: 3, path28: 4, path29: 5, path30: 6,
+    path31: 7, path32: 8, path33: 9, path34: 10, path35: 11, path36: 12,
+    path37: 13, path38: 14, path39: 15, path40: 16
+};
+
+let stressMode = false;
+let usar17Segmentos = true;
+const panelStore = new Map();
+const svgNS = "http://www.w3.org/2000/svg";
+const stateMenu = document.getElementById("stateMenu");
+
+function segmentEnabled(segIndex){
+    return usar17Segmentos || segIndex !== 16;
+}
+
+function getPanelData(id){
+    return panelStore.get(id);
+}
+
+function createPanelData(id){
+    const data = {
+        id,
+        state: new Array(17).fill(0),
+        shapes: Array.from({length: 17}, () => []),
+        viewsSvg: null
+    };
+
+    panelStore.set(id, data);
+    return data;
+}
+
+function createSvgElement(tag, attrs = {}){
+    const el = document.createElementNS(svgNS, tag);
+
+    Object.entries(attrs).forEach(([key, value]) => {
+        el.setAttribute(key, value);
+    });
+
+    return el;
+}
+
+function bindSegmentClick(el, panelId, segIndex){
+    el.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        if(!segmentEnabled(segIndex)) return;
+
+        openStateMenu(panelId, segIndex, event.clientX, event.clientY);
+    });
+}
+
+function addShapeTarget(panelId, segIndex, el){
+    const data = getPanelData(panelId);
+    data.shapes[segIndex].push(el);
+    bindSegmentClick(el, panelId, segIndex);
+}
+
+function createNumberLabel(svg, x, y, segmentNumber, panelId, segIndex){
+    const sizeHint = Number(svg.dataset.labelSize || 9);
+    const group = createSvgElement("g", {
+        class: "label-chip",
+        transform: `translate(${x} ${y})`
+    });
+
+    bindSegmentClick(group, panelId, segIndex);
+
+    const circle = createSvgElement("circle", {r: sizeHint});
+    const text = createSvgElement("text", {x: 0, y: 1});
+    text.textContent = segmentNumber;
+
+    group.appendChild(circle);
+    group.appendChild(text);
+    svg.appendChild(group);
+}
+
+function syncSegmentVisual(panelId, segIndex){
+    const data = getPanelData(panelId);
+    const stateIndex = data.state[segIndex];
+    const enabled = segmentEnabled(segIndex);
+    const fill = enabled ? states[stateIndex].c : "#e5e7eb";
+
+    data.shapes[segIndex].forEach((el) => {
+        el.setAttribute("fill", fill);
+        el.classList.toggle("disabled", !enabled);
+    });
+}
+
+function setSegmentState(panelId, segIndex, stateIndex){
+    const data = getPanelData(panelId);
+
+    data.state[segIndex] = stateIndex;
+    syncSegmentVisual(panelId, segIndex);
+    gerarLaudo(panelId);
+}
+
+function buildBullseye(svg, panelId){
+    const data = getPanelData(panelId);
+    svg.classList.add("bullseye-svg");
+
+    function polar(r, a){
+        return {x: 200 + r * Math.cos(a), y: 200 + r * Math.sin(a)};
+    }
+
+    function arc(r1, r2, a1, a2){
+        const p1 = polar(r1, a1);
+        const p2 = polar(r2, a1);
+        const p3 = polar(r2, a2);
+        const p4 = polar(r1, a2);
+        const large = (a2 - a1) > Math.PI ? 1 : 0;
+
+        return `M${p1.x} ${p1.y} L${p2.x} ${p2.y}
+A${r2} ${r2} 0 ${large} 1 ${p3.x} ${p3.y}
+L${p4.x} ${p4.y}
+A${r1} ${r1} 0 ${large} 0 ${p1.x} ${p1.y}Z`;
+    }
+
+    function ring(r1, r2, count, start){
+        const step = 2 * Math.PI / count;
+
+        for(let i = 0; i < count; i++){
+            const a1 = i * step - Math.PI / 2 - step / 2;
+            const a2 = a1 + step;
+            const idx = start + ((i === 0) ? 0 : count - i);
+            const path = createSvgElement("path", {
+                d: arc(r1, r2, a1, a2),
+                class: "segment",
+                fill: states[0].c
+            });
+
+            addShapeTarget(panelId, idx, path);
+            svg.appendChild(path);
+
+            const m = (a1 + a2) / 2;
+            const r = (r1 + r2) / 2;
+            const p = polar(r, m);
+            const t = createSvgElement("text", {
+                x: p.x,
+                y: p.y,
+                "text-anchor": "middle",
+                class: "segment-number bullseye-number"
+            });
+
+            t.textContent = idx + 1;
+            svg.appendChild(t);
+        }
+    }
+
+    ring(120, 180, 6, 0);
+    ring(60, 120, 6, 6);
+    ring(20, 60, 4, 12);
+
+    if(usar17Segmentos){
+        const apex = createSvgElement("circle", {
+            cx: 200,
+            cy: 200,
+            r: 20,
+            class: "segment",
+            fill: states[0].c
+        });
+
+        addShapeTarget(panelId, 16, apex);
+        svg.appendChild(apex);
+
+        const label = createSvgElement("text", {
+            x: 200,
+            y: 200,
+            "text-anchor": "middle",
+            class: "segment-number bullseye-number"
+        });
+
+        label.textContent = "17";
+        svg.appendChild(label);
+    }
+
+    data.bullseyeSvg = svg;
+}
+
+function addViewsCaptions(svg){
+    const captions = [
+        {x: 230, y: 95, text: "4 câmaras"},
+        {x: 377, y: 95, text: "2 câmaras"},
+        {x: 523, y: 95, text: "3 câmaras"},
+        {x: 224, y: 308, text: "Basal"},
+        {x: 386, y: 308, text: "Médio"},
+        {x: 520, y: 316, text: "Apical"}
+    ];
+
+    captions.forEach(({x, y, text}) => {
+        const label = createSvgElement("text", {
+            x,
+            y,
+            class: "views-title",
+            "text-anchor": "middle"
+        });
+
+        label.textContent = text;
+        svg.appendChild(label);
+    });
+}
+
+function buildVentricularViews(container, panelId){
+    const svg = createSvgElement("svg", {
+        viewBox: "145 86 430 340",
+        class: "ventricular-svg"
+    });
+    const defs = createSvgElement("defs");
+    const clipPath = createSvgElement("clipPath", {
+        id: `${panelId}_clipPath4`,
+        clipPathUnits: "userSpaceOnUse"
+    });
+    const clipRect = createSvgElement("rect", {
+        x: 310.20453,
+        y: 68.212509,
+        width: 477.48755,
+        height: 344.31076,
+        style: "fill:none"
+    });
+    clipPath.appendChild(clipRect);
+    defs.appendChild(clipPath);
+    svg.appendChild(defs);
+
+    const guidePath = createSvgElement("path", {
+        d: ventricularGuidePath.d,
+        transform: ventricularGuidePath.transform,
+        "clip-path": `url(#${panelId}_clipPath4)`,
+        fill: "#0f172a",
+        opacity: "0.85",
+        "pointer-events": "none"
+    });
+    svg.appendChild(guidePath);
+
+    ventricularPaths.forEach(({id, d}) => {
+        const segmentNumber = ventricularSegments[id];
+        const segIndex = segmentNumber - 1;
+        const path = createSvgElement("path", {
+            d,
+            id: `${panelId}_${id}`,
+            class: "segment ventricular-segment",
+            fill: states[0].c
+        });
+
+        if(segmentNumber){
+            addShapeTarget(panelId, segIndex, path);
+        }
+
+        svg.appendChild(path);
+    });
+
+    container.appendChild(svg);
+    addViewsCaptions(svg);
+
+    ventricularPaths.forEach(({id}) => {
+        const segmentNumber = ventricularSegments[id];
+        if(!segmentNumber) return;
+
+        const segIndex = segmentNumber - 1;
+        const path = svg.querySelector(`#${CSS.escape(panelId + "_" + id)}`);
+        const box = path.getBBox();
+        const cx = box.x + box.width / 2;
+        const cy = box.y + box.height / 2;
+        const radius = Math.max(6.8, Math.min(9.2, Math.min(box.width, box.height) * 0.28));
+        svg.dataset.labelSize = radius.toFixed(2);
+        createNumberLabel(svg, cx, cy, segmentNumber, panelId, segIndex);
+    });
+
+    getPanelData(panelId).viewsSvg = svg;
+
+    for(let i = 0; i < 17; i++){
+        syncSegmentVisual(panelId, i);
+    }
+}
+
+function criarPainel(titulo, id){
+    createPanelData(id);
+
+    const div = document.createElement("div");
+    div.className = "panel";
+    div.id = id;
+    div.innerHTML = `
+        <h4>${titulo}</h4>
+        <div id="cap_${id}" class="panel-visuals">
+            <div class="diagram-block">
+                <p class="diagram-caption">Bull's Eye</p>
+                <div class="bullseye-wrap">
+                    <svg class="bullseye-svg" viewBox="0 0 400 400"></svg>
+                </div>
+            </div>
+            <div class="diagram-block">
+                <p class="diagram-caption">Vistas ventriculares</p>
+                <div class="views-wrap"></div>
+            </div>
+        </div>
+        <p class="output" id="out_${id}"></p>
+        <button onclick="copiarTexto('${id}')">Copiar texto</button>
+    `;
+
+    document.getElementById("container").appendChild(div);
+    buildBullseye(div.querySelector(".bullseye-svg"), id);
+    buildVentricularViews(div.querySelector(".views-wrap"), id);
+}
+
+function openStateMenu(panelId, segIndex, x, y){
+    const currentState = getPanelData(panelId).state[segIndex];
+    const title = `<p class="state-menu-title">Segmento ${segIndex + 1}</p>`;
+    const buttons = states.map((state, index) => `
+        <button class="state-option ${index === currentState ? "active" : ""}" data-panel="${panelId}" data-segment="${segIndex}" data-state="${index}">
+            <span class="state-swatch" style="background:${state.c}"></span>
+            <span>${state.n}</span>
+        </button>
+    `).join("");
+
+    stateMenu.innerHTML = title + buttons;
+    stateMenu.classList.remove("hidden");
+
+    const menuWidth = 220;
+    const menuHeight = 280;
+    const left = Math.min(x, window.innerWidth - menuWidth - 14);
+    const top = Math.min(y, window.innerHeight - menuHeight - 14);
+
+    stateMenu.style.left = `${Math.max(14, left)}px`;
+    stateMenu.style.top = `${Math.max(14, top)}px`;
+}
+
+function closeStateMenu(){
+    stateMenu.classList.add("hidden");
+}
+
+stateMenu.addEventListener("click", (event) => {
+    const button = event.target.closest(".state-option");
+    if(!button) return;
+
+    const panelId = button.dataset.panel;
+    const segIndex = Number(button.dataset.segment);
+    const stateIndex = Number(button.dataset.state);
+
+    setSegmentState(panelId, segIndex, stateIndex);
+    closeStateMenu();
+});
+
+document.addEventListener("click", (event) => {
+    if(!stateMenu.contains(event.target)){
+        closeStateMenu();
+    }
+});
+
+function gerarLaudo(id){
+    const state = getPanelData(id).state;
+    const totalSegmentos = usar17Segmentos ? 17 : 16;
+    const grupos = {hipocinesia:{},acinesia:{},discinesia:{},aneurismático:{}};
+    let soma = 0;
+
+    for(let i = 0; i < totalSegmentos; i++){
+        const s = states[state[i]];
+        soma += s.score;
+
+        if(s.n === "normal") continue;
+
+        const seg = segmentos[i];
+
+        if(!grupos[s.n][seg.parede]) grupos[s.n][seg.parede] = [];
+        grupos[s.n][seg.parede].push(seg.nivel);
+    }
+
+    const wmsi = (soma / totalSegmentos).toFixed(2);
+
+    function fmt(grupo){
+        const txt = [];
+
+        for(const parede in grupo){
+            const niveis = [...new Set(grupo[parede])];
+
+            if(parede === "apical"){
+                txt.push("segmento apical");
+                continue;
+            }
+
+            txt.push(`parede ${parede} (${niveis.join(" e ")})`);
+        }
+
+        return txt.join(", ");
+    }
+
+    let out = "";
+
+    if(Object.keys(grupos.hipocinesia).length) out += "Hipocinesia em " + fmt(grupos.hipocinesia) + ".\n";
+    if(Object.keys(grupos.acinesia).length) out += "Acinesia em " + fmt(grupos.acinesia) + ".\n";
+    if(Object.keys(grupos.discinesia).length) out += "Discinesia em " + fmt(grupos.discinesia) + ".\n";
+    if(Object.keys(grupos["aneurismático"]).length) out += "Aneurismático em " + fmt(grupos["aneurismático"]) + ".\n";
+    if(wmsi === "1.00") out += "Contratilidade segmentar normal.\n";
+    out += "WMSI = " + wmsi + ".";
+
+    document.getElementById("out_" + id).innerText = out;
+}
+
+function copiarTexto(id){
+    navigator.clipboard.writeText(document.getElementById("out_" + id).innerText);
+    alert("Texto copiado");
+}
+
+function resetar(){
+    panelStore.forEach((data, id) => {
+        data.state.fill(0);
+
+        for(let i = 0; i < 17; i++){
+            syncSegmentVisual(id, i);
+        }
+
+        gerarLaudo(id);
+    });
+}
+
+function copiarParaClipboard(incluirTextos){
+    const captura = document.createElement("div");
+    captura.style.display = "flex";
+    captura.style.justifyContent = "center";
+    captura.style.gap = "30px";
+    captura.style.flexWrap = "wrap";
+    captura.style.background = "#fff";
+    captura.style.padding = "10px";
+
+    document.querySelectorAll(".panel").forEach((panel) => {
+        const bloco = document.createElement("div");
+        bloco.className = "panel";
+
+        const titulo = panel.querySelector("h4");
+        const cap = panel.querySelector("[id^='cap_']");
+
+        if(titulo) bloco.appendChild(titulo.cloneNode(true));
+        if(cap) bloco.appendChild(cap.cloneNode(true));
+
+        if(incluirTextos){
+            const out = panel.querySelector(".output");
+            if(out) bloco.appendChild(out.cloneNode(true));
+        }
+
+        if(bloco.children.length) captura.appendChild(bloco);
+    });
+
+    captura.style.position = "fixed";
+    captura.style.left = "-99999px";
+    document.body.appendChild(captura);
+
+    html2canvas(captura, {backgroundColor:"#ffffff"}).then((canvas) => {
+        canvas.toBlob((blob) => {
+            navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);
+            alert(incluirTextos ? "Diagramas com textos copiados" : "Diagramas copiados");
+            document.body.removeChild(captura);
+        });
+    });
+}
+
+function copiarAmbos(){
+    copiarParaClipboard(false);
+}
+
+function copiarComTextos(){
+    copiarParaClipboard(true);
+}
+
+function atualizarBotaoModelo(){
+    const botao = document.getElementById("btnModelo");
+    if(botao) botao.innerText = usar17Segmentos ? "Usar modelo 16 segmentos" : "Usar modelo 17 segmentos";
+}
+
+function renderPaines(){
+    closeStateMenu();
+    panelStore.clear();
+
+    const c = document.getElementById("container");
+    c.innerHTML = "";
+
+    if(stressMode){
+        criarPainel("Repouso", "rep");
+        criarPainel("Pico de Estresse", "est");
+    }else{
+        criarPainel("Repouso", "single");
+    }
+
+    atualizarBotaoModelo();
+
+    panelStore.forEach((_, id) => {
+        for(let i = 0; i < 17; i++){
+            syncSegmentVisual(id, i);
+        }
+
+        gerarLaudo(id);
+    });
+}
+
+function toggleModo(){
+    stressMode = !stressMode;
+    renderPaines();
+}
+
+function toggleModeloSegmentos(){
+    usar17Segmentos = !usar17Segmentos;
+    renderPaines();
+}
+
+renderPaines();
+</script>
+
+</body>
+</html>
