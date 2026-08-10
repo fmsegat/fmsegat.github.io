@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eco-estresse com Dobutamina — Estenose Aórtica | Calculadora</title>
+<style>
+  :root{
+    --ink:#1b2733;
+    --ink-soft:#4a5a68;
+    --line:#d7dee4;
+    --line-soft:#e9eef2;
+    --paper:#ffffff;
+    --bg:#eef2f5;
+    --accent:#0f5c8c;
+    --accent-soft:#e5f0f7;
+    --good:#1c7a4d;
+    --good-bg:#e6f5ec;
+    --warn:#b5760c;
+    --warn-bg:#fbf1de;
+    --bad:#a3312a;
+    --bad-bg:#faeae9;
+    --mono: "Consolas","Courier New",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    margin:0;
+    padding:24px;
+    line-height:1.45;
+  }
+  .sheet{
+    max-width:1180px;
+    margin:0 auto;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  header.top{
+    background:var(--accent);
+    color:#fff;
+    padding:22px 28px;
+  }
+  header.top h1{
+    margin:0 0 4px 0;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:.2px;
+  }
+  header.top p{
+    margin:0;
+    font-size:13px;
+    color:#dcebf4;
+  }
+  .section{
+    padding:20px 28px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .section:last-child{border-bottom:none;}
+  .section h2{
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    color:var(--accent);
+    margin:0 0 12px 0;
+    padding-bottom:6px;
+    border-bottom:2px solid var(--accent-soft);
+  }
+  .grid-inputs{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:14px;
+  }
+  @media (max-width: 820px){
+    .grid-inputs{grid-template-columns: repeat(2, 1fr);}
+  }
+  label.field{
+    display:flex;
+    flex-direction:column;
+    font-size:12px;
+    color:var(--ink-soft);
+    font-weight:600;
+    gap:4px;
+  }
+  label.field input{
+    font-family:inherit;
+    font-size:14px;
+    padding:7px 8px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    color:var(--ink);
+    background:#fbfcfd;
+  }
+  label.field input:focus{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+    background:#fff;
+  }
+  .field small{ font-weight:400; color:#8697a3; }
+
+  table.stage-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12.5px;
+  }
+  table.stage-table th, table.stage-table td{
+    border:1px solid var(--line);
+    padding:6px 5px;
+    text-align:center;
+    vertical-align:middle;
+  }
+  table.stage-table thead th{
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-weight:700;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+  }
+  table.stage-table thead th.group-input{color:#5a6c78;background:#f2f5f7;}
+  table.stage-table td input[type=text],
+  table.stage-table td input[type=number]{
+    width:100%;
+    min-width:52px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:5px 3px;
+    font-family:inherit;
+    font-size:12.5px;
+    text-align:center;
+  }
+  table.stage-table td input.fase-name{
+    text-align:left;
+    font-weight:700;
+    min-width:110px;
+  }
+  table.stage-table td.computed{
+    background:#fbfaf5;
+    font-variant-numeric:tabular-nums;
+    font-weight:700;
+    color:var(--ink);
+  }
+  table.stage-table td.computed.dim{color:#98a3ab;font-weight:400;}
+  td.row-controls{white-space:nowrap; background:#f8f9fa;}
+  td.row-controls button{
+    border:none;background:none;cursor:pointer;font-size:15px;padding:2px 4px;
+    color:#93a0aa;
+  }
+  td.row-controls button:hover{color:var(--bad);}
+  .radio-cell label{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;cursor:pointer;color:var(--ink-soft);}
+
+  .table-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}
+  button.btn{
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:700;
+    padding:8px 14px;
+    border-radius:4px;
+    border:1px solid var(--accent);
+    background:#fff;
+    color:var(--accent);
+    cursor:pointer;
+  }
+  button.btn:hover{background:var(--accent-soft);}
+  button.btn.primary{background:var(--accent);color:#fff;}
+  button.btn.primary:hover{background:#0c4a70;}
+  button.btn.ghost{border-color:var(--line);color:var(--ink-soft);}
+  button.btn.ghost:hover{background:#f4f6f7;}
+
+  .area-row{display:flex; align-items:flex-end; gap:22px; flex-wrap:wrap; margin-top:14px;}
+  .stat-chip{
+    background:#fbfaf5;border:1px solid var(--line);border-radius:5px;
+    padding:8px 14px; font-size:12.5px; color:var(--ink-soft);
+  }
+  .stat-chip b{display:block;font-size:16px;color:var(--ink);}
+
+  .interp-grid{
+    display:grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap:10px 16px;
+  }
+  .interp-row{
+    display:contents;
+  }
+  .interp-label{
+    padding:9px 12px;
+    background:#f7f9fa;
+    border:1px solid var(--line-soft);
+    border-radius:4px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    display:flex;align-items:center;
+  }
+  .interp-value{
+    padding:9px 12px;
+    border:1px solid var(--line-soft);
+    border-radius:4px;
+    font-size:14px;
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    background:#fff;
+  }
+  .interp-value.flag-good{background:var(--good-bg); color:var(--good); border-color:#bfe4cf;}
+  .interp-value.flag-warn{background:var(--warn-bg); color:var(--warn); border-color:#f0dcb0;}
+  .interp-value.flag-bad{background:var(--bad-bg); color:var(--bad); border-color:#f2c6c3;}
+  .classification-banner{
+    grid-column: 1 / -1;
+    padding:14px 16px;
+    border-radius:5px;
+    font-size:14.5px;
+    font-weight:700;
+    text-align:center;
+    border:1px solid var(--line);
+    margin-top:4px;
+  }
+
+  .alerts{margin-top:14px; display:flex; flex-direction:column; gap:8px;}
+  .alert{
+    font-size:12.5px;
+    padding:9px 12px;
+    border-radius:4px;
+    border-left:4px solid var(--warn);
+    background:var(--warn-bg);
+    color:#6b4d0c;
+  }
+  .alert.bad{border-left-color:var(--bad); background:var(--bad-bg); color:#7a201b;}
+  .alert.info{border-left-color:var(--accent); background:var(--accent-soft); color:#0c4a70;}
+
+  footer.refs{
+    padding:16px 28px;
+    font-size:11px;
+    color:#8697a3;
+    background:#fafbfc;
+  }
+  footer.refs p{margin:0 0 4px 0;}
+
+  @media print{
+    body{background:#fff;padding:0;}
+    .sheet{border:none;}
+    .table-actions, button.btn{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <header class="top">
+    <h1>Eco-estresse farmacológico com dobutamina — Estenose Aórtica</h1>
+    <p>Calculadora de parâmetros hemodinâmicos e de gravidade valvar por estágio (protocolo de baixa dose)</p>
+  </header>
+
+  <!-- ================= DADOS DO PACIENTE ================= -->
+  <div class="section">
+    <h2>Dados do paciente e medida basal</h2>
+    <div class="grid-inputs">
+      <label class="field">Peso (kg)
+        <input type="number" id="peso" step="0.1" placeholder="ex.: 92" oninput="recalcAll()">
+      </label>
+      <label class="field">Altura (cm)
+        <input type="number" id="altura" step="0.1" placeholder="ex.: 165" oninput="recalcAll()">
+      </label>
+      <label class="field">BSA — Mosteller (m²) <small>(automático)</small>
+        <input type="text" id="bsaOut" readonly>
+      </label>
+      <label class="field">Diâmetro VSVE (cm) <small>medido em repouso, constante</small>
+        <input type="number" id="diamVSVE" step="0.01" placeholder="ex.: 1.95" oninput="recalcAll()">
+      </label>
+    </div>
+    <div class="area-row">
+      <div class="stat-chip">Área VSVE (cm²)<b id="areaVSVEout">—</b></div>
+      <div class="stat-chip">BSA (m²)<b id="bsaChip">—</b></div>
+    </div>
+  </div>
+
+  <!-- ================= TABELA DE ESTÁGIOS ================= -->
+  <div class="section">
+    <h2>Doppler e hemodinâmica por estágio</h2>
+    <div style="overflow-x:auto;">
+    <table class="stage-table" id="stageTable">
+      <thead>
+        <tr>
+          <th class="group-input" style="width:26px;"></th>
+          <th class="group-input">Fase</th>
+          <th class="group-input">Basal</th>
+          <th class="group-input">Pico</th>
+          <th class="group-input">Excluir</th>
+          <th class="group-input">PAS<br>(mmHg)</th>
+          <th class="group-input">PAD<br>(mmHg)</th>
+          <th class="group-input">FC<br>(bpm)</th>
+          <th class="group-input">VTI VSVE<br>(cm)</th>
+          <th class="group-input">Vmáx VSVE<br>(m/s)</th>
+          <th class="group-input">VTI Ao<br>(cm)</th>
+          <th class="group-input">Grad. máx<br>(mmHg)</th>
+          <th class="group-input">Grad. médio<br>(mmHg)</th>
+          <th class="group-input">TE<br>(ms)</th>
+          <th>SV<br>(mL)</th>
+          <th>SVi<br>(mL/m²)</th>
+          <th>DVI</th>
+          <th>AVA<br>(cm²)</th>
+          <th>Taxa fluxo<br>(mL/s)</th>
+          <th>PAM<br>(mmHg)</th>
+          <th>Duplo<br>produto</th>
+        </tr>
+      </thead>
+      <tbody id="stageBody"></tbody>
+    </table>
+    </div>
+    <div class="table-actions">
+      <button class="btn" onclick="addRow()">+ Adicionar estágio</button>
+      <button class="btn ghost" onclick="loadExample()">Carregar caso de exemplo</button>
+      <button class="btn ghost" onclick="clearAll()">Limpar tudo</button>
+      <button class="btn primary" onclick="window.print()">Imprimir / salvar PDF</button>
+    </div>
+  </div>
+
+  <!-- ================= INTERPRETAÇÃO ================= -->
+  <div class="section">
+    <h2>Interpretação — critérios de gravidade e resposta hemodinâmica</h2>
+    <div class="interp-grid">
+      <div class="interp-row">
+        <div class="interp-label">Δ Stroke volume, basal → pico (%)</div>
+        <div class="interp-value" id="dSV">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">Reserva contrátil presente (Δ SV &gt; 20%)?</div>
+        <div class="interp-value" id="reservaContratil">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">Fluxo normalizado no pico (≥ 200 mL/s)?</div>
+        <div class="interp-value" id="fluxoNormalizado">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">AVA no pico (cm²)</div>
+        <div class="interp-value" id="avaPico">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">Gradiente médio no pico (mmHg)</div>
+        <div class="interp-value" id="gradPico">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">AVA projetada em fluxo normal — 250 mL/s (Clavel et al., 2010)</div>
+        <div class="interp-value" id="avaProjetada">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">Δ PAS basal → pico (%)</div>
+        <div class="interp-value" id="dPAS">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">Δ PAM basal → pico (%)</div>
+        <div class="interp-value" id="dPAM">—</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-label">Δ Duplo produto basal → pico (%)</div>
+        <div class="interp-value" id="dDuplo">—</div>
+      </div>
+      <div class="classification-banner" id="classificacao">Preencha os dados dos estágios para gerar a classificação</div>
+    </div>
+
+    <div class="alerts" id="alertBox"></div>
+  </div>
+
+  <footer class="refs">
+    <p><b>Fórmulas:</b> Área VSVE = π×(diâmetro/2)² · SV = Área VSVE × VTI VSVE · SVi = SV/BSA · DVI = VTI VSVE/VTI Ao · AVA (continuidade) = SV/VTI Ao · Taxa de fluxo = SV/(TE em s) · PAM = PAD + (PAS−PAD)/3 · Duplo produto = FC×PAS · BSA (Mosteller) = RAIZ((altura_cm×peso_kg)/3600) · AVA projetada (250 mL/s, método simplificado de Clavel) = AVA<sub>basal</sub> + [(AVA<sub>pico</sub>−AVA<sub>basal</sub>)/(fluxo<sub>pico</sub>−fluxo<sub>basal</sub>)]×(250−fluxo<sub>basal</sub>)</p>
+    <p><b>Critérios de gravidade:</b> Baumgartner H, et al. Recommendations on the Echocardiographic Assessment of Aortic Valve Stenosis — a Focused Update from EACVI and ASE. J Am Soc Echocardiogr 2017;30:372-92. AVA projetada: Clavel MA, et al. TOPAS study. J Am Soc Echocardiogr 2010;23:380-6.</p>
+    <p>Ferramenta de apoio ao cálculo — não substitui o julgamento clínico. Todos os dados permanecem no navegador (nenhuma informação é enviada a servidores).</p>
+  </footer>
+</div>
+
+<script>
+let rowCount = 0;
+
+function newRowData(fase='', vals={}){
+  rowCount++;
+  return Object.assign({
+    id: 'r'+rowCount,
+    fase: fase,
+    basalSel: false,
+    picoSel: false,
+    excluir: false,
+    pas:'', pad:'', fc:'', vtiVsve:'', vmaxVsve:'', vtiAo:'', gmax:'', gmed:'', te:''
+  }, vals);
+}
+
+let rows = [];
+
+function renderRows(){
+  const tbody = document.getElementById('stageBody');
+  tbody.innerHTML = '';
+  rows.forEach((r) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="row-controls"><button title="Remover estágio" onclick="removeRow('${r.id}')">✕</button></td>
+      <td><input type="text" class="fase-name" value="${r.fase}" oninput="updateField('${r.id}','fase',this.value)"></td>
+      <td class="radio-cell"><label><input type="radio" name="basalRadio" ${r.basalSel?'checked':''} onchange="setBasal('${r.id}')"></label></td>
+      <td class="radio-cell"><label><input type="radio" name="picoRadio" ${r.picoSel?'checked':''} onchange="setPico('${r.id}')"></label></td>
+      <td><input type="checkbox" ${r.excluir?'checked':''} onchange="updateField('${r.id}','excluir',this.checked)"></td>
+      <td><input type="number" value="${r.pas}" oninput="updateField('${r.id}','pas',this.value)"></td>
+      <td><input type="number" value="${r.pad}" oninput="updateField('${r.id}','pad',this.value)"></td>
+      <td><input type="number" value="${r.fc}" oninput="updateField('${r.id}','fc',this.value)"></td>
+      <td><input type="number" step="0.1" value="${r.vtiVsve}" oninput="updateField('${r.id}','vtiVsve',this.value)"></td>
+      <td><input type="number" step="0.01" value="${r.vmaxVsve}" oninput="updateField('${r.id}','vmaxVsve',this.value)"></td>
+      <td><input type="number" step="0.1" value="${r.vtiAo}" oninput="updateField('${r.id}','vtiAo',this.value)"></td>
+      <td><input type="number" value="${r.gmax}" oninput="updateField('${r.id}','gmax',this.value)"></td>
+      <td><input type="number" value="${r.gmed}" oninput="updateField('${r.id}','gmed',this.value)"></td>
+      <td><input type="number" value="${r.te}" oninput="updateField('${r.id}','te',this.value)"></td>
+      <td class="computed" id="sv_${r.id}">—</td>
+      <td class="computed" id="svi_${r.id}">—</td>
+      <td class="computed" id="dvi_${r.id}">—</td>
+      <td class="computed" id="ava_${r.id}">—</td>
+      <td class="computed" id="flow_${r.id}">—</td>
+      <td class="computed dim" id="pam_${r.id}">—</td>
+      <td class="computed dim" id="dp_${r.id}">—</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateField(id, field, value){
+  const r = rows.find(x=>x.id===id);
+  if(!r) return;
+  r[field] = value;
+  recalcAll();
+}
+function setBasal(id){
+  rows.forEach(r=>r.basalSel = (r.id===id));
+  recalcAll();
+}
+function setPico(id){
+  rows.forEach(r=>r.picoSel = (r.id===id));
+  recalcAll();
+}
+function removeRow(id){
+  rows = rows.filter(r=>r.id!==id);
+  renderRows();
+  recalcAll();
+}
+function addRow(){
+  rows.push(newRowData('Novo estágio'));
+  renderRows();
+  recalcAll();
+}
+function clearAll(){
+  document.getElementById('peso').value='';
+  document.getElementById('altura').value='';
+  document.getElementById('diamVSVE').value='';
+  rows = [
+    newRowData('Basal', {basalSel:true}),
+    newRowData('5 mcg/kg/min'),
+    newRowData('20 mcg/kg/min', {picoSel:true}),
+  ];
+  renderRows();
+  recalcAll();
+}
+function loadExample(){
+  document.getElementById('peso').value = 92;
+  document.getElementById('altura').value = 165;
+  document.getElementById('diamVSVE').value = 1.95;
+  rows = [
+    newRowData('Basal', {basalSel:true, pas:160, pad:83, fc:84, vtiVsve:20.8, vmaxVsve:0.70, vtiAo:60, gmax:41, gmed:25, te:238}),
+    newRowData('Dose 5 mcg/kg/min', {pas:130, pad:68, fc:96, vtiVsve:21.3, vmaxVsve:1.07, vtiAo:55, gmax:47, gmed:27, te:224}),
+    newRowData('10 mcg/kg/min', {excluir:true, pas:106, pad:64, fc:117, vtiVsve:15.0, vmaxVsve:0.96, vtiAo:49, gmax:47, gmed:27, te:186}),
+    newRowData('20 mcg/kg/min', {picoSel:true, pas:97, pad:61, fc:137, vtiVsve:19.0, vmaxVsve:1.15, vtiAo:47, gmax:45, gmed:31, te:173}),
+  ];
+  renderRows();
+  recalcAll();
+}
+
+function num(v){
+  const n = parseFloat(v);
+  return isNaN(n) ? null : n;
+}
+function fmt(v, d=2){
+  return (v===null || v===undefined || isNaN(v)) ? '—' : v.toFixed(d);
+}
+function pct(v, d=1){
+  return (v===null || v===undefined || isNaN(v)) ? '—' : (v*100).toFixed(d)+'%';
+}
+
+function recalcAll(){
+  const peso = num(document.getElementById('peso').value);
+  const altura = num(document.getElementById('altura').value);
+  const diam = num(document.getElementById('diamVSVE').value);
+
+  let bsa = null;
+  if(peso!==null && altura!==null && peso>0 && altura>0){
+    bsa = Math.sqrt((altura*peso)/3600);
+  }
+  document.getElementById('bsaOut').value = bsa!==null ? bsa.toFixed(2) : '';
+  document.getElementById('bsaChip').textContent = bsa!==null ? bsa.toFixed(2) : '—';
+
+  let areaVSVE = null;
+  if(diam!==null && diam>0){
+    areaVSVE = Math.PI * Math.pow(diam/2, 2);
+  }
+  document.getElementById('areaVSVEout').textContent = areaVSVE!==null ? areaVSVE.toFixed(2) : '—';
+
+  const computed = {};
+  rows.forEach(r=>{
+    const pas = num(r.pas), pad = num(r.pad), fc = num(r.fc);
+    const vtiVsve = num(r.vtiVsve), vtiAo = num(r.vtiAo), te = num(r.te);
+    let sv=null, svi=null, dvi=null, ava=null, flow=null, pam=null, dp=null;
+
+    if(areaVSVE!==null && vtiVsve!==null){ sv = areaVSVE * vtiVsve; }
+    if(sv!==null && bsa!==null && bsa>0){ svi = sv/bsa; }
+    if(vtiVsve!==null && vtiAo!==null && vtiAo>0){ dvi = vtiVsve/vtiAo; }
+    if(sv!==null && vtiAo!==null && vtiAo>0){ ava = sv/vtiAo; }
+    if(sv!==null && te!==null && te>0){ flow = sv/(te/1000); }
+    if(pas!==null && pad!==null){ pam = pad + (pas-pad)/3; }
+    if(fc!==null && pas!==null){ dp = fc*pas; }
+
+    computed[r.id] = {sv, svi, dvi, ava, flow, pam, dp, pas, pad, fc};
+
+    const setTxt = (elId, val, digits=2)=>{
+      const el = document.getElementById(elId+'_'+r.id);
+      if(el) el.textContent = fmt(val, digits);
+    };
+    setTxt('sv', sv, 1);
+    setTxt('svi', svi, 1);
+    setTxt('dvi', dvi, 2);
+    setTxt('ava', ava, 2);
+    setTxt('flow', flow, 0);
+    setTxt('pam', pam, 0);
+    setTxt('dp', dp, 0);
+  });
+
+  // ---- Interpretação ----
+  const basalRow = rows.find(r=>r.basalSel && !r.excluir);
+  const picoRow = rows.find(r=>r.picoSel && !r.excluir);
+
+  const setInterp = (id, text, flagClass)=>{
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'interp-value' + (flagClass ? ' '+flagClass : '');
+  };
+
+  const alertBox = document.getElementById('alertBox');
+  alertBox.innerHTML = '';
+  const addAlert = (msg, cls='')=>{
+    const d = document.createElement('div');
+    d.className = 'alert '+cls;
+    d.textContent = msg;
+    alertBox.appendChild(d);
+  };
+
+  if(!basalRow || !picoRow){
+    ['dSV','reservaContratil','fluxoNormalizado','avaPico','gradPico','avaProjetada','dPAS','dPAM','dDuplo'].forEach(id=>setInterp(id,'—'));
+    document.getElementById('classificacao').textContent = 'Selecione o estágio Basal e o de Pico (radio buttons na tabela) para gerar a classificação';
+    document.getElementById('classificacao').style.background = '#f7f9fa';
+    document.getElementById('classificacao').style.color = 'var(--ink-soft)';
+    return;
+  }
+
+  const cB = computed[basalRow.id];
+  const cP = computed[picoRow.id];
+
+  // Δ SV
+  let dSV = (cB.sv!==null && cP.sv!==null && cB.sv!==0) ? (cP.sv-cB.sv)/cB.sv : null;
+  setInterp('dSV', pct(dSV), dSV!==null ? (dSV>0.2?'flag-good':'flag-bad') : '');
+
+  const reservaOk = dSV!==null && dSV>0.2;
+  setInterp('reservaContratil', dSV===null?'—':(reservaOk?'Sim':'Não'), dSV===null?'':(reservaOk?'flag-good':'flag-bad'));
+
+  const fluxoOk = cP.flow!==null && cP.flow>=200;
+  setInterp('fluxoNormalizado', cP.flow===null?'—':(fluxoOk?'Sim':'Não'), cP.flow===null?'':(fluxoOk?'flag-good':'flag-warn'));
+
+  setInterp('avaPico', cP.ava!==null ? cP.ava.toFixed(2)+' cm²' : '—');
+  setInterp('gradPico', cP.pas!==null && rows.find(r=>r.id===picoRow.id).gmed!=='' ? (num(rows.find(r=>r.id===picoRow.id).gmed) + ' mmHg') : '—');
+
+  // AVA projetada
+  let avaProj = null;
+  if(cB.ava!==null && cP.ava!==null && cB.flow!==null && cP.flow!==null && (cP.flow-cB.flow)!==0){
+    const slope = (cP.ava - cB.ava)/(cP.flow - cB.flow);
+    avaProj = cB.ava + slope*(250 - cB.flow);
+  }
+  setInterp('avaProjetada', avaProj!==null ? avaProj.toFixed(2)+' cm²' : '—');
+
+  // Δ PAS, Δ PAM, Δ duplo produto
+  let dPAS = (cB.pas!==null && cP.pas!==null && cB.pas!==0) ? (cP.pas-cB.pas)/cB.pas : null;
+  let dPAM = (cB.pam!==null && cP.pam!==null && cB.pam!==0) ? (cP.pam-cB.pam)/cB.pam : null;
+  let dDP  = (cB.dp!==null && cP.dp!==null && cB.dp!==0) ? (cP.dp-cB.dp)/cB.dp : null;
+  setInterp('dPAS', pct(dPAS), dPAS!==null && dPAS<=-0.20 ? 'flag-bad' : (dPAS!==null && dPAS<0 ? 'flag-warn' : ''));
+  setInterp('dPAM', pct(dPAM), dPAM!==null && dPAM<=-0.20 ? 'flag-bad' : (dPAM!==null && dPAM<0 ? 'flag-warn' : ''));
+  setInterp('dDuplo', pct(dDP), '');
+
+  // Classificação
+  const gmedPico = num(rows.find(r=>r.id===picoRow.id).gmed);
+  const banner = document.getElementById('classificacao');
+  let text, bg, color;
+  if(cP.ava!==null && cP.ava>1){
+    text = 'EAo não-grave (pseudograve) — AVA final > 1,0 cm²';
+    bg = 'var(--good-bg)'; color='var(--good)';
+  } else if(cP.ava!==null && cP.ava<=1 && gmedPico!==null && gmedPico>=40){
+    text = 'EAo verdadeiramente grave — AVA ≤ 1,0 cm² com gradiente médio ≥ 40 mmHg';
+    bg = 'var(--bad-bg)'; color='var(--bad)';
+  } else if(cP.ava!==null && cP.ava<=1 && avaProj!==null && avaProj<=1){
+    text = 'EAo verdadeiramente grave — AVA projetada em fluxo normal ≤ 1,0 cm²';
+    bg = 'var(--bad-bg)'; color='var(--bad)';
+  } else if(cP.ava!==null){
+    text = 'Indeterminado — reserva de fluxo limitada; considerar escore de cálcio por TC';
+    bg = 'var(--warn-bg)'; color='var(--warn)';
+  } else {
+    text = 'Preencha os dados dos estágios para gerar a classificação';
+    bg = '#f7f9fa'; color='var(--ink-soft)';
+  }
+  banner.textContent = text;
+  banner.style.background = bg;
+  banner.style.color = color;
+
+  // ---- Alertas automáticos ----
+  const picoFC = cP.fc;
+  if(picoFC!==null && picoFC>100){
+    addAlert(`FC no estágio de pico (${picoFC} bpm) ultrapassa 100 bpm — critério de interrupção do protocolo já atingido.`, 'bad');
+  }
+  if(dPAS!==null && dPAS<=-0.20){
+    addAlert(`Queda de PAS ≥20% entre basal e pico (${pct(dPAS)}) — critério formal de interrupção do protocolo (queda de PA) presente; considerar resposta vasodilatadora/hipotensiva predominando sobre efeito inotrópico.`, 'bad');
+  }
+  if(dSV!==null && dSV<0 && cP.flow!==null && cB.flow!==null && cP.flow>cB.flow){
+    addAlert('Taxa de fluxo aumentou apesar de queda do SV — o incremento é provavelmente artefato de encurtamento do tempo de ejeção (taquicardia), não de real aumento do débito anterógrado. Interpretar "fluxo normalizado" com cautela.', 'warn');
+  }
+  if(dDP!==null && Math.abs(dDP)<0.10 && picoFC!==null && cB.fc!==null && (picoFC-cB.fc)>30){
+    addAlert('Duplo produto praticamente inalterado apesar de grande incremento de FC — sugere que a taquicardia não foi acompanhada de capacidade de gerar pressão, compatível com reserva contrátil exaurida.', 'warn');
+  }
+  if(rows.some(r=>r.excluir)){
+    const excl = rows.filter(r=>r.excluir).map(r=>r.fase).join(', ');
+    addAlert(`Estágio(s) excluído(s) da análise: ${excl}.`, 'info');
+  }
+}
+
+// inicialização
+clearAll();
+</script>
+
+</body>
+</html>
