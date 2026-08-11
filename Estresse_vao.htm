@@ -558,8 +558,6 @@ BSA (m²)
 
 <th>VTI Ao<br>(cm)</th>
 
-<th>Grad. máx<br>(mmHg)</th>
-
 <th>Grad. médio<br>(mmHg)</th>
 
 <th>TE<br>(ms)</th>
@@ -575,8 +573,6 @@ BSA (m²)
 <th>Taxa fluxo<br>(mL/s)</th>
 
 <th>PAM<br>(mmHg)</th>
-
-<th>Duplo<br>produto</th>
 
 </tr>
 
@@ -733,14 +729,6 @@ Validade da AVA projetada
 Δ PAM basal → pico
 </div>
 <div class="interp-value" id="dPAM">—</div>
-</div>
-
-
-<div class="interp-row">
-<div class="interp-label">
-Δ Duplo produto basal → pico
-</div>
-<div class="interp-value" id="dDuplo">—</div>
 </div>
 
 
@@ -940,10 +928,10 @@ function addRow(data = {}){
 
 <label>
 <input
-  type="radio"
-  name="basalStage"
+  type="checkbox"
+  class="basal-check"
   ${data.basal ? "checked" : ""}
-  onchange="recalcAll()">
+  onchange="onBasalToggle(this)">
 Basal
 </label>
 
@@ -953,10 +941,10 @@ Basal
 
 <label>
 <input
-  type="radio"
-  name="peakStage"
+  type="checkbox"
+  class="peak-check"
   ${data.pico ? "checked" : ""}
-  onchange="recalcAll()">
+  onchange="onPeakToggle(this)">
 Pico
 </label>
 
@@ -1018,8 +1006,6 @@ Pico
   oninput="recalcAll()">
 </td>
 
-<td class="computed" data-out="gmax">—</td>
-
 <td>
 <input
   type="number"
@@ -1050,8 +1036,6 @@ Pico
 
 <td class="computed" data-out="pam">—</td>
 
-<td class="computed" data-out="double">—</td>
-
 `;
 
   tbody.appendChild(tr);
@@ -1076,6 +1060,56 @@ function removeRow(btn){
 
 
 /* =========================================================
+   MARCAÇÃO BASAL / PICO
+   (exclusivas entre linhas e entre si na mesma linha;
+   permitem desmarcar)
+========================================================= */
+
+function onBasalToggle(checkbox){
+
+  const tr = checkbox.closest("tr");
+
+  if(checkbox.checked){
+
+    document.querySelectorAll(".basal-check").forEach(cb => {
+
+      if(cb !== checkbox)
+        cb.checked = false;
+    });
+
+    const peakCb = tr.querySelector(".peak-check");
+
+    if(peakCb)
+      peakCb.checked = false;
+  }
+
+  recalcAll();
+}
+
+
+function onPeakToggle(checkbox){
+
+  const tr = checkbox.closest("tr");
+
+  if(checkbox.checked){
+
+    document.querySelectorAll(".peak-check").forEach(cb => {
+
+      if(cb !== checkbox)
+        cb.checked = false;
+    });
+
+    const basalCb = tr.querySelector(".basal-check");
+
+    if(basalCb)
+      basalCb.checked = false;
+  }
+
+  recalcAll();
+}
+
+
+/* =========================================================
    OBTÉM DADOS DE UMA LINHA
 ========================================================= */
 
@@ -1090,11 +1124,11 @@ function getRowData(tr){
   };
 
   const basal =
-    tr.querySelector('input[type="radio"][name="basalStage"]')
+    tr.querySelector('.basal-check')
       ?.checked || false;
 
   const pico =
-    tr.querySelector('input[type="radio"][name="peakStage"]')
+    tr.querySelector('.peak-check')
       ?.checked || false;
 
   return {
@@ -1132,8 +1166,6 @@ function calculateRow(data){
   let ava = null;
   let flow = null;
   let pam = null;
-  let doubleProduct = null;
-  let gmax = null;
 
   if(
     area !== null &&
@@ -1176,19 +1208,6 @@ function calculateRow(data){
     pam = (data.pas + 2 * data.pad) / 3;
   }
 
-  if(
-    data.pas !== null &&
-    data.fc !== null
-  ){
-
-    doubleProduct = data.pas * data.fc;
-  }
-
-  if(data.vmaxVsve !== null && data.vmaxVsve > 0){
-
-    gmax = 4 * Math.pow(data.vmaxVsve,2);
-  }
-
   const out = selector => data.tr.querySelector(selector);
 
   out('[data-out="sv"]').textContent = fmt(sv,1);
@@ -1197,12 +1216,6 @@ function calculateRow(data){
   out('[data-out="ava"]').textContent = fmt(ava,2);
   out('[data-out="flow"]').textContent = fmt(flow,0);
   out('[data-out="pam"]').textContent = fmt(pam,0);
-  out('[data-out="double"]').textContent =
-    doubleProduct !== null
-      ? Math.round(doubleProduct).toLocaleString("pt-BR")
-      : "—";
-
-  out('[data-out="gmax"]').textContent = fmt(gmax,1);
 
   return {
     ...data,
@@ -1211,9 +1224,7 @@ function calculateRow(data){
     dvi,
     ava,
     flow,
-    pam,
-    doubleProduct,
-    gmax
+    pam
   };
 }
 
@@ -1380,9 +1391,6 @@ function recalcInterpretation(){
   const dPAMEl =
     document.getElementById("dPAM");
 
-  const dDoubleEl =
-    document.getElementById("dDuplo");
-
   const classification =
     document.getElementById("classificacao");
 
@@ -1406,8 +1414,7 @@ function recalcInterpretation(){
     avaProjEl,
     avaProjValidEl,
     dPASEl,
-    dPAMEl,
-    dDoubleEl
+    dPAMEl
   ].forEach(el => {
 
     el.textContent = "—";
@@ -1629,21 +1636,6 @@ function recalcInterpretation(){
 
     dPAMEl.textContent =
       pct(dPAM);
-  }
-
-
-  if(
-    basal.doubleProduct !== null &&
-    peak.doubleProduct !== null &&
-    basal.doubleProduct !== 0
-  ){
-
-    const dDouble =
-      (peak.doubleProduct - basal.doubleProduct) /
-      basal.doubleProduct;
-
-    dDoubleEl.textContent =
-      pct(dDouble);
   }
 
 
@@ -1942,15 +1934,7 @@ function clearAll(){
 
   document.getElementById("stageBody").innerHTML = "";
 
-  addRow({
-    fase:"Basal",
-    basal:true
-  });
-
-  addRow({
-    fase:"Pico",
-    pico:true
-  });
+  addDefaultStages();
 
   recalcAll();
 }
@@ -2057,17 +2041,25 @@ function loadExample(){
    INICIALIZAÇÃO
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded",()=>{
+function addDefaultStages(){
 
   addRow({
     fase:"Basal",
     basal:true
   });
 
-  addRow({
-    fase:"Pico",
-    pico:true
+  [5, 10, 15, 20].forEach(dose => {
+
+    addRow({
+      fase:"Estágio " + dose
+    });
   });
+}
+
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+  addDefaultStages();
 
   recalcAll();
 
