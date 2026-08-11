@@ -149,6 +149,8 @@ label.field input:focus{
 
 table.stage-table{
   width:100%;
+  min-width:920px;
+  table-layout:fixed;
   border-collapse:collapse;
   font-size:12px;
 }
@@ -177,7 +179,7 @@ table.stage-table thead th.group-input{
 
 table.stage-table td input{
   width:100%;
-  min-width:50px;
+  min-width:0;
   border:1px solid var(--line);
   border-radius:3px;
   padding:5px 3px;
@@ -189,7 +191,6 @@ table.stage-table td input{
 table.stage-table td input.fase-name{
   text-align:left;
   font-weight:700;
-  min-width:105px;
 }
 
 table.stage-table td.computed{
@@ -221,14 +222,10 @@ td.row-controls button:hover{
   color:var(--bad);
 }
 
-.radio-cell label{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:4px;
-  font-size:11px;
-  cursor:pointer;
-  color:var(--ink-soft);
+table.stage-table th.tight,
+table.stage-table td.tight{
+  padding-left:2px;
+  padding-right:2px;
 }
 
 .table-actions{
@@ -530,33 +527,44 @@ BSA (m²)
 
 <table class="stage-table" id="stageTable">
 
+<colgroup>
+<col style="width:3%">
+<col style="width:8%">
+<col style="width:6%">
+<col style="width:6%">
+<col style="width:6%">
+<col style="width:7%">
+<col style="width:7%">
+<col style="width:7%">
+<col style="width:6%">
+<col style="width:7%">
+<col style="width:7%">
+<col style="width:6%">
+<col style="width:6%">
+<col style="width:8%">
+</colgroup>
+
 <thead>
 
 <tr>
 
-<th style="width:26px"></th>
+<th></th>
 
 <th>Fase</th>
 
-<th>Basal</th>
+<th class="tight">PAS<br>(mmHg)</th>
 
-<th>Pico</th>
+<th class="tight">PAD<br>(mmHg)</th>
 
-<th>PAS<br>(mmHg)</th>
-
-<th>PAD<br>(mmHg)</th>
-
-<th>FC<br>(bpm)</th>
+<th class="tight">FC<br>(bpm)</th>
 
 <th>VTI VSVE<br>(cm)</th>
-
-<th>Vmáx VSVE<br>(m/s)</th>
 
 <th>VTI Ao<br>(cm)</th>
 
 <th>Grad. médio<br>(mmHg)</th>
 
-<th>TE<br>(ms)</th>
+<th>T. ejeção<br>(ms)</th>
 
 <th>SV<br>(mL)</th>
 
@@ -567,8 +575,6 @@ BSA (m²)
 <th>AVA<br>(cm²)</th>
 
 <th>Taxa fluxo<br>(mL/s)</th>
-
-<th>PAM<br>(mmHg)</th>
 
 </tr>
 
@@ -920,34 +926,9 @@ function addRow(data = {}){
 
 </td>
 
-<td class="radio-cell">
-
-<label>
+<td class="tight">
 <input
-  type="checkbox"
-  class="basal-check"
-  ${data.basal ? "checked" : ""}
-  onchange="onBasalToggle(this)">
-Basal
-</label>
-
-</td>
-
-<td class="radio-cell">
-
-<label>
-<input
-  type="checkbox"
-  class="peak-check"
-  ${data.pico ? "checked" : ""}
-  onchange="onPeakToggle(this)">
-Pico
-</label>
-
-</td>
-
-<td>
-<input
+  class="narrow"
   type="number"
   step="1"
   data-field="pas"
@@ -955,8 +936,9 @@ Pico
   oninput="recalcAll()">
 </td>
 
-<td>
+<td class="tight">
 <input
+  class="narrow"
   type="number"
   step="1"
   data-field="pad"
@@ -964,8 +946,9 @@ Pico
   oninput="recalcAll()">
 </td>
 
-<td>
+<td class="tight">
 <input
+  class="narrow"
   type="number"
   step="1"
   data-field="fc"
@@ -975,6 +958,7 @@ Pico
 
 <td>
 <input
+  class="narrow"
   type="number"
   step="0.1"
   data-field="vtiVsve"
@@ -984,15 +968,7 @@ Pico
 
 <td>
 <input
-  type="number"
-  step="0.01"
-  data-field="vmaxVsve"
-  value="${data.vmaxVsve ?? ""}"
-  oninput="recalcAll()">
-</td>
-
-<td>
-<input
+  class="narrow"
   type="number"
   step="0.1"
   data-field="vtiAo"
@@ -1002,6 +978,7 @@ Pico
 
 <td>
 <input
+  class="narrow"
   type="number"
   step="0.1"
   data-field="gmean"
@@ -1011,6 +988,7 @@ Pico
 
 <td>
 <input
+  class="narrow"
   type="number"
   step="1"
   data-field="te"
@@ -1027,8 +1005,6 @@ Pico
 <td class="computed" data-out="ava">—</td>
 
 <td class="computed" data-out="flow">—</td>
-
-<td class="computed" data-out="pam">—</td>
 
 `;
 
@@ -1054,56 +1030,6 @@ function removeRow(btn){
 
 
 /* =========================================================
-   MARCAÇÃO BASAL / PICO
-   (exclusivas entre linhas e entre si na mesma linha;
-   permitem desmarcar)
-========================================================= */
-
-function onBasalToggle(checkbox){
-
-  const tr = checkbox.closest("tr");
-
-  if(checkbox.checked){
-
-    document.querySelectorAll(".basal-check").forEach(cb => {
-
-      if(cb !== checkbox)
-        cb.checked = false;
-    });
-
-    const peakCb = tr.querySelector(".peak-check");
-
-    if(peakCb)
-      peakCb.checked = false;
-  }
-
-  recalcAll();
-}
-
-
-function onPeakToggle(checkbox){
-
-  const tr = checkbox.closest("tr");
-
-  if(checkbox.checked){
-
-    document.querySelectorAll(".peak-check").forEach(cb => {
-
-      if(cb !== checkbox)
-        cb.checked = false;
-    });
-
-    const basalCb = tr.querySelector(".basal-check");
-
-    if(basalCb)
-      basalCb.checked = false;
-  }
-
-  recalcAll();
-}
-
-
-/* =========================================================
    OBTÉM DADOS DE UMA LINHA
 ========================================================= */
 
@@ -1117,26 +1043,14 @@ function getRowData(tr){
 
   };
 
-  const basal =
-    tr.querySelector('.basal-check')
-      ?.checked || false;
-
-  const pico =
-    tr.querySelector('.peak-check')
-      ?.checked || false;
-
   return {
 
     tr,
-
-    basal,
-    pico,
 
     pas:get("pas"),
     pad:get("pad"),
     fc:get("fc"),
     vtiVsve:get("vtiVsve"),
-    vmaxVsve:get("vmaxVsve"),
     vtiAo:get("vtiAo"),
     gmean:get("gmean"),
     te:get("te")
@@ -1209,7 +1123,6 @@ function calculateRow(data){
   out('[data-out="dvi"]').textContent = fmt(dvi,3);
   out('[data-out="ava"]').textContent = fmt(ava,2);
   out('[data-out="flow"]').textContent = fmt(flow,0);
-  out('[data-out="pam"]').textContent = fmt(pam,0);
 
   return {
     ...data,
@@ -1242,11 +1155,9 @@ function findBasalPeak(){
 
   const stages = getStages();
 
-  const basal =
-    stages.find(x => x.basal) || null;
+  const basal = stages[0] || null;
 
-  const peak =
-    stages.find(x => x.pico) || null;
+  const peak = stages[stages.length - 1] || null;
 
   return {
     basal,
@@ -1425,7 +1336,7 @@ function recalcInterpretation(){
     "classification-banner";
 
   classification.textContent =
-    "Defina um estágio basal e um estágio de pico.";
+    "Adicione ao menos um estágio.";
 
   alertBox.innerHTML = "";
 
@@ -1995,14 +1906,12 @@ function loadExample(){
 
   addRow({
     fase:"Basal",
-    basal:true,
 
     pas:120,
     pad:70,
     fc:65,
 
     vtiVsve:20.8,
-    vmaxVsve:1.8,
     vtiAo:60,
 
     gmean:27,
@@ -2012,14 +1921,12 @@ function loadExample(){
 
   addRow({
     fase:"Pico",
-    pico:true,
 
     pas:145,
     pad:70,
     fc:85,
 
     vtiVsve:19.0,
-    vmaxVsve:4.2,
     vtiAo:47,
 
     gmean:46,
@@ -2038,8 +1945,7 @@ function loadExample(){
 function addDefaultStages(){
 
   addRow({
-    fase:"Basal",
-    basal:true
+    fase:"Basal"
   });
 
   [5, 10, 15, 20].forEach(dose => {
