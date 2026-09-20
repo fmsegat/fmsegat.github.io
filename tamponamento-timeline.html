@@ -37,7 +37,12 @@
   }
 
   /* ── Header ── */
-  .page-header { text-align:center; margin-bottom:96px; }
+  .page-header {
+    text-align:center; min-height:100vh; min-height:100svh; margin-top:-72px; margin-bottom:96px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    padding-block:72px 48px; position:relative;
+  }
+  .page-header .nav-hint { position:absolute; bottom:40px; left:0; right:0; margin:0; }
   .eyebrow {
     font-family:'Space Mono', monospace; font-size:0.72rem;
     letter-spacing:0.24em; text-transform:uppercase; color:var(--accent); margin-bottom:18px;
@@ -203,9 +208,8 @@
   <h1>O Tamponamento<br><em>Cardíaco</em></h1>
   <p class="subtitle">Da observação empírica nos campos de batalha do século XVI ao diagnóstico clínico moderno — cinco séculos de entendimento progressivo.</p>
   <div class="header-rule"></div>
+  <p class="nav-hint">Navegue com <kbd>↓</kbd> <kbd>↑</kbd> ou pelos botões →</p>
 </header>
-
-<p class="nav-hint">Navegue com <kbd>↑</kbd> <kbd>↓</kbd> ou pelos botões →</p>
 
 <div class="timeline" id="timeline">
 
@@ -358,8 +362,18 @@
     return document.getElementById('entry-' + i);
   }
 
+  function toCover() {
+    timeline.classList.remove('navigating');
+    for (let j = 0; j < TOTAL; j++) getEntry(j).classList.remove('active');
+    current = -1;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    btnUp.disabled = true;
+    btnDown.disabled = false;
+  }
+
   function activate(i) {
-    if (i < 0 || i >= TOTAL) return;
+    if (i < 0) { toCover(); return; }
+    if (i >= TOTAL) return;
 
     // Mark timeline as navigating (dims others)
     timeline.classList.add('navigating');
@@ -377,7 +391,7 @@
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     // Update button states
-    btnUp.disabled   = (current === 0);
+    btnUp.disabled   = false;
     btnDown.disabled = (current === TOTAL - 1);
   }
 
@@ -388,13 +402,9 @@
       activate(current < 0 ? 0 : Math.min(current + 1, TOTAL - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      activate(current < 0 ? 0 : Math.max(current - 1, 0));
+      activate(current < 0 ? -1 : current - 1);
     } else if (e.key === 'Escape') {
-      timeline.classList.remove('navigating');
-      for (let j = 0; j < TOTAL; j++) getEntry(j).classList.remove('active');
-      current = -1;
-      btnUp.disabled = false;
-      btnDown.disabled = false;
+      toCover();
     }
   });
 
@@ -403,7 +413,7 @@
     activate(current < 0 ? 0 : Math.min(current + 1, TOTAL - 1));
   });
   btnUp.addEventListener('click', function() {
-    activate(current < 0 ? 0 : Math.max(current - 1, 0));
+    activate(current < 0 ? -1 : current - 1);
   });
 
   // Click on entry directly
